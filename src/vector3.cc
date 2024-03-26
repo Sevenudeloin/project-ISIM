@@ -50,12 +50,12 @@ Vector3::Vector3(double xorig, double yorig, double zorig, double x, double y, d
 
 Vector3 Vector3::operator+(const Vector3& vect)
 {
-    return Vector3(origin_, x_ + vect.x_, y_ + vect.y_, z_ + vect.z_); // origin is not updated
+    return Vector3(origin_, x_ + vect.x_, y_ + vect.y_, z_ + vect.z_); // origin is the one from the instance
 }
 
 Vector3 Vector3::operator-(const Vector3& vect)
 {
-    return Vector3(origin_, x_ - vect.x_, y_ - vect.y_, z_ - vect.z_); // origin is not updated
+    return Vector3(origin_, x_ - vect.x_, y_ - vect.y_, z_ - vect.z_); // origin is the one from the instance
 }
 
 Vector3 Vector3::operator-()
@@ -143,6 +143,11 @@ Vector3 Vector3::random_on_hemisphere(const Vector3& normal)
         return on_unit_sphere;
     else
         return -on_unit_sphere;
+}
+
+Vector3 operator+(const Vector3& vect1, const Vector3& vect2)
+{
+    return Vector3(vect1.origin_, vect1.x_ + vect2.x_, vect1.y_ + vect2.y_, vect1.z_ + vect2.z_); // origin is the one of vect1
 }
 
 Vector3 operator-(const Vector3& vect1, const Vector3& vect2)

@@ -46,6 +46,7 @@ public:
     static Vector3 random_unit_vector();
     static Vector3 random_on_hemisphere(const Vector3& normal);
 
+    friend Vector3 operator+(const Vector3& vect1, const Vector3& vect2);
     friend Vector3 operator-(const Vector3& vect1, const Vector3& vect2);
     friend Vector3 operator-(const Vector3& vect);
     friend Vector3 operator*(double scalar, const Vector3& vect);
