@@ -5,3 +5,7 @@ all:
 run: all
 	cd src/ && ./proc_gen
 	cd ..
+
+clean:
+	cd src/ && make clean
+	cd ..
