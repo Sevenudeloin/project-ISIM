@@ -1,0 +1,22 @@
+#pragma once
+
+#include <memory>
+#include <vector>
+
+#include "pixel.hh"
+
+class Image2D
+{
+public:
+    int width_;
+    int height_;
+    std::vector<std::shared_ptr<Pixel>> pixels_; // changer de collection ?
+
+    Image2D();
+    Image2D(int width, int height);
+
+    void setPixel(const Pixel& pixel);
+    void setPixel(int x, int y, double r, double g, double b);
+
+    void writePPM(const char* filename);
+};
