@@ -36,4 +36,12 @@ namespace utils
         // Returns a random float in [min,max).
         return min + (max - min) * random_float();
     }
+
+    inline float normalize_float(float input, float min, float max)
+    {
+        float average = (min + max) / 2;
+        float range = (max - min) / 2;
+        float normalized = (input - average) / range;
+        return normalized;
+    }
 } // namespace utils
