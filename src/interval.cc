@@ -30,6 +30,3 @@ double Interval::clamp(double value) const
         return max_;
     return value;
 }
-
-const static Interval empty(+utils::infinity, -utils::infinity);
-const static Interval universe(-utils::infinity, +utils::infinity);

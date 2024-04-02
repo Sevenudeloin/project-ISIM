@@ -1,16 +1,23 @@
 #pragma once
 
-#include "point3.hh"
+#include "material.hh"
+#include "physobj.hh"
+#include "ray.hh"
 #include "vector3.hh"
 
-class Triangle
+using std::shared_ptr;
+
+class Triangle : public PhysObj
 {
 public:
-    Point3 a_;
-    Point3 b_;
-    Point3 c_;
+    Point3 v0_;
+    Point3 v1_;
+    Point3 v2_;
+    Vector3 n_;
 
-    Triangle(const Point3& a, const Point3& b, const Point3& c);
+    Triangle(Point3 v0, Point3 v1, Point3 v2, shared_ptr<TextureMaterial> mat);
 
-    Vector3 getNormal(const Point3& point);
+    void set_material(shared_ptr<TextureMaterial> mat);
+
+    bool hit(const Ray &ray, HitRecord &hit_record) const override;
 };

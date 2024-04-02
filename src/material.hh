@@ -27,7 +27,7 @@ class TextureMaterial
 public:
     virtual ~TextureMaterial() = default;
 
-    virtual LocalTexture get_texture_at(Point3 pos) const = 0;
+    virtual LocalTexture get_texture_at(Point3) const = 0;
 };
 
 class UniformTexture : public TextureMaterial
@@ -40,7 +40,7 @@ public:
         : tex_(tex)
     {}
 
-    LocalTexture get_texture_at(Point3 pos) const override
+    LocalTexture get_texture_at(Point3) const override
     {
         return tex_;
     }

@@ -3,6 +3,7 @@
 #include <tuple>
 #include <vector>
 
+#include "heightmap.hh"
 #include "physobj.hh"
 #include "triangle.hh"
 #include "utils.hh"
@@ -14,19 +15,6 @@ using std::vector;
 using SquareTriangle = pair<shared_ptr<Triangle>, shared_ptr<Triangle>>;
 using TriangleLine = vector<SquareTriangle>;
 using Triangle2DMesh = vector<TriangleLine>;
-
-class Heightmap
-{
-private:
-    int height_;
-    int width_;
-
-public:
-    int height();
-    int width();
-
-    float at(int x, int y);
-};
 
 class Terrain : public PhysObj
 {
@@ -46,5 +34,5 @@ public:
     Terrain(shared_ptr<Heightmap> Heightmap, float xy_scale, float height_scale,
             shared_ptr<TextureMaterial> mat);
 
-    bool hit(const Vector3 &ray, HitRecord &hit_record) const override;
+    bool hit(const Ray &ray, HitRecord &hit_record) const override;
 };

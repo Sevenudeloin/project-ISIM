@@ -1,6 +1,6 @@
 #include "terrain.hh"
 
-Point3 Terrain::make_terrain_point_at(int x, int y, float height)
+Point3 Terrain::make_terrain_point_at(int y, int x, float height)
 {
     return Point3(xy_scale_ * x, xy_scale_ * y, height_scale_ * height);
 }
@@ -16,37 +16,37 @@ Terrain::Terrain(int height, int width, shared_ptr<TextureMaterial> mat)
 Terrain::Terrain(shared_ptr<Heightmap> heightmap, float xy_scale,
                  float height_scale, shared_ptr<TextureMaterial> mat)
     : PhysObj(mat)
-    , height_(heightmap->height())
-    , width_(heightmap->width())
+    , height_(heightmap->size_)
+    , width_(heightmap->size_)
     , xy_scale_(xy_scale)
     , height_scale_(height_scale)
     , heightmap_(heightmap)
-    , mesh_(heightmap->height(),
-            vector<SquareTriangle>(heightmap->width(),
+    , mesh_(heightmap->size_,
+            vector<SquareTriangle>(heightmap->size_,
                                    SquareTriangle(nullptr, nullptr)))
 {
-    for (int y = 0; y < heightmap->height() - 1; y++)
+    for (int y = 0; y < heightmap->size_ - 1; y++)
     {
-        for (int x = 0; x < heightmap->width() - 1; x++)
+        for (int x = 0; x < heightmap->size_ - 1; x++)
         {
-            float top_left_corner_h = heightmap->at(x, y);
-            float top_right_corner_h = heightmap->at(x + 1, y);
-            float bot_left_corner_h = heightmap->at(x, y + 1);
-            float bot_right_corner_h = heightmap->at(x + 1, y + 1);
+            float top_left_corner_h = heightmap->at(y, x);
+            float top_right_corner_h = heightmap->at(y, x + 1);
+            float bot_left_corner_h = heightmap->at(y + 1, x);
+            float bot_right_corner_h = heightmap->at(y + 1, x + 1);
 
             Point3 top_left_corner =
-                make_terrain_point_at(x, y, top_left_corner_h);
+                make_terrain_point_at(y, x, top_left_corner_h);
             Point3 top_right_corner =
-                make_terrain_point_at(x + 1, y, top_right_corner_h);
+                make_terrain_point_at(y, x + 1, top_right_corner_h);
             Point3 bot_left_corner =
-                make_terrain_point_at(x, y + 1, bot_left_corner_h);
+                make_terrain_point_at(y + 1, x, bot_left_corner_h);
             Point3 bot_right_corner =
-                make_terrain_point_at(x + 1, y + 1, bot_right_corner_h);
+                make_terrain_point_at(y + 1, x + 1, bot_right_corner_h);
 
             auto first_triangle = std::make_shared<Triangle>(
-                top_left_corner, top_right_corner, bot_left_corner);
+                top_left_corner, top_right_corner, bot_left_corner, mat);
             auto second_triangle = std::make_shared<Triangle>(
-                top_right_corner, bot_right_corner, bot_left_corner);
+                top_right_corner, bot_right_corner, bot_left_corner, mat);
 
             mesh_[y][x].first = first_triangle;
             mesh_[y][x].second = second_triangle;
@@ -54,7 +54,7 @@ Terrain::Terrain(shared_ptr<Heightmap> heightmap, float xy_scale,
     }
 }
 
-bool Terrain::hit(const Vector3 &ray, HitRecord &hit_record) const
+bool Terrain::hit(const Ray &ray, HitRecord &hit_record) const
 {
     HitRecord closest_hit_record;
     closest_hit_record.t = utils::infinity;
@@ -88,6 +88,7 @@ bool Terrain::hit(const Vector3 &ray, HitRecord &hit_record) const
         return false;
     }
 
+    // TODO EWAN: faire proprement
     hit_record.t = closest_hit_record.t;
     hit_record.p = closest_hit_record.p;
     hit_record.n = closest_hit_record.n;

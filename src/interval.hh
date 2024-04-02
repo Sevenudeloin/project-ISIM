@@ -10,10 +10,8 @@ public:
     Interval(double min, double max);
 
     bool contains(double value) const; // check if value is in the interval
-    bool surrounds(double value) const; // check if value is in the interval but not on the edges
-    
-    double clamp(double value) const; // clamp value to the interval
+    bool surrounds(double value)
+        const; // check if value is in the interval but not on the edges
 
-    static const Interval empty; // empty interval
-    static const Interval universe; // ]-inf, +inf[ interval
+    double clamp(double value) const; // clamp value to the interval
 };
