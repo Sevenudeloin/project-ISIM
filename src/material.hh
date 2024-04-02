@@ -1,7 +1,7 @@
 #pragma once
 
 #include "color.hh"
-#include "point3.hh"
+#include "vector3.hh"
 
 struct LocalTexture
 {
