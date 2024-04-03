@@ -24,7 +24,10 @@ SkyBoxImage::SkyBoxImage(const std::string &filename)
 {
     PPMParser parser(filename);
 
-    parser.parse(pixels_, width_, height_);
+    parser.parse(img_);
+
+    width_ = img_.width_;
+    height_ = img_.height_;
 }
 
 Color SkyBoxImage::getSkyboxAt(Vector3 dir) const
@@ -46,5 +49,5 @@ Color SkyBoxImage::getSkyboxAt(Vector3 dir) const
     int img_y = (lati / utils::pi) * static_cast<float>(height_);
     int img_x = (longi / (2.0 * utils::pi)) * static_cast<float>(width_);
 
-    return pixels_[img_y * width_ + img_x];
+    return img_.getPixel(img_y, img_x);
 }

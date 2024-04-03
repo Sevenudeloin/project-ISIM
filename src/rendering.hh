@@ -9,7 +9,7 @@ using std::list;
 class Rendering
 {
 public:
-    static constexpr int max_iter = 1;
+    static constexpr int max_iter = 2;
 
     static void render(Scene &scene, Image2D &image);
 

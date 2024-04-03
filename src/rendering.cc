@@ -56,12 +56,11 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter)
 
             // Diffuse componant
             auto dot_n_light = Vector3::dot(n, light_dir);
-            if (dot_n_light < 0)
+            if (dot_n_light > 0)
             {
-                dot_n_light *= -1;
+                color +=
+                    loc_tex.kd_ * dot_n_light * light->color_ * light_intensity;
             }
-            color +=
-                loc_tex.kd_ * dot_n_light * light->color_ * light_intensity;
 
             // Specular componant
             Vector3 reflect_ray_dir = Vector3::reflect(ray.direction_, n);
@@ -71,11 +70,9 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter)
                     * pow(dot_specular, loc_tex.ns_);
 
             // Reflexion componant (No reflexion??)
-            /*
             Ray reflect_ray =
                 Ray(p + (utils::kEpsilon * reflect_ray_dir), reflect_ray_dir);
             color += loc_tex.ks_ * castRay(reflect_ray, scene, iter + 1);
-            */
         }
         return color;
     }

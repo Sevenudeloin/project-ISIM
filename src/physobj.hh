@@ -16,10 +16,9 @@ struct HitRecord
 
 class PhysObj
 {
-protected:
+public:
     std::shared_ptr<TextureMaterial> mat_;
 
-public:
     PhysObj();
 
     PhysObj(std::shared_ptr<TextureMaterial> mat);
@@ -27,6 +26,8 @@ public:
     virtual ~PhysObj() = default;
 
     virtual bool hit(const Ray &ray, HitRecord &hit_record) const = 0;
+
+    virtual void translate(const Vector3 &v) = 0;
 
     virtual LocalTexture get_texture_at(const Point3 &p) const;
 };

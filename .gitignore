@@ -1,6 +1,6 @@
 # OURS
 src/proc_gen
-images/*
+.vscode/
 
 # Prerequisites
 *.d

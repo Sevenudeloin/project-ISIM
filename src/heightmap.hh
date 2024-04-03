@@ -1,16 +1,24 @@
 #pragma once
 
+#include <string>
 #include <vector>
+
+#include "image2d.hh"
 
 class Heightmap
 {
 public:
     using array2D = std::vector<std::vector<float>>;
 
-    int size_;
+    int width_;
+    int height_;
     array2D height_map_;
 
-    Heightmap(int size);
+    Heightmap(int width, int height);
+
+    Heightmap(Image2D &img);
+
+    Heightmap(const std::string &filename);
 
     float at(int y, int x) const;
     void set(int y, int x, float value);

@@ -4,7 +4,7 @@ PPMParser::PPMParser(const std::string &filename)
     : filename_(filename)
 {}
 
-bool PPMParser::parse(std::vector<Color> &pixels, int &width, int &height)
+bool PPMParser::parse(Image2D &img)
 {
     std::ifstream file(filename_, std::ios::binary);
     if (!file.is_open())
@@ -22,7 +22,7 @@ bool PPMParser::parse(std::vector<Color> &pixels, int &width, int &height)
         return false;
     }
 
-    file >> width >> height;
+    file >> img.width_ >> img.height_;
     int max_val;
     file >> max_val;
     if (max_val != 255)
@@ -35,14 +35,19 @@ bool PPMParser::parse(std::vector<Color> &pixels, int &width, int &height)
     // Consume the newline character after the max value
     file.ignore(1);
 
-    pixels.resize(width * height);
-    for (int i = 0; i < width * height; ++i)
+    img.pixels_.resize(img.width_ * img.height_);
+
+    for (int y = 0; y < img.height_; ++y)
     {
-        int r, g, b;
-        file >> r >> g >> b;
-        pixels[i] = Color(static_cast<double>(r) / 255.0,
-                          static_cast<double>(g) / 255.0,
-                          static_cast<double>(b) / 255.0);
+        for (int x = 0; x < img.width_; ++x)
+        {
+            int r, g, b;
+            file >> r >> g >> b;
+            img.setPixel(x, y,
+                         Color(static_cast<double>(r) / 255.0,
+                               static_cast<double>(g) / 255.0,
+                               static_cast<double>(b) / 255.0));
+        }
     }
 
     return true;

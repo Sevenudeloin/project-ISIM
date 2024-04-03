@@ -19,6 +19,13 @@ void Triangle::set_material(shared_ptr<TextureMaterial> mat)
     mat_ = mat;
 }
 
+void Triangle::translate(const Vector3 &v)
+{
+    v0_ = v0_ + v;
+    v1_ = v1_ + v;
+    v2_ = v2_ + v;
+}
+
 bool Triangle::hit(const Ray &ray, HitRecord &hit_record) const
 {
     // check if the ray and triangle plane are parallel

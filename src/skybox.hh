@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "color.hh"
+#include "image2d.hh"
 #include "ppm_parser.hh"
 #include "utils.hh"
 #include "vector3.hh"
@@ -34,7 +35,7 @@ public:
 class SkyBoxImage : public SkyBox
 {
 public:
-    std::vector<Color> pixels_;
+    Image2D img_;
     int width_;
     int height_;
 

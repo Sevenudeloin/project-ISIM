@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "color.hh"
+#include "image2d.hh"
 
 class PPMParser
 {
@@ -13,5 +14,5 @@ public:
 
     PPMParser(const std::string &filename);
 
-    bool parse(std::vector<Color> &pixels, int &width, int &height);
+    bool parse(Image2D &pixels);
 };

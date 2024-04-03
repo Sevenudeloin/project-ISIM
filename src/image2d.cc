@@ -27,14 +27,19 @@ void Image2D::setPixel(const Pixel &pixel)
     pixels_[pixel.y_ * width_ + pixel.x_] = std::make_shared<Pixel>(pixel);
 }
 
-void Image2D::setPixel(int x, int y, double r, double g, double b)
+void Image2D::setPixel(int y, int x, double r, double g, double b)
 {
     pixels_[y * width_ + x] = std::make_shared<Pixel>(x, y, r, g, b);
 }
 
-void Image2D::setPixel(int x, int y, Color color)
+void Image2D::setPixel(int y, int x, Color color)
 {
     setPixel(x, y, color.r_, color.g_, color.b_);
+}
+
+Color Image2D::getPixel(int y, int x) const
+{
+    return pixels_[y * width_ + x]->color_;
 }
 
 void Image2D::writePPM(const char *filename) // P3 format raw PPM

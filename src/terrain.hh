@@ -35,4 +35,6 @@ public:
             shared_ptr<TextureMaterial> mat);
 
     bool hit(const Ray &ray, HitRecord &hit_record) const override;
+
+    void translate(const Vector3 &v) override;
 };
