@@ -10,16 +10,14 @@ namespace generators {
      * @param width    heightmap width
      * @param height   heightmap height 
      * @param octaves  number of fraction of noise to sum
-     * @param x        float coordinate
-     * @param y        float coordinate
      *
      * @return 2D heightmap
      */
-    Heightmap generateSimplexNoise2D(int width, int height, size_t octaves, float x, float y)
+    Heightmap generateSimplexNoise2D(int width, int height, size_t octaves)
     {
         SimplexNoise noise;
 
-        Heightmap heightmap(width);
+        Heightmap heightmap(width); // FIXME modify heightmap to accept width and height
         for (int j = 0; j < height; j++)
         {
             for (int i = 0; i < width; i++)
@@ -37,8 +35,6 @@ namespace generators {
      * @param width      heightmap width
      * @param height     heightmap height 
      * @param octaves    number of fraction of noise to sum
-     * @param x          float coordinate
-     * @param y          float coordinate
      * @param frequency  fBm frequency
      * @param amplitude  fBm amplitude
      * @param lacunarity fBm lacunarity
@@ -46,11 +42,11 @@ namespace generators {
      *
      * @return 2D heightmap
      */
-    Heightmap generateSimplexNoise2D(int width, int height, size_t octaves, float x, float y, float frequency, float amplitude, float lacunarity, float persistence)
+    Heightmap generateSimplexNoise2D(int width, int height, size_t octaves, float frequency, float amplitude, float lacunarity, float persistence)
     {
         SimplexNoise noise(frequency, amplitude, lacunarity, persistence);
 
-        Heightmap heightmap(width);
+        Heightmap heightmap(width); // FIXME modify heightmap to accept width and height
         for (int j = 0; j < height; j++)
         {
             for (int i = 0; i < width; i++)
