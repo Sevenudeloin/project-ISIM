@@ -1,5 +1,6 @@
 # OURS
 src/proc_gen
+images/*
 
 # Prerequisites
 *.d

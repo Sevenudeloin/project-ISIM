@@ -1,17 +1,30 @@
 #include "rendering.hh"
 
+#include "thread_pool.hh"
 #include "utils.hh"
 
 void Rendering::render(Scene &scene, Image2D &image)
 {
+    unsigned int numThreads = std::thread::hardware_concurrency();
+    std::cout << "Number of threads: " << numThreads << std::endl;
+    ThreadPool pool(numThreads);
+
     for (int y = 0; y < image.height_; y++)
     {
-        for (int x = 0; x < image.width_; x++)
-        {
-            Ray ray = scene.cam_.getRayAt(y, x);
-            auto pixel_color = castRay(ray, scene, 1);
-            image.setPixel(x, y, pixel_color);
-        }
+        // One thread per row
+        pool.enqueue([y, &scene, &image] {
+            for (int x = 0; x < image.width_; x++)
+            {
+                Ray ray = scene.cam_.getRayAt(y, x);
+                auto pixel_color = castRay(ray, scene, 1);
+                image.setPixel(x, y, pixel_color);
+            }
+        });
+    }
+
+    while (!pool.isQueueEmpty())
+    {
+        this_thread::sleep_for(chrono::milliseconds(100));
     }
 }
 

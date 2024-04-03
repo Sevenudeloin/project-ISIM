@@ -18,7 +18,7 @@ Scene Scene::createTestScene(int image_height, int image_width)
     // auto heightmap = PerlinNoiseGenerator.generateHeightmap(100, 100);
     // auto terrain = make_shared<Terrain>(heightmap, 1, 1, uniform_red_tex);
 
-    auto terrain = make_shared<Terrain>(5, 5, uniform_red_tex);
+    auto terrain = make_shared<Terrain>(10, 10, uniform_red_tex);
     objs.push_back(terrain);
 
     list<shared_ptr<PointLight>> lights;
