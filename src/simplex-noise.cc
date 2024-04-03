@@ -454,20 +454,28 @@ float SimplexNoiseGenerator::fractal(float x, float y, float z) {
 /**
     * Generate a 2D heightmap using Simplex noise and fBm
     * 
-    * @param width    heightmap width
-    * @param height   heightmap height 
+    * @param width             sampled zone width
+    * @param height            sampled zone height
+    * @param nbsamples_width   number of samples in x axis (width) 
+    * @param nbsamples_height  number of samples in x axis (height) 
     *
     * @return 2D heightmap
     */
-Heightmap SimplexNoiseGenerator::generateHeightmap(int width, int height)
+Heightmap SimplexNoiseGenerator::generateHeightmap(float width, float height, int nbsamples_width, int nbsamples_height)
 {
-    Heightmap heightmap(width); // FIXME modify heightmap to accept width and height
-    for (int j = 0; j < height; j++)
+    Heightmap heightmap(nbsamples_width, nbsamples_height); // FIXME should work with a width and a height
+
+    float x_sample = 0.0f;
+    float y_sample = 0.0f;
+
+    for (int j = 0; j < nbsamples_height; j++)
     {
-        for (int i = 0; i < width; i++)
+        for (int i = 0; i < nbsamples_width; i++)
         {
-            heightmap.set(j, i, fractal(octaves_, j / 100.0, i / 100.0)); // j / 100.0, i / 100.0 arbitrary sampling
+            heightmap.set(j, i, fractal(octaves_, y_sample, x_sample));
+            x_sample += width / nbsamples_width;
         }
+        y_sample += height / nbsamples_height;
     }
 
     return heightmap;

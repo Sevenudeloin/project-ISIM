@@ -24,7 +24,7 @@ public:
     float fractal(float x, float y, float z); // 3D
 
     // Heightmap generation
-    Heightmap generateHeightmap(int width, int height);
+    Heightmap generateHeightmap(float width, float height, int nbsamples_width, int nbsamples_height);
 
 private:
     // Parameters of Fractional Brownian Motion (fBm) : sum of N "octaves" of noise
