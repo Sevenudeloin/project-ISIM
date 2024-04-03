@@ -1,7 +1,7 @@
 #include <chrono>
 #include <iostream>
 
-#include "diamond-square.hh"
+#include "simplex-noise.hh"
 #include "image2d.hh"
 #include "rendering.hh"
 #include "scene.hh"
@@ -20,25 +20,13 @@ int main()
     image_height = (image_height < 1) ? 1 : image_height;
     Image2D image(image_width, image_height);
 
-    // diamond_square test
-
-    int height_map_size = 1025; // should be a (power of 2) + 1
-    algorithms::array2D height_map(height_map_size,
-                                   std::vector<float>(height_map_size, 0.0f));
-
-    // Set the initial values for the four corners
-    height_map[0][0] = 0.5f; // Top left
-    height_map[0][height_map_size - 1] = 0.5f; // Top right
-    height_map[height_map_size - 1][0] = 0.5f; // Bottom left
-    height_map[height_map_size - 1][height_map_size - 1] = 0.5f; // Bottom right
-
-    algorithms::diamond_square(height_map, 0.7);
+    // simplex noise test
 
     for (int j = 0; j < image_height; j++)
     {
         for (int i = 0; i < image_width; i++)
         {
-            float height = height_map[i][j];
+            float height = SimplexNoise::noise(i / 100.0, j / 100.0);
 
             if (height < 0.0f || height > 1.0f)
             {
