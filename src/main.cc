@@ -1,7 +1,6 @@
 #include <chrono>
 #include <iostream>
 
-#include "simplex-noise.hh"
 #include "image2d.hh"
 #include "rendering.hh"
 #include "scene.hh"

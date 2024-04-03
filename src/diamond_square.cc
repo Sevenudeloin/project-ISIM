@@ -1,4 +1,4 @@
-#include "diamond-square.hh"
+#include "diamond_square.hh"
 
 #include <cmath>
 #include <limits>

@@ -1,4 +1,4 @@
-#include "simplex-noise.hh"
+#include "simplex_noise.hh"
 
 #include <cstdint> // uint8_t and int32_t 
 
