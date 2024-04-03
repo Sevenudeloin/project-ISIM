@@ -10,3 +10,8 @@ float Heightmap::at(int y, int x) const
 {
     return height_map_.at(y).at(x);
 }
+
+void Heightmap::set(int y, int x, float value)
+{
+    height_map_[y][x] = value;
+}

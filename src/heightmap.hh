@@ -13,4 +13,5 @@ public:
     Heightmap(int size);
 
     float at(int y, int x) const;
+    void set(int y, int x, float value);
 };
