@@ -28,6 +28,11 @@ bool Triangle::hit(const Ray &ray, HitRecord &hit_record) const
         // Ray perpendicular to the plane
         return false;
     }
+    if (nDotRayDir > 0)
+    {
+        // Ray pointing away from the plane (backface culling)
+        return false;
+    }
 
     double d = -Vector3::dot(n_, v0_);
     double t = -(Vector3::dot(n_, ray.origin_) + d) / nDotRayDir;

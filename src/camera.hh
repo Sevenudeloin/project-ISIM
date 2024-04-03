@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ray.hh"
 #include "vector3.hh"
 
 class Camera
@@ -20,5 +21,8 @@ public:
     Vector3 pixel_delta_u_;
     Vector3 pixel_delta_v_;
 
-    Camera(const Point3& center, const Point3& point, const Vector3& up, double vfov, double zmin, double aspect_ratio, int image_width);
+    Camera(const Point3 &center, const Point3 &point, const Vector3 &up,
+           double vfov, double zmin, double aspect_ratio, int image_width);
+
+    Ray getRayAt(int y, int x) const;
 };

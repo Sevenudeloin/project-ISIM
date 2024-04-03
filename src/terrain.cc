@@ -1,8 +1,10 @@
 #include "terrain.hh"
 
+#include <iostream>
+
 Point3 Terrain::make_terrain_point_at(int y, int x, float height)
 {
-    return Point3(xy_scale_ * x, xy_scale_ * y, height_scale_ * height);
+    return Point3(xy_scale_ * x, height_scale_ * height, xy_scale_ * y);
 }
 
 Terrain::Terrain(int height, int width, shared_ptr<TextureMaterial> mat)
@@ -11,7 +13,28 @@ Terrain::Terrain(int height, int width, shared_ptr<TextureMaterial> mat)
     , width_(width)
     , xy_scale_(1)
     , height_scale_(1)
-{}
+    , mesh_(height,
+            vector<SquareTriangle>(width, SquareTriangle(nullptr, nullptr)))
+{
+    for (int y = 0; y < height - 1; y++)
+    {
+        for (int x = 0; x < width - 1; x++)
+        {
+            Point3 top_left_corner = make_terrain_point_at(y, x, 0);
+            Point3 top_right_corner = make_terrain_point_at(y, x + 1, 0);
+            Point3 bot_left_corner = make_terrain_point_at(y + 1, x, 0);
+            Point3 bot_right_corner = make_terrain_point_at(y + 1, x + 1, 0);
+
+            auto first_triangle = std::make_shared<Triangle>(
+                top_left_corner, bot_left_corner, top_right_corner, mat);
+            auto second_triangle = std::make_shared<Triangle>(
+                top_right_corner, bot_left_corner, bot_right_corner, mat);
+
+            mesh_[y][x].first = first_triangle;
+            mesh_[y][x].second = second_triangle;
+        }
+    }
+}
 
 Terrain::Terrain(shared_ptr<Heightmap> heightmap, float xy_scale,
                  float height_scale, shared_ptr<TextureMaterial> mat)
@@ -88,10 +111,6 @@ bool Terrain::hit(const Ray &ray, HitRecord &hit_record) const
         return false;
     }
 
-    // TODO EWAN: faire proprement
-    hit_record.t = closest_hit_record.t;
-    hit_record.p = closest_hit_record.p;
-    hit_record.n = closest_hit_record.n;
-    hit_record.tex = closest_hit_record.tex;
+    hit_record = closest_hit_record;
     return true;
 }

@@ -1,11 +1,15 @@
+#include <chrono>
 #include <iostream>
 
 #include "diamond-square.hh"
 #include "image2d.hh"
+#include "rendering.hh"
+#include "scene.hh"
 #include "utils.hh"
 
 int main()
 {
+    /*
     // Image
 
     auto aspect_ratio = 4.0 / 4.0;
@@ -65,6 +69,26 @@ int main()
     }
 
     image.writePPM("output.ppm");
+    */
+
+    int image_height = 1080;
+    int image_width = 1920;
+
+    Image2D image(image_width, image_height);
+
+    Scene test_scene = Scene::createTestScene(image_height, image_width);
+    std::cout << "Scene created" << std::endl;
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    Rendering::render(test_scene, image);
+    std::cout << "Rendering done" << std::endl;
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    std::cout << "Runtime : " << elapsed.count() << " seconds" << std::endl;
+
+    image.writePPM("../images/output_scene_test.ppm");
 
     return 0;
 }

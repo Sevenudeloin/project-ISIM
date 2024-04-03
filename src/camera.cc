@@ -2,9 +2,11 @@
 
 #include <cmath>
 
+#include "ray.hh"
 #include "utils.hh"
 
-Camera::Camera(const Point3& center, const Point3& point, const Vector3& up, double vfov, double zmin, double aspect_ratio, int image_width)
+Camera::Camera(const Point3 &center, const Point3 &point, const Vector3 &up,
+               double vfov, double zmin, double aspect_ratio, int image_width)
     : center_(center)
     , point_(point)
     , up_(up)
@@ -17,16 +19,18 @@ Camera::Camera(const Point3& center, const Point3& point, const Vector3& up, dou
     auto focal_length = (center_ - point_).length();
 
     auto vfov_radians = utils::degrees_to_radians(vfov_);
-    auto h = std::tan(vfov_radians/2);
+    auto h = std::tan(vfov_radians / 2);
     auto viewport_height = 2 * h * focal_length;
-    auto viewport_width = viewport_height * (static_cast<double>(image_width) / image_height);
+    auto viewport_width =
+        viewport_height * (static_cast<double>(image_width) / image_height);
 
     // Calculate u,v,w unit basis vector for the camera coord frame
     Vector3 w = Vector3::unit_vector(center_ - point_);
     Vector3 u = Vector3::unit_vector(Vector3::cross(up_, w));
     Vector3 v = Vector3::cross(w, u);
 
-    // Calculate the vectors across the horizontal and down the vertical viewport edges.
+    // Calculate the vectors across the horizontal and down the vertical
+    // viewport edges.
     viewport_u_ = viewport_width * u;
     viewport_v_ = viewport_height * -v;
 
@@ -36,6 +40,18 @@ Camera::Camera(const Point3& center, const Point3& point, const Vector3& up, dou
 
     // Calculate the location of the upper left pixel.
     // (we do minuses because the viewport is in the negative z axis)
-    viewport_upper_left_ = center_ - (focal_length * w) - viewport_u_/2 - viewport_v_/2;
-    pixel00_loc_ = viewport_upper_left_ + 0.5 * (pixel_delta_u_ + pixel_delta_v_);
+    viewport_upper_left_ =
+        center_ - (focal_length * w) - viewport_u_ / 2 - viewport_v_ / 2;
+    pixel00_loc_ =
+        viewport_upper_left_ + 0.5 * (pixel_delta_u_ + pixel_delta_v_);
+}
+
+Ray Camera::getRayAt(int y, int x) const
+{
+    auto pixel_center =
+        pixel00_loc_ + (x * pixel_delta_u_) + (y * pixel_delta_v_);
+
+    auto ray_direction = pixel_center - center_;
+
+    return Ray(center_, ray_direction);
 }

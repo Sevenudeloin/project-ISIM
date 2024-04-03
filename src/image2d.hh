@@ -15,8 +15,9 @@ public:
     Image2D();
     Image2D(int width, int height);
 
-    void setPixel(const Pixel& pixel);
+    void setPixel(const Pixel &pixel);
     void setPixel(int x, int y, double r, double g, double b);
+    void setPixel(int x, int y, Color color);
 
-    void writePPM(const char* filename);
+    void writePPM(const char *filename);
 };
