@@ -5,12 +5,13 @@
 /**
  * Default constructor to initialize a fractal noise summation
  * with the following default values
- * (frequency=1.0, amplitude=1.0, lacunarity=2.0, persistence=0.5)
+ * (octaves=7, frequency=1.0, amplitude=1.0, lacunarity=2.0, persistence=0.5)
  * 
  * @note persistence is usually 1/lacunarity
  */
-SimplexNoise::SimplexNoise()
-    : frequency_(1.0f)
+SimplexNoiseGenerator::SimplexNoiseGenerator()
+    : octaves_(7)
+    , frequency_(1.0f)
     , amplitude_(1.0f)
     , lacunarity_(2.0f)
     , persistence_(0.5f)
@@ -19,13 +20,15 @@ SimplexNoise::SimplexNoise()
 /**
  * Constructor to initialize a fractal noise summation
  *
+ * @param octaves      Number of fraction of noise to sum
  * @param frequency    Frequency ("width") of the first octave of noise (default to 1.0)
  * @param amplitude    Amplitude ("height") of the first octave of noise (default to 1.0)
  * @param lacunarity   Lacunarity specifies the frequency multiplier between successive octaves (default to 2.0).
  * @param persistence  Persistence is the loss of amplitude between successive octaves (usually 1/lacunarity)
  */
-SimplexNoise::SimplexNoise(float frequency, float amplitude, float lacunarity, float persistence)
-    : frequency_(frequency)
+SimplexNoiseGenerator::SimplexNoiseGenerator(size_t octaves, float frequency, float amplitude, float lacunarity, float persistence)
+    : octaves_(octaves)
+    , frequency_(frequency)
     , amplitude_(amplitude)
     , lacunarity_(lacunarity)
     , persistence_(persistence)
@@ -150,7 +153,7 @@ static float grad(int32_t hash, float x, float y, float z) {
  *
  * @return noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::noise(float x) {
+float SimplexNoiseGenerator::noise(float x) {
     float n0, n1;   // Noise contributions from the two "corners"
 
     // No need to skew the input space in 1D
@@ -187,7 +190,7 @@ float SimplexNoise::noise(float x) {
  *
  * @return noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::noise(float x, float y) {
+float SimplexNoiseGenerator::noise(float x, float y) {
     float n0, n1, n2;   // Noise contributions from the three corners
 
     // Skewing/Unskewing factors for 2D
@@ -274,7 +277,7 @@ float SimplexNoise::noise(float x, float y) {
  *
  * @return noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::noise(float x, float y, float z) {
+float SimplexNoiseGenerator::noise(float x, float y, float z) {
     float n0, n1, n2, n3; // Noise contributions from the four corners
 
     // Skewing/Unskewing factors for 3D
@@ -378,13 +381,13 @@ float SimplexNoise::noise(float x, float y, float z) {
  *
  * @return noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::fractal(size_t octaves, float x) const {
+float SimplexNoiseGenerator::fractal(float x) {
     float output    = 0.f;
     float denom     = 0.f;
     float frequency = frequency_;
     float amplitude = amplitude_;
 
-    for (size_t i = 0; i < octaves; i++) {
+    for (size_t i = 0; i < octaves_; i++) {
         output += (amplitude * noise(x * frequency));
         denom += amplitude;
 
@@ -404,13 +407,13 @@ float SimplexNoise::fractal(size_t octaves, float x) const {
  *
  * @return noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::fractal(size_t octaves, float x, float y) const {
+float SimplexNoiseGenerator::fractal(float x, float y) {
     float output = 0.f;
     float denom  = 0.f;
     float frequency = frequency_;
     float amplitude = amplitude_;
 
-    for (size_t i = 0; i < octaves; i++) {
+    for (size_t i = 0; i < octaves_; i++) {
         output += (amplitude * noise(x * frequency, y * frequency));
         denom += amplitude;
 
@@ -431,13 +434,13 @@ float SimplexNoise::fractal(size_t octaves, float x, float y) const {
  *
  * @return noise value in the range[-1; 1], value of 0 on all integer coordinates.
  */
-float SimplexNoise::fractal(size_t octaves, float x, float y, float z) const {
+float SimplexNoiseGenerator::fractal(float x, float y, float z) {
     float output = 0.f;
     float denom  = 0.f;
     float frequency = frequency_;
     float amplitude = amplitude_;
 
-    for (size_t i = 0; i < octaves; i++) {
+    for (size_t i = 0; i < octaves_; i++) {
         output += (amplitude * noise(x * frequency, y * frequency, z * frequency));
         denom += amplitude;
 
@@ -446,6 +449,28 @@ float SimplexNoise::fractal(size_t octaves, float x, float y, float z) const {
     }
 
     return (output / denom);
+}
+
+/**
+    * Generate a 2D heightmap using Simplex noise and fBm
+    * 
+    * @param width    heightmap width
+    * @param height   heightmap height 
+    *
+    * @return 2D heightmap
+    */
+Heightmap SimplexNoiseGenerator::generateHeightmap(int width, int height)
+{
+    Heightmap heightmap(width); // FIXME modify heightmap to accept width and height
+    for (int j = 0; j < height; j++)
+    {
+        for (int i = 0; i < width; i++)
+        {
+            heightmap.set(j, i, fractal(octaves_, j / 100.0, i / 100.0)); // j / 100.0, i / 100.0 arbitrary sampling
+        }
+    }
+
+    return heightmap;
 }
 
 /**

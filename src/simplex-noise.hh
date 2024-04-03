@@ -2,26 +2,33 @@
 
 #include <cstddef>
 
-class SimplexNoise
+#include "generator.hh"
+#include "heightmap.hh"
+
+class SimplexNoiseGenerator : public Generator
 {
 public:
+    SimplexNoiseGenerator();
+    SimplexNoiseGenerator(size_t octaves, float frequency, float amplitude, float lacunarity, float persistence);
+
     // 1D Perlin simplex noise
-    static float noise(float x);
+    float noise(float x);
     // 2D Perlin simplex noise
-    static float noise(float x, float y);
+    float noise(float x, float y);
     // 3D Perlin simplex noise
-    static float noise(float x, float y, float z);
+    float noise(float x, float y, float z);
 
     // Fractal/Fractional Brownian Motion (fBm) noise summation
-    float fractal(size_t octaves, float x) const; // 1D
-    float fractal(size_t octaves, float x, float y) const; // 2D
-    float fractal(size_t octaves, float x, float y, float z) const; // 3D
+    float fractal(float x); // 1D
+    float fractal(float x, float y); // 2D
+    float fractal(float x, float y, float z); // 3D
 
-    SimplexNoise();
-    SimplexNoise(float frequency, float amplitude, float lacunarity, float persistence);
+    // Heightmap generation
+    Heightmap generateHeightmap(int width, int height);
 
 private:
     // Parameters of Fractional Brownian Motion (fBm) : sum of N "octaves" of noise
+    size_t octaves_;
     float frequency_;
     float amplitude_;
     float lacunarity_;
