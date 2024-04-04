@@ -21,5 +21,7 @@ public:
 
     Color getPixel(int y, int x) const;
 
+    Color interpolate(float y, float x) const;
+
     void writePPM(const char *filename);
 };

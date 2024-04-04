@@ -76,7 +76,7 @@ int main()
     std::chrono::duration<double> elapsed = end - start;
     std::cout << "Runtime : " << elapsed.count() << " seconds" << std::endl;
 
-    image.writePPM("../images/output_scene_test_2.ppm");
+    image.writePPM("../images/output_scene_test.ppm");
 
     return 0;
 }

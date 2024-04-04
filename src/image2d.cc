@@ -42,6 +42,32 @@ Color Image2D::getPixel(int y, int x) const
     return pixels_[y * width_ + x]->color_;
 }
 
+Color Image2D::interpolate(float y, float x) const
+{
+    int x0 = static_cast<int>(x);
+    int y0 = static_cast<int>(y);
+    int x1 = x0 + 1;
+    int y1 = y0 + 1;
+
+    if (x0 < 0 || x1 >= width_ || y0 < 0 || y1 >= height_)
+    {
+        return Color();
+    }
+
+    float dx = x - x0;
+    float dy = y - y0;
+
+    Color c00 = getPixel(y0, x0);
+    Color c01 = getPixel(y0, x1);
+    Color c10 = getPixel(y1, x0);
+    Color c11 = getPixel(y1, x1);
+
+    Color c0 = c00 * (1 - dx) + c01 * dx;
+    Color c1 = c10 * (1 - dx) + c11 * dx;
+
+    return c0 * (1 - dy) + c1 * dy;
+}
+
 void Image2D::writePPM(const char *filename) // P3 format raw PPM
 {
     std::ofstream file;

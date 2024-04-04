@@ -52,11 +52,9 @@ Vector3 OceanTexture::get_normal_at(float y, float x) const
     x = std::abs(std::fmod(x, normal_scale_.x_) / normal_scale_.x_);
     y = std::abs(std::fmod(y, normal_scale_.z_) / normal_scale_.z_);
 
-    int img_y =
-        Interval(0, normal_map_.height_ - 1).clamp(y * normal_map_.height_);
-    int img_x =
-        Interval(0, normal_map_.width_ - 1).clamp(x * normal_map_.width_);
+    x = Interval(0.0, normal_map_.width_ - 1.0).clamp(x * normal_map_.width_);
+    y = Interval(0.0, normal_map_.height_ - 1.0).clamp(y * normal_map_.height_);
 
-    Color col = normal_map_.getPixel(img_y, img_x);
+    Color col = normal_map_.interpolate(y, x);
     return normal_strength * Vector3(col.r_, 0, col.g_);
 }
