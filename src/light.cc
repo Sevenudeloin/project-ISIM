@@ -9,3 +9,8 @@ PointLight::PointLight(double intensity, const Color color, const Point3 center)
     : Light{ intensity, color }
     , center_(center)
 {}
+
+double PointLight::computeIntensity(Vector3 light_dir) const
+{
+    return intensity_ / (light_dir.length() * light_dir.length());
+}

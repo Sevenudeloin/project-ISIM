@@ -1,10 +1,10 @@
 #include <chrono>
 #include <iostream>
 
-#include "simplex-noise.hh"
 #include "image2d.hh"
 #include "rendering.hh"
 #include "scene.hh"
+#include "simplex-noise.hh"
 #include "utils.hh"
 
 int main()
@@ -59,8 +59,8 @@ int main()
     image.writePPM("output.ppm");
     */
 
-    int image_height = 1080;
-    int image_width = 1920;
+    int image_width = 720;
+    int image_height = 480;
 
     Image2D image(image_width, image_height);
 
@@ -76,7 +76,7 @@ int main()
     std::chrono::duration<double> elapsed = end - start;
     std::cout << "Runtime : " << elapsed.count() << " seconds" << std::endl;
 
-    image.writePPM("../images/output_scene_test.ppm");
+    image.writePPM("../images/output_scene_test_2.ppm");
 
     return 0;
 }
