@@ -25,4 +25,6 @@ public:
           list<shared_ptr<PointLight>> lights, shared_ptr<SkyBox> skybox);
 
     static Scene createTestScene(int image_height, int image_width);
+    static Scene createOceanScene(int image_height, int image_width);
+    static Scene createIslandScene(int image_height, int image_width);
 };
