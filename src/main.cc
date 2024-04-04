@@ -4,7 +4,6 @@
 #include "image2d.hh"
 #include "rendering.hh"
 #include "scene.hh"
-#include "simplex-noise.hh"
 #include "utils.hh"
 
 int main()
