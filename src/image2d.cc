@@ -44,15 +44,18 @@ Color Image2D::getPixel(int y, int x) const
 
 Color Image2D::interpolate(float y, float x) const
 {
+    if (x < 0 || x >= width_ || y < 0 || y >= height_)
+        return Color(0, 0, 0);
+
     int x0 = static_cast<int>(x);
     int y0 = static_cast<int>(y);
     int x1 = x0 + 1;
     int y1 = y0 + 1;
 
-    if (x0 < 0 || x1 >= width_ || y0 < 0 || y1 >= height_)
-    {
-        return Color();
-    }
+    if (x1 >= width_)
+        x1 = width_ - 1;
+    if (y1 >= height_)
+        y1 = height_ - 1;
 
     float dx = x - x0;
     float dy = y - y0;
