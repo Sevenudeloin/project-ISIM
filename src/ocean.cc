@@ -1,5 +1,7 @@
 #include "ocean.hh"
 
+#include <iostream>
+
 #include "utils.hh"
 
 Ocean::Ocean(double height, shared_ptr<TextureMaterial> mat)

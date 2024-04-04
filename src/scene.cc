@@ -18,7 +18,7 @@ Scene Scene::createTestScene(int image_height, int image_width)
         LocalTexture(Color(0.1, 0.7, 0.1), 0.95, 0.02, 2));
     auto uniform_ocean_tex = make_shared<OceanTexture>(
         LocalTexture(Color(0.1, 0.1, 0.9), 0.7, 0.3, 1),
-        "../images/normalmaps/water_normal.ppm", Vector3(50.0, 2.0, 50.0));
+        "../images/normalmaps/water_normal.ppm", Vector3(50.0, 1.0, 50.0));
 
     list<shared_ptr<PhysObj>> objs;
 
@@ -35,7 +35,7 @@ Scene Scene::createTestScene(int image_height, int image_width)
 
     list<shared_ptr<PointLight>> lights;
     auto light_one = make_shared<PointLight>(1.0, Color(1.0, 1.0, 1.0),
-                                             Point3(0.0, 10.0, 0.0));
+                                             Point3(5.0, 10.0, 0.0));
     lights.push_back(light_one);
 
     double aspect_ratio =

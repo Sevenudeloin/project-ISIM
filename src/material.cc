@@ -25,7 +25,7 @@ LocalTexture UniformTexture::get_texture_at(const Point3 &) const
     return tex_;
 }
 
-Vector3 UniformTexture::get_normal_at(float, float) const
+Vector3 UniformTexture::get_normal_at(double, double) const
 {
     return Vector3(0, 0, 0);
 }
@@ -46,15 +46,19 @@ LocalTexture OceanTexture::get_texture_at(const Point3 &) const
     return tex_;
 }
 
-Vector3 OceanTexture::get_normal_at(float y, float x) const
+Vector3 OceanTexture::get_normal_at(double y, double x) const
 {
-    float normal_strength = normal_scale_.y_;
-    x = std::abs(std::fmod(x, normal_scale_.x_) / normal_scale_.x_);
-    y = std::abs(std::fmod(y, normal_scale_.z_) / normal_scale_.z_);
+    double normal_strength = normal_scale_.y_;
 
-    x = Interval(0.0, normal_map_.width_ - 1.0).clamp(x * normal_map_.width_);
-    y = Interval(0.0, normal_map_.height_ - 1.0).clamp(y * normal_map_.height_);
+    if (normal_scale_.x_ == 0 || normal_scale_.z_ == 0)
+        return Vector3(0, 0, 0);
+    x = (x / normal_scale_.x_) - std::floor(x / normal_scale_.x_);
+    y = (y / normal_scale_.z_) - std::floor(y / normal_scale_.z_);
+
+    x = Interval(0.0, normal_map_.width_).clamp(x * normal_map_.width_);
+    y = Interval(0.0, normal_map_.height_).clamp(y * normal_map_.height_);
 
     Color col = normal_map_.interpolate(y, x);
-    return normal_strength * Vector3(col.r_, 0, col.g_);
+    auto n = normal_strength * Vector3(col.r_ - 0.5, 0, col.g_ - 0.5);
+    return n;
 }
