@@ -8,11 +8,10 @@
 #include "light.hh"
 #include "physobj.hh"
 #include "skybox.hh"
-#include "terrain.hh"
-#include "triangle.hh"
 
 using std::list;
 using std::make_shared;
+using std::shared_ptr;
 
 class Scene
 {

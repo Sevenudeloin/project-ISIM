@@ -30,4 +30,5 @@ public:
     virtual void translate(const Vector3 &v) = 0;
 
     virtual LocalTexture get_texture_at(const Point3 &p) const;
+    virtual Vector3 get_normal_at(float y, float x) const;
 };

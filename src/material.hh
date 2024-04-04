@@ -1,6 +1,7 @@
 #pragma once
 
 #include "color.hh"
+#include "image2d.hh"
 #include "vector3.hh"
 
 struct LocalTexture
@@ -9,17 +10,9 @@ struct LocalTexture
     double ks_;
     double ns_;
 
-    LocalTexture()
-        : kd_(Color())
-        , ks_(0)
-        , ns_(0)
-    {}
+    LocalTexture();
 
-    LocalTexture(Color col, double kd, double ks, double ns)
-        : kd_(col * kd)
-        , ks_(ks)
-        , ns_(ns)
-    {}
+    LocalTexture(Color col, double kd, double ks, double ns);
 };
 
 class TextureMaterial
@@ -27,7 +20,8 @@ class TextureMaterial
 public:
     virtual ~TextureMaterial() = default;
 
-    virtual LocalTexture get_texture_at(Point3) const = 0;
+    virtual LocalTexture get_texture_at(const Point3 &p) const = 0;
+    virtual Vector3 get_normal_at(float y, float x) const = 0;
 };
 
 class UniformTexture : public TextureMaterial
@@ -36,17 +30,27 @@ private:
     LocalTexture tex_;
 
 public:
-    UniformTexture(LocalTexture tex)
-        : tex_(tex)
-    {}
+    UniformTexture(LocalTexture tex);
 
-    LocalTexture get_texture_at(Point3) const override
-    {
-        return tex_;
-    }
+    LocalTexture get_texture_at(const Point3 &p) const override;
+    Vector3 get_normal_at(float y, float x) const override;
 
     const static UniformTexture default_mat;
 };
 
 const static UniformTexture default_mat(LocalTexture(Color(0.5, 0.5, 0.5), 0.8,
                                                      0.1, 0.5));
+
+class OceanTexture : public TextureMaterial
+{
+public:
+    LocalTexture tex_;
+    Image2D normal_map_;
+    Vector3 normal_scale_;
+
+    OceanTexture(LocalTexture tex, const std::string &normal_filename,
+                 Vector3 normal_scale = Vector3(1.0, 1.0, 1.0));
+
+    LocalTexture get_texture_at(const Point3 &p) const override;
+    Vector3 get_normal_at(float y, float x) const override;
+};

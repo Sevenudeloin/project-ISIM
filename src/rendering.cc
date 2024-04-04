@@ -46,16 +46,16 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter)
         for (auto const &light : scene.lights_)
         {
             // Consider shadows
-            auto light_intensity = light->intensity_;
             Vector3 light_dir = Vector3::unit_vector(light->center_ - p);
+            double light_intensity = light->computeIntensity(light_dir);
             Ray light_dir_ray =
                 Ray(p + (utils::kEpsilon * light_dir), light_dir);
-            auto has_hit_light_dir = hasAnyObj(light_dir_ray, scene.objects_);
+            bool has_hit_light_dir = hasAnyObj(light_dir_ray, scene.objects_);
             if (has_hit_light_dir)
                 light_intensity = 0.0;
 
             // Diffuse componant
-            auto dot_n_light = Vector3::dot(n, light_dir);
+            double dot_n_light = Vector3::dot(n, light_dir);
             if (dot_n_light > 0)
             {
                 color +=
@@ -63,7 +63,8 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter)
             }
 
             // Specular componant
-            Vector3 reflect_ray_dir = Vector3::reflect(ray.direction_, n);
+            Vector3 reflect_ray_dir =
+                Vector3::reflect(Vector3::unit_vector(ray.direction_), n);
             double dot_specular = Vector3::dot(reflect_ray_dir, light_dir);
             if (dot_specular > 0)
                 color += loc_tex.ks_ * light_intensity * light->color_
