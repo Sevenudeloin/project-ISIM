@@ -21,8 +21,7 @@ public:
     virtual ~TextureMaterial() = default;
 
     virtual LocalTexture get_texture_at(const Point3 &p) const = 0;
-    virtual Vector3 get_normal_at_local(float y, float x) const = 0;
-    virtual Vector3 get_normal_at_global(const Point3 &p) const = 0;
+    virtual Vector3 get_normal_at(float y, float x) const = 0;
 };
 
 class UniformTexture : public TextureMaterial
@@ -34,8 +33,7 @@ public:
     UniformTexture(LocalTexture tex);
 
     LocalTexture get_texture_at(const Point3 &p) const override;
-    Vector3 get_normal_at_local(float y, float x) const override;
-    Vector3 get_normal_at_global(const Point3 &p) const override;
+    Vector3 get_normal_at(float y, float x) const override;
 
     const static UniformTexture default_mat;
 };
@@ -54,6 +52,5 @@ public:
                  Vector3 normal_scale = Vector3(1.0, 1.0, 1.0));
 
     LocalTexture get_texture_at(const Point3 &p) const override;
-    Vector3 get_normal_at_local(float y, float x) const override;
-    Vector3 get_normal_at_global(const Point3 &p) const override;
+    Vector3 get_normal_at(float y, float x) const override;
 };

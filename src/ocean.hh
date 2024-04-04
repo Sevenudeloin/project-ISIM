@@ -7,11 +7,10 @@ using std::shared_ptr;
 class Ocean : public PhysObj
 {
 public:
-    Point3 center_;
-    float r_;
+    double height_;
     Vector3 n_;
 
-    Ocean(Point3 center, float r, shared_ptr<TextureMaterial> mat);
+    Ocean(double height, shared_ptr<TextureMaterial> mat);
 
     void translate(const Vector3 &v) override;
 

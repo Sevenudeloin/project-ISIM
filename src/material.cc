@@ -25,12 +25,7 @@ LocalTexture UniformTexture::get_texture_at(const Point3 &) const
     return tex_;
 }
 
-Vector3 UniformTexture::get_normal_at_local(float, float) const
-{
-    return Vector3(0, 0, 0);
-}
-
-Vector3 UniformTexture::get_normal_at_global(const Point3 &) const
+Vector3 UniformTexture::get_normal_at(float, float) const
 {
     return Vector3(0, 0, 0);
 }
@@ -51,11 +46,11 @@ LocalTexture OceanTexture::get_texture_at(const Point3 &) const
     return tex_;
 }
 
-Vector3 OceanTexture::get_normal_at_local(float y, float x) const
+Vector3 OceanTexture::get_normal_at(float y, float x) const
 {
     float normal_strength = normal_scale_.y_;
-    x = (std::fmod(x, normal_scale_.x_) / normal_scale_.x_);
-    y = (std::fmod(y, normal_scale_.z_) / normal_scale_.z_);
+    x = std::abs(std::fmod(x, normal_scale_.x_) / normal_scale_.x_);
+    y = std::abs(std::fmod(y, normal_scale_.z_) / normal_scale_.z_);
 
     int img_y =
         Interval(0, normal_map_.height_ - 1).clamp(y * normal_map_.height_);
@@ -64,9 +59,4 @@ Vector3 OceanTexture::get_normal_at_local(float y, float x) const
 
     Color col = normal_map_.getPixel(img_y, img_x);
     return normal_strength * Vector3(col.r_, 0, col.g_);
-}
-
-Vector3 OceanTexture::get_normal_at_global(const Point3 &) const
-{
-    return Vector3(0.0, 0.0, 0.0);
 }

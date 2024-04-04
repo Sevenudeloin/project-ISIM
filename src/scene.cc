@@ -18,7 +18,7 @@ Scene Scene::createTestScene(int image_height, int image_width)
         LocalTexture(Color(0.1, 0.7, 0.1), 0.95, 0.02, 2));
     auto uniform_ocean_tex = make_shared<OceanTexture>(
         LocalTexture(Color(0.1, 0.1, 0.9), 0.7, 0.3, 1),
-        "../images/normalmaps/water_normal.ppm", Vector3(0.1, 2.0, 0.1));
+        "../images/normalmaps/water_normal.ppm", Vector3(50.0, 2.0, 50.0));
 
     list<shared_ptr<PhysObj>> objs;
 
@@ -28,7 +28,7 @@ Scene Scene::createTestScene(int image_height, int image_width)
     auto terrain = make_shared<Terrain>(heightmap, 1, 2, uniform_terrain_tex);
     terrain->translate(Vector3(-9.75, 0, -20));
 
-    auto ocean = make_shared<Ocean>(Point3(0, 0.3, 0), 200, uniform_ocean_tex);
+    auto ocean = make_shared<Ocean>(0.3, uniform_ocean_tex);
 
     objs.push_back(terrain);
     objs.push_back(ocean);

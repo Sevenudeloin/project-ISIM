@@ -13,12 +13,7 @@ LocalTexture PhysObj::get_texture_at(const Point3 &p) const
     return mat_->get_texture_at(p);
 }
 
-Vector3 PhysObj::get_normal_at_local(float y, float x) const
+Vector3 PhysObj::get_normal_at(float y, float x) const
 {
-    return mat_->get_normal_at_local(y, x);
-}
-
-Vector3 PhysObj::get_normal_at_global(const Point3 &p) const
-{
-    return mat_->get_normal_at_global(p);
+    return mat_->get_normal_at(y, x);
 }

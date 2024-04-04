@@ -2,17 +2,11 @@
 
 #include "utils.hh"
 
-Ocean::Ocean(Point3 center, float r, shared_ptr<TextureMaterial> mat)
+Ocean::Ocean(double height, shared_ptr<TextureMaterial> mat)
     : PhysObj(mat)
-    , center_(center)
-    , r_(r)
+    , height_(height)
     , n_(0, 1, 0)
 {}
-
-void Ocean::translate(const Vector3 &v)
-{
-    center_ = center_ + v;
-}
 
 bool Ocean::hit(const Ray &ray, HitRecord &hit_record) const
 {
@@ -28,7 +22,7 @@ bool Ocean::hit(const Ray &ray, HitRecord &hit_record) const
         return false;
     }
 
-    double d = -Vector3::dot(n_, center_);
+    double d = -Vector3::dot(n_, Point3(0, height_, 0));
     double t = -(Vector3::dot(n_, ray.origin_) + d) / nDotRayDir;
     if (t < 0)
     {
@@ -37,16 +31,14 @@ bool Ocean::hit(const Ray &ray, HitRecord &hit_record) const
 
     Point3 p = ray.at(t);
 
-    if ((p - center_).length() > r_)
-    {
-        return false;
-    }
-
     hit_record.t = t;
     hit_record.p = p;
-    Point3 local_p = ((p - center_) / r_ + Point3(1.0, 0.0, 1.0)) / 2.0;
-    hit_record.n =
-        Vector3::unit_vector(n_ + get_normal_at_local(local_p.x_, local_p.z_));
+    hit_record.n = Vector3::unit_vector(n_ + get_normal_at(p.x_, p.z_));
     hit_record.tex = get_texture_at(p);
     return true;
+}
+
+void Ocean::translate(const Vector3 &v)
+{
+    height_ += v.y_;
 }
