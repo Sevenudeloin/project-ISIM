@@ -30,10 +30,10 @@ Scene Scene::createTestScene(int image_height, int image_width)
     float offset_z = 0.0f;
     SimplexNoiseGenerator simplexNoiseGenerator = SimplexNoiseGenerator(scale, 0.5f, 1.99f, 0.5f);
     // SimplexNoiseGenerator simplexNoiseGenerator = SimplexNoiseGenerator(5 + std::log(scale), 0.1f/scale, 0.5f, 1.99f, 0.5f);
-    Heightmap heightmap = simplexNoiseGenerator.generateHeightmap(100, 100, scale, offset_x, offset_y, offset_z);
+    Heightmap heightmap = simplexNoiseGenerator.generateHeightmap(30, 30, scale, offset_x, offset_y, offset_z);
     float upscaling = 2.f;
     SimplexNoiseGenerator simplexNoiseGenerator2 = SimplexNoiseGenerator(scale * upscaling, 0.5f, 1.99f, 0.5f);
-    Heightmap heightmap2 = simplexNoiseGenerator2.generateHeightmap(100 * upscaling, 100 * upscaling, scale * upscaling, offset_x, offset_y, offset_z);
+    Heightmap heightmap2 = simplexNoiseGenerator2.generateHeightmap(30 * upscaling, 30 * upscaling, scale * upscaling, offset_x, offset_y, offset_z);
 
     // To preview the heightmap
     Image2D heightmap_image = heightmap.toImage2D();
