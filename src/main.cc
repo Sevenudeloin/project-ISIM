@@ -92,11 +92,11 @@ int main(int argc, char* argv[])
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    float scale = 50.f;
+    float scale = 35.f;
     float offset_x = 5.9f;
     float offset_y = 5.1f;
     float offset_z = 0.05f;
-    SimplexNoiseGenerator simplexNoiseGenerator = SimplexNoiseGenerator(5, 0.1f/scale, 0.5f, 1.99f, 0.5f);
+    SimplexNoiseGenerator simplexNoiseGenerator = SimplexNoiseGenerator(scale, 0.5f, 1.99f, 0.5f);
     Heightmap heightmap = simplexNoiseGenerator.generateHeightmap(720, 480, scale, offset_x, offset_y, offset_z);
 
     Image2D res = heightmap.to_image2D();

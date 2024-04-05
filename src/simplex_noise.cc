@@ -1,5 +1,6 @@
 #include "simplex_noise.hh"
 
+#include <cmath>
 #include <cstdint> // uint8_t and int32_t 
 
 /**
@@ -15,6 +16,22 @@ SimplexNoiseGenerator::SimplexNoiseGenerator()
     , amplitude_(1.0f)
     , lacunarity_(2.0f)
     , persistence_(0.5f)
+{}
+
+/**
+ * Constructor to initialize a fractal noise summation using scale for octaves number and frequency
+ *
+ * @param scale        Scale to base octaves and frequency on
+ * @param amplitude    Amplitude ("height") of the first octave of noise (default to 1.0)
+ * @param lacunarity   Lacunarity specifies the frequency multiplier between successive octaves (default to 2.0).
+ * @param persistence  Persistence is the loss of amplitude between successive octaves (usually 1/lacunarity)
+ */
+SimplexNoiseGenerator::SimplexNoiseGenerator(float scale, float amplitude, float lacunarity, float persistence)
+    : octaves_(5 + std::log(scale))
+    , frequency_(0.1f / scale)
+    , amplitude_(amplitude)
+    , lacunarity_(lacunarity)
+    , persistence_(persistence)
 {}
 
 /**
@@ -454,19 +471,18 @@ float SimplexNoiseGenerator::fractal(float x, float y, float z) {
 /**
     * Generate a 2D heightmap using Simplex noise and fBm
     * 
-    * @param width             sampled zone width
-    * @param height            sampled zone height
-    * @param nbsamples_width   number of samples in x axis (width) 
-    * @param nbsamples_height  number of samples in x axis (height) 
+    * @param width     heightmap width
+    * @param height    heightmap height
+    * @param scale     scale (the higher the more zoomed on the noise)
+    * @param offset_x  offset in x axis (to the right)
+    * @param offset_y  offset in y axis (to the bottom)
+    * @param offset_z  offset in z axis (to the top)
     *
     * @return 2D heightmap
     */
 Heightmap SimplexNoiseGenerator::generateHeightmap(int width, int height, float scale, float offset_x, float offset_y, float offset_z)
 {
     Heightmap heightmap(width, height);
-
-    // int octaves = 5 + std::log(scale);
-    // float frequency = 0.1f / scale;
 
     for (int row = 0; row < height; row++) {
         float y = static_cast<float>(row - height / 2 + offset_y*scale);
