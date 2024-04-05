@@ -90,15 +90,15 @@ void Image2D::writePPM(const char *filename) // P3 format raw PPM
         g = pixels_[i]->color_.g_;
         b = pixels_[i]->color_.b_;
 
-        r = Color::linear_to_gamma(r);
-        g = Color::linear_to_gamma(g);
-        b = Color::linear_to_gamma(b);
+        // r = Color::linear_to_gamma(r);
+        // g = Color::linear_to_gamma(g);
+        // b = Color::linear_to_gamma(b);
 
         static const Interval intensity(0.000, 0.999);
 
-        file << static_cast<int>(256 * intensity.clamp(r)) << " "
-             << static_cast<int>(256 * intensity.clamp(g)) << " "
-             << static_cast<int>(256 * intensity.clamp(b)) << "\n";
+        file << static_cast<int>(255.999 * intensity.clamp(r)) << " "
+             << static_cast<int>(255.999 * intensity.clamp(g)) << " "
+             << static_cast<int>(255.999 * intensity.clamp(b)) << "\n";
     }
 
     file.close();

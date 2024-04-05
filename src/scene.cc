@@ -24,21 +24,27 @@ Scene Scene::createTestScene(int image_height, int image_width)
 
     list<shared_ptr<PhysObj>> objs;
 
-    float scale = 5.f;
+    float scale = 3.f;
     float offset_x = 5.9f;
-    float offset_y = 15.1f;
-    float offset_z = 0.25f;
+    float offset_y = 15.5f;
+    float offset_z = 0.0f;
     SimplexNoiseGenerator simplexNoiseGenerator = SimplexNoiseGenerator(scale, 0.5f, 1.99f, 0.5f);
-    Heightmap heightmap = simplexNoiseGenerator.generateHeightmap(image_width / 10, image_height / 10, scale, offset_x, offset_y, offset_z);
+    // SimplexNoiseGenerator simplexNoiseGenerator = SimplexNoiseGenerator(5 + std::log(scale), 0.1f/scale, 0.5f, 1.99f, 0.5f);
+    Heightmap heightmap = simplexNoiseGenerator.generateHeightmap(100, 100, scale, offset_x, offset_y, offset_z);
+    float upscaling = 2.f;
+    SimplexNoiseGenerator simplexNoiseGenerator2 = SimplexNoiseGenerator(scale * upscaling, 0.5f, 1.99f, 0.5f);
+    Heightmap heightmap2 = simplexNoiseGenerator2.generateHeightmap(100 * upscaling, 100 * upscaling, scale * upscaling, offset_x, offset_y, offset_z);
 
     // To preview the heightmap
     Image2D heightmap_image = heightmap.toImage2D();
     heightmap_image.writePPM("../images/heightmaps/heightmap_output.ppm");
+    Image2D heightmap_image2 = heightmap2.toImage2D();
+    heightmap_image2.writePPM("../images/heightmaps/heightmap_output2.ppm");
 
     auto heightmap_ptr = make_shared<Heightmap>(heightmap);
     // auto heightmap = make_shared<Heightmap>(
     //     "../images/heightmaps/heightmap_simple_20x20.ppm");
-    auto terrain = make_shared<Terrain>(heightmap_ptr, 1, 2, uniform_terrain_tex);
+    auto terrain = make_shared<Terrain>(heightmap_ptr, 1, 10, uniform_terrain_tex);
     terrain->translate(Vector3(-9.75, 0, -20));
 
     auto ocean = make_shared<Ocean>(0.1f, uniform_ocean_tex);
@@ -53,7 +59,7 @@ Scene Scene::createTestScene(int image_height, int image_width)
 
     double aspect_ratio =
         static_cast<double>(image_width) / static_cast<double>(image_height);
-    auto cam = Camera(Point3(2, 5, 12), Point3(0, 0, -10), Vector3(0, 1, 0),
+    auto cam = Camera(Point3(0, 7, 10), Point3(0, 0, -10), Vector3(0, 1, 0),
                       90.0, 1.0, aspect_ratio, image_width);
 
     auto skybox = make_shared<SkyBoxImage>("../images/skyboxes/skybox_1.ppm");

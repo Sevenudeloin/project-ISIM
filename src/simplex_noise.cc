@@ -393,7 +393,6 @@ float SimplexNoiseGenerator::noise(float x, float y, float z) {
 /**
  * Fractal/Fractional Brownian Motion (fBm) summation of 1D Perlin Simplex noise
  *
- * @param octaves  number of fraction of noise to sum
  * @param x        float coordinate
  *
  * @return noise value in the range[-1; 1], value of 0 on all integer coordinates.
@@ -418,7 +417,6 @@ float SimplexNoiseGenerator::fractal(float x) {
 /**
  * Fractal/Fractional Brownian Motion (fBm) summation of 2D Perlin Simplex noise
  *
- * @param octaves  number of fraction of noise to sum
  * @param x        x float coordinate
  * @param y        y float coordinate
  *
@@ -444,7 +442,6 @@ float SimplexNoiseGenerator::fractal(float x, float y) {
 /**
  * Fractal/Fractional Brownian Motion (fBm) summation of 3D Perlin Simplex noise
  *
- * @param octaves  number of fraction of noise to sum
  * @param x        x float coordinate
  * @param y        y float coordinate
  * @param z        z float coordinate
@@ -485,12 +482,13 @@ Heightmap SimplexNoiseGenerator::generateHeightmap(int width, int height, float 
     Heightmap heightmap(width, height);
 
     for (int row = 0; row < height; row++) {
-        float y = (row - static_cast<float>(height) / 2 + offset_y*scale);
+        float y = row - static_cast<float>(height) / 2 + scale * offset_y;
 
         for (int col = 0; col < width; col++) {
-            float x = (col - static_cast<float>(width) / 2 + offset_x*scale);
+            float x = col - static_cast<float>(width) / 2 + scale * offset_x;
 
-            float height = fractal(5, x, y) + offset_z;
+            float height = fractal(x, y) + offset_z;
+            height = (height + 1.0f) / 2.0f;
             heightmap.set(row, col, height);
         }
     }
