@@ -6,13 +6,16 @@
 
 struct LocalTexture
 {
-    Color kd_;
+    Color color_;
+    double kd_;
     double ks_;
     double ns_;
+    double emission_;
 
     LocalTexture();
 
-    LocalTexture(Color col, double kd, double ks, double ns);
+    LocalTexture(Color color, double kd, double ks, double ns, double emission);
+    LocalTexture(Color color, double kd, double ks, double ns);
 };
 
 class TextureMaterial

@@ -5,15 +5,28 @@
 #include "ppm_parser.hh"
 
 LocalTexture::LocalTexture()
-    : kd_(Color())
+    : color_(Color())
+    , kd_(1.0)
     , ks_(0)
     , ns_(0)
+    , emission_(0)
 {}
 
-LocalTexture::LocalTexture(Color col, double kd, double ks, double ns)
-    : kd_(col * kd)
+LocalTexture::LocalTexture(Color color, double kd, double ks, double ns)
+    : color_(color)
+    , kd_(kd)
     , ks_(ks)
     , ns_(ns)
+    , emission_(0)
+{}
+
+LocalTexture::LocalTexture(Color color, double kd, double ks, double ns,
+                           double emission)
+    : color_(color)
+    , kd_(kd)
+    , ks_(ks)
+    , ns_(ns)
+    , emission_(emission)
 {}
 
 UniformTexture::UniformTexture(LocalTexture tex)

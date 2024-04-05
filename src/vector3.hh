@@ -58,6 +58,9 @@ public:
 
     friend std::ostream &operator<<(std::ostream &os,
                                     const Vector3 &vect); // print
+
+    static Vector3 spherical_to_cartesian(double rho, double lati,
+                                          double longi);
 };
 
 using Point3 = Vector3;

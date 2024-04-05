@@ -1,11 +1,12 @@
 #include "scene.hh"
 
 #include "ocean.hh"
+#include "simplex_noise.hh"
 #include "terrain.hh"
 #include "triangle.hh"
 
 Scene::Scene(Camera cam, list<shared_ptr<PhysObj>> objects,
-             list<shared_ptr<PointLight>> lights, shared_ptr<SkyBox> skybox)
+             list<shared_ptr<Light>> lights, shared_ptr<SkyBox> skybox)
     : cam_(cam)
     , objects_(objects)
     , lights_(lights)
@@ -22,21 +23,22 @@ Scene Scene::createTestScene(int image_height, int image_width)
 
     list<shared_ptr<PhysObj>> objs;
 
-    // auto heightmap = PerlinNoiseGenerator.generateHeightmap(100, 100);
+    // auto simplexNoiseGenerator = SimplexNoiseGenerator();
+    // auto heightmap = make_shared<Heightmap>(
+    //     simplexNoiseGenerator.generateHeightmap(0.5, 0.5, 30, 30));
     auto heightmap = make_shared<Heightmap>(
         "../images/heightmaps/heightmap_simple_20x20.ppm");
-    auto terrain = make_shared<Terrain>(heightmap, 1, 2, uniform_terrain_tex);
-    terrain->translate(Vector3(-9.75, 0, -20));
+    auto terrain = make_shared<Terrain>(heightmap, 1, 3, uniform_terrain_tex);
+    terrain->translate(Vector3(-9.75, -0.5, -20));
 
-    auto ocean = make_shared<Ocean>(0.3, uniform_ocean_tex);
+    auto ocean = make_shared<Ocean>(0, uniform_ocean_tex);
 
     objs.push_back(terrain);
     objs.push_back(ocean);
 
-    list<shared_ptr<PointLight>> lights;
-    auto light_one = make_shared<PointLight>(1.0, Color(1.0, 1.0, 1.0),
-                                             Point3(5.0, 10.0, 0.0));
-    lights.push_back(light_one);
+    list<shared_ptr<Light>> lights;
+    auto sunlight = make_shared<SunLight>(1.0, 50.0, 0.0);
+    lights.push_back(sunlight);
 
     double aspect_ratio =
         static_cast<double>(image_width) / static_cast<double>(image_height);
@@ -60,7 +62,7 @@ Scene Scene::createOceanScene(int image_height, int image_width)
 
     objs.push_back(ocean);
 
-    list<shared_ptr<PointLight>> lights;
+    list<shared_ptr<Light>> lights;
     auto light_one = make_shared<PointLight>(1.0, Color(1.0, 1.0, 1.0),
                                              Point3(0.0, 10.0, 0.0));
     lights.push_back(light_one);
@@ -95,7 +97,7 @@ Scene Scene::createIslandScene(int image_height, int image_width)
     objs.push_back(terrain);
     objs.push_back(ocean);
 
-    list<shared_ptr<PointLight>> lights;
+    list<shared_ptr<Light>> lights;
     auto light_one = make_shared<PointLight>(1.0, Color(1.0, 1.0, 1.0),
                                              Point3(0.0, 10.0, 0.0));
     lights.push_back(light_one);

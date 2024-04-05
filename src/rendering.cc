@@ -46,7 +46,7 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter)
         for (auto const &light : scene.lights_)
         {
             // Consider shadows
-            Vector3 light_dir = Vector3::unit_vector(light->center_ - p);
+            Vector3 light_dir = light->computeDir(p);
             double light_intensity = light->computeIntensity(light_dir);
             Ray light_dir_ray =
                 Ray(p + (utils::kEpsilon * light_dir), light_dir);
@@ -58,8 +58,8 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter)
             double dot_n_light = Vector3::dot(n, light_dir);
             if (dot_n_light > 0)
             {
-                color +=
-                    loc_tex.kd_ * dot_n_light * light->color_ * light_intensity;
+                color += loc_tex.kd_ * loc_tex.color_ * dot_n_light
+                    * light->color_ * light_intensity;
             }
 
             // Specular componant
@@ -75,6 +75,9 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter)
                 Ray(p + (utils::kEpsilon * reflect_ray_dir), reflect_ray_dir);
             color += loc_tex.ks_ * castRay(reflect_ray, scene, iter + 1);
         }
+
+        color += loc_tex.emission_ * loc_tex.color_;
+
         return color;
     }
     return scene.skybox_->getSkyboxAt(ray.direction_);
