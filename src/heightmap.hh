@@ -22,4 +22,6 @@ public:
 
     float at(int y, int x) const;
     void set(int y, int x, float value);
+
+    Image2D to_image2D();
 };

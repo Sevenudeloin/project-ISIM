@@ -1,6 +1,8 @@
 #include "heightmap.hh"
 
+#include "image2d.hh"
 #include "ppm_parser.hh"
+#include <algorithm>
 
 Heightmap::Heightmap(int width, int height)
     : width_(width)
@@ -43,4 +45,20 @@ float Heightmap::at(int y, int x) const
 void Heightmap::set(int y, int x, float value)
 {
     height_map_[y][x] = value;
+}
+
+Image2D Heightmap::to_image2D()
+{
+    Image2D image(width_, height_);
+
+    for (int y = 0; y < height_; y++)
+    {
+        for (int x = 0; x < width_; x++)
+        {
+            float height = this->at(y, x);
+            image.setPixel(y, x, height, height, height);
+        }
+    }
+
+    return image;
 }

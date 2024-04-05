@@ -4,9 +4,11 @@
 #include <sstream>
 #include <unistd.h>
 
+#include "heightmap.hh"
 #include "image2d.hh"
 #include "rendering.hh"
 #include "scene.hh"
+#include "simplex_noise.hh"
 #include "utils.hh"
 
 std::string capFirstLetter(std::string text)
@@ -90,14 +92,24 @@ int main(int argc, char* argv[])
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    Rendering::render(scene, image);
+    float scale = 50.f;
+    float offset_x = 5.9f;
+    float offset_y = 5.1f;
+    float offset_z = 0.05f;
+    SimplexNoiseGenerator simplexNoiseGenerator = SimplexNoiseGenerator(5, 0.1f/scale, 0.5f, 1.99f, 0.5f);
+    Heightmap heightmap = simplexNoiseGenerator.generateHeightmap(720, 480, scale, offset_x, offset_y, offset_z);
+
+    Image2D res = heightmap.to_image2D();
+
+    // Rendering::render(scene, image);
     std::cout << "Rendering done" << std::endl;
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end - start;
     std::cout << "Runtime : " << elapsed.count() << " seconds" << std::endl;
 
-    image.writePPM(output_filename.c_str());
+    // image.writePPM(output_filename.c_str());
+    res.writePPM(output_filename.c_str());
 
     return 0;
 }
