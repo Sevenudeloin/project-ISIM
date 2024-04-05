@@ -47,7 +47,7 @@ void Heightmap::set(int y, int x, float value)
     height_map_[y][x] = value;
 }
 
-Image2D Heightmap::to_image2D()
+Image2D Heightmap::toImage2D()
 {
     Image2D image(width_, height_);
 

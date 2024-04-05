@@ -485,10 +485,10 @@ Heightmap SimplexNoiseGenerator::generateHeightmap(int width, int height, float 
     Heightmap heightmap(width, height);
 
     for (int row = 0; row < height; row++) {
-        float y = static_cast<float>(row - height / 2 + offset_y*scale);
+        float y = (row - static_cast<float>(height) / 2 + offset_y*scale);
 
         for (int col = 0; col < width; col++) {
-            float x = static_cast<float>(col - width / 2 + offset_x*scale);
+            float x = (col - static_cast<float>(width) / 2 + offset_x*scale);
 
             float height = fractal(5, x, y) + offset_z;
             heightmap.set(row, col, height);

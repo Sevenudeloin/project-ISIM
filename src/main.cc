@@ -92,14 +92,16 @@ int main(int argc, char* argv[])
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    float scale = 35.f;
+    float scale = 5.f;
     float offset_x = 5.9f;
-    float offset_y = 5.1f;
-    float offset_z = 0.05f;
+    float offset_y = 15.1f;
+    float offset_z = 0.25f;
     SimplexNoiseGenerator simplexNoiseGenerator = SimplexNoiseGenerator(scale, 0.5f, 1.99f, 0.5f);
-    Heightmap heightmap = simplexNoiseGenerator.generateHeightmap(720, 480, scale, offset_x, offset_y, offset_z);
+    Heightmap heightmap = simplexNoiseGenerator.generateHeightmap(image_width / 10, image_height / 10, scale, offset_x, offset_y, offset_z);
 
-    Image2D res = heightmap.to_image2D();
+    // TODO delete later
+    Image2D heightmap_image = heightmap.toImage2D();
+    heightmap_image.writePPM("../images/heightmaps/heightmap_test.ppm");
 
     // Rendering::render(scene, image);
     std::cout << "Rendering done" << std::endl;
@@ -108,8 +110,7 @@ int main(int argc, char* argv[])
     std::chrono::duration<double> elapsed = end - start;
     std::cout << "Runtime : " << elapsed.count() << " seconds" << std::endl;
 
-    // image.writePPM(output_filename.c_str());
-    res.writePPM(output_filename.c_str());
+    image.writePPM(output_filename.c_str());
 
     return 0;
 }

@@ -1,8 +1,10 @@
 #include "scene.hh"
 
 #include "ocean.hh"
+#include "simplex_noise.hh"
 #include "terrain.hh"
 #include "triangle.hh"
+#include <memory>
 
 Scene::Scene(Camera cam, list<shared_ptr<PhysObj>> objects,
              list<shared_ptr<PointLight>> lights, shared_ptr<SkyBox> skybox)
@@ -22,13 +24,24 @@ Scene Scene::createTestScene(int image_height, int image_width)
 
     list<shared_ptr<PhysObj>> objs;
 
-    // auto heightmap = PerlinNoiseGenerator.generateHeightmap(100, 100);
-    auto heightmap = make_shared<Heightmap>(
-        "../images/heightmaps/heightmap_simple_20x20.ppm");
-    auto terrain = make_shared<Terrain>(heightmap, 1, 2, uniform_terrain_tex);
+    float scale = 5.f;
+    float offset_x = 5.9f;
+    float offset_y = 15.1f;
+    float offset_z = 0.25f;
+    SimplexNoiseGenerator simplexNoiseGenerator = SimplexNoiseGenerator(scale, 0.5f, 1.99f, 0.5f);
+    Heightmap heightmap = simplexNoiseGenerator.generateHeightmap(image_width / 10, image_height / 10, scale, offset_x, offset_y, offset_z);
+
+    // TODO delete later
+    Image2D heightmap_image = heightmap.toImage2D();
+    heightmap_image.writePPM("../images/heightmaps/heightmap_test.ppm");
+
+    auto heightmap_ptr = make_shared<Heightmap>(heightmap);
+    // auto heightmap = make_shared<Heightmap>(
+    //     "../images/heightmaps/heightmap_simple_20x20.ppm");
+    auto terrain = make_shared<Terrain>(heightmap_ptr, 1, 2, uniform_terrain_tex);
     terrain->translate(Vector3(-9.75, 0, -20));
 
-    auto ocean = make_shared<Ocean>(0.3, uniform_ocean_tex);
+    auto ocean = make_shared<Ocean>(0.1f, uniform_ocean_tex);
 
     objs.push_back(terrain);
     objs.push_back(ocean);
@@ -40,7 +53,7 @@ Scene Scene::createTestScene(int image_height, int image_width)
 
     double aspect_ratio =
         static_cast<double>(image_width) / static_cast<double>(image_height);
-    auto cam = Camera(Point3(0, 3, 5), Point3(0, 0, -10), Vector3(0, 1, 0),
+    auto cam = Camera(Point3(2, 5, 12), Point3(0, 0, -10), Vector3(0, 1, 0),
                       90.0, 1.0, aspect_ratio, image_width);
 
     auto skybox = make_shared<SkyBoxImage>("../images/skyboxes/skybox_1.ppm");
