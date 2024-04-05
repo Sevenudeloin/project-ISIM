@@ -29,9 +29,10 @@ int main(int argc, char* argv[])
     int image_width = 720;
     int image_height = 480;
     std::string scene_type = "test";
+    bool only_preview = false;
     bool show_help = false;
 
-    while ((opt = getopt(argc, argv, "o:d:s:h")) != -1) {
+    while ((opt = getopt(argc, argv, "o:d:s:ph")) != -1) {
         switch (opt) {
             case 'o':
                 output_filename = optarg;
@@ -42,21 +43,25 @@ int main(int argc, char* argv[])
             case 's':
                 scene_type = optarg;
                 break;
+            case 'p':
+                only_preview = true;
+                break;
             case 'h':
                 show_help = true;
                 break;
             default:
-                std::cerr << "Usage: " << argv[0] << " [-o <output_filename>] [-d <width>x<height>] [-s <scene_type>] [-h]" << std::endl;
+                std::cerr << "Usage: " << argv[0] << " [-o <output_filename>] [-d <width>x<height>] [-s <scene_type>] [-p] [-h]" << std::endl;
                 return 1;
         }
     }
 
     if (show_help) {
-        std::cout << "Usage: " << argv[0] << " [-o <output_filename>] [-d <width>x<height>] [-s <scene_type>] [-h]" << std::endl;
+        std::cout << "Usage: " << argv[0] << " [-o <output_filename>] [-d <width>x<height>] [-s <scene_type>] [-p] [-h]" << std::endl;
         std::cout << "Options:" << std::endl;
         std::cout << "  -o <output_filename>  Specify the path to the output file (default is images/output.ppm)" << std::endl;
         std::cout << "  -d <width>x<height>   Specify the dimensions of the output image (default is 720x480)" << std::endl;
         std::cout << "  -s <scene_type>       Specify the scene (available: test, ocean, island), (default is test)" << std::endl;
+        std::cout << "  -p                    Preview terrain heightmap only (available at images/heightmaps/heightmap_output.ppm)" << std::endl;
         std::cout << "  -h                    Show this help menu" << std::endl;
         return 0;
     }
@@ -88,29 +93,22 @@ int main(int argc, char* argv[])
         scene = Scene::createIslandScene(image_height, image_width);
     }
 
+    // FIXME(not important): when invalid name is given, default to test scene but still prints 'invalid scene' message
     std::cout << capFirstLetter(scene_type) << " scene created" << std::endl;
 
-    auto start = std::chrono::high_resolution_clock::now();
+    if (!only_preview)
+    {
+        auto start = std::chrono::high_resolution_clock::now();
 
-    float scale = 5.f;
-    float offset_x = 5.9f;
-    float offset_y = 15.1f;
-    float offset_z = 0.25f;
-    SimplexNoiseGenerator simplexNoiseGenerator = SimplexNoiseGenerator(scale, 0.5f, 1.99f, 0.5f);
-    Heightmap heightmap = simplexNoiseGenerator.generateHeightmap(image_width / 10, image_height / 10, scale, offset_x, offset_y, offset_z);
+        Rendering::render(scene, image);
+        std::cout << "Rendering done" << std::endl;
 
-    // TODO delete later
-    Image2D heightmap_image = heightmap.toImage2D();
-    heightmap_image.writePPM("../images/heightmaps/heightmap_test.ppm");
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = end - start;
+        std::cout << "Runtime : " << elapsed.count() << " seconds" << std::endl;
 
-    // Rendering::render(scene, image);
-    std::cout << "Rendering done" << std::endl;
-
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed = end - start;
-    std::cout << "Runtime : " << elapsed.count() << " seconds" << std::endl;
-
-    image.writePPM(output_filename.c_str());
+        image.writePPM(output_filename.c_str());
+    }
 
     return 0;
 }

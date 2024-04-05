@@ -31,9 +31,9 @@ Scene Scene::createTestScene(int image_height, int image_width)
     SimplexNoiseGenerator simplexNoiseGenerator = SimplexNoiseGenerator(scale, 0.5f, 1.99f, 0.5f);
     Heightmap heightmap = simplexNoiseGenerator.generateHeightmap(image_width / 10, image_height / 10, scale, offset_x, offset_y, offset_z);
 
-    // TODO delete later
+    // To preview the heightmap
     Image2D heightmap_image = heightmap.toImage2D();
-    heightmap_image.writePPM("../images/heightmaps/heightmap_test.ppm");
+    heightmap_image.writePPM("../images/heightmaps/heightmap_output.ppm");
 
     auto heightmap_ptr = make_shared<Heightmap>(heightmap);
     // auto heightmap = make_shared<Heightmap>(
