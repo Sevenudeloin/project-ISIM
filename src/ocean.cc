@@ -35,7 +35,7 @@ bool Ocean::hit(const Ray &ray, HitRecord &hit_record) const
 
     hit_record.t = t;
     hit_record.p = p;
-    hit_record.n = Vector3::unit_vector(n_ + get_normal_at(p.x_, p.z_));
+    hit_record.n = get_normal_at(p);
     hit_record.tex = get_texture_at(p);
     return true;
 }

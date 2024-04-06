@@ -34,7 +34,17 @@ public:
     Terrain(shared_ptr<Heightmap> Heightmap, float xy_scale, float height_scale,
             shared_ptr<TextureMaterial> mat);
 
+    void create_mesh();
+
     bool hit(const Ray &ray, HitRecord &hit_record) const override;
 
     void translate(const Vector3 &v) override;
+
+    Vector3 get_normal_at(const Point3 &p) const override;
+
+    static shared_ptr<Terrain> create_terrain(shared_ptr<Heightmap> heightmap,
+                                              float xy_scale,
+                                              float height_scale,
+                                              shared_ptr<TextureMaterial> mat,
+                                              const Vector3 &v);
 };

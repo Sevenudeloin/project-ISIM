@@ -15,9 +15,10 @@ Scene::Scene(Camera cam, list<shared_ptr<PhysObj>> objects,
 
 Scene Scene::createTestScene(int image_height, int image_width)
 {
-    auto uniform_terrain_tex = make_shared<UniformTexture>(
-        LocalTexture(Color(0.1, 0.7, 0.1), 0.95, 0.02, 2));
-    auto uniform_ocean_tex = make_shared<OceanTexture>(
+    auto terrain_tex = make_shared<TerrainTexture>(
+        LocalTexture(Color(0.1, 0.7, 0.1), 1.0, 0.0, 0.1),
+        "../images/normalmaps/normal_mountain_500x500.ppm", 2);
+    auto ocean_tex = make_shared<OceanTexture>(
         LocalTexture(Color(0.1, 0.1, 0.9), 0.7, 0.3, 1),
         "../images/normalmaps/water_normal.ppm", Vector3(50.0, 1.0, 50.0));
 
@@ -27,22 +28,23 @@ Scene Scene::createTestScene(int image_height, int image_width)
     // auto heightmap = make_shared<Heightmap>(
     //     simplexNoiseGenerator.generateHeightmap(0.5, 0.5, 30, 30));
     auto heightmap = make_shared<Heightmap>(
-        "../images/heightmaps/heightmap_simple_20x20.ppm");
-    auto terrain = make_shared<Terrain>(heightmap, 1, 3, uniform_terrain_tex);
-    terrain->translate(Vector3(-9.75, -0.5, -20));
+        "../images/heightmaps/height_mountain_40x40.ppm");
 
-    auto ocean = make_shared<Ocean>(0, uniform_ocean_tex);
+    auto terrain = Terrain::create_terrain(heightmap, 1, 3, terrain_tex,
+                                           Vector3(-20, 0.1, -35));
+
+    auto ocean = make_shared<Ocean>(0, ocean_tex);
 
     objs.push_back(terrain);
     objs.push_back(ocean);
 
     list<shared_ptr<Light>> lights;
-    auto sunlight = make_shared<SunLight>(1.0, 50.0, 0.0);
+    auto sunlight = make_shared<SunLight>(1.0, 20.0, 0.0);
     lights.push_back(sunlight);
 
     double aspect_ratio =
         static_cast<double>(image_width) / static_cast<double>(image_height);
-    auto cam = Camera(Point3(0, 3, 5), Point3(0, 0, -10), Vector3(0, 1, 0),
+    auto cam = Camera(Point3(0, 10, 5), Point3(0, 0, -10), Vector3(0, 1, 0),
                       90.0, 1.0, aspect_ratio, image_width);
 
     auto skybox = make_shared<SkyBoxImage>("../images/skyboxes/skybox_1.ppm");

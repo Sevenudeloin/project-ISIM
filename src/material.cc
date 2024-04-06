@@ -38,9 +38,38 @@ LocalTexture UniformTexture::get_texture_at(const Point3 &) const
     return tex_;
 }
 
-Vector3 UniformTexture::get_normal_at(double, double) const
+Vector3 UniformTexture::get_normal_at(const Point3 &) const
 {
     return Vector3(0, 0, 0);
+}
+
+TerrainTexture::TerrainTexture(LocalTexture tex,
+                               const std::string &normal_filename,
+                               double normal_strength)
+    : tex_(tex)
+    , normal_map_(Image2D())
+    , normal_strength_(normal_strength)
+{
+    PPMParser parser(normal_filename);
+
+    parser.parse(normal_map_);
+}
+
+LocalTexture TerrainTexture::get_texture_at(const Point3 &) const
+{
+    return tex_;
+}
+
+// p is a in terrain local coordinates (0, 0, _) to (1, 1, _)
+Vector3 TerrainTexture::get_normal_at(const Point3 &p) const
+{
+    double x = p.x_;
+    double y = p.z_;
+
+    x = Interval(0.0, normal_map_.width_).clamp(x * normal_map_.width_);
+    y = Interval(0.0, normal_map_.height_).clamp(y * normal_map_.height_);
+
+    return normal_map_.getNormal(y, x);
 }
 
 OceanTexture::OceanTexture(LocalTexture tex, const std::string &normal_filename,
@@ -59,9 +88,12 @@ LocalTexture OceanTexture::get_texture_at(const Point3 &) const
     return tex_;
 }
 
-Vector3 OceanTexture::get_normal_at(double y, double x) const
+Vector3 OceanTexture::get_normal_at(const Point3 &p) const
 {
-    double normal_strength = normal_scale_.y_;
+    double x = p.x_;
+    double y = p.z_;
+
+    // double normal_strength = normal_scale_.y_;
 
     if (normal_scale_.x_ == 0 || normal_scale_.z_ == 0)
         return Vector3(0, 0, 0);
@@ -71,7 +103,5 @@ Vector3 OceanTexture::get_normal_at(double y, double x) const
     x = Interval(0.0, normal_map_.width_).clamp(x * normal_map_.width_);
     y = Interval(0.0, normal_map_.height_).clamp(y * normal_map_.height_);
 
-    Color col = normal_map_.interpolate(y, x);
-    auto n = normal_strength * Vector3(col.r_ - 0.5, 0, col.g_ - 0.5);
-    return n;
+    return normal_map_.getNormal(y, x);
 }

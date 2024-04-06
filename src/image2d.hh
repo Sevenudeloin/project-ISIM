@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "pixel.hh"
+#include "vector3.hh"
 
 class Image2D
 {
@@ -22,6 +23,7 @@ public:
     Color getPixel(int y, int x) const;
 
     Color interpolate(float y, float x) const;
+    Vector3 getNormal(int y, int x) const;
 
     void writePPM(const char *filename);
 };

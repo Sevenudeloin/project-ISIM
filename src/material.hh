@@ -24,7 +24,7 @@ public:
     virtual ~TextureMaterial() = default;
 
     virtual LocalTexture get_texture_at(const Point3 &p) const = 0;
-    virtual Vector3 get_normal_at(double y, double x) const = 0;
+    virtual Vector3 get_normal_at(const Point3 &p) const = 0;
 };
 
 class UniformTexture : public TextureMaterial
@@ -36,13 +36,27 @@ public:
     UniformTexture(LocalTexture tex);
 
     LocalTexture get_texture_at(const Point3 &p) const override;
-    Vector3 get_normal_at(double y, double x) const override;
+    Vector3 get_normal_at(const Point3 &p) const override;
 
     const static UniformTexture default_mat;
 };
 
 const static UniformTexture default_mat(LocalTexture(Color(0.5, 0.5, 0.5), 0.8,
                                                      0.1, 0.5));
+
+class TerrainTexture : public TextureMaterial
+{
+public:
+    LocalTexture tex_;
+    Image2D normal_map_;
+    double normal_strength_;
+
+    TerrainTexture(LocalTexture tex, const std::string &normal_filename,
+                   double normal_strength = 1.0);
+
+    LocalTexture get_texture_at(const Point3 &p) const override;
+    Vector3 get_normal_at(const Point3 &p) const override;
+};
 
 class OceanTexture : public TextureMaterial
 {
@@ -55,5 +69,5 @@ public:
                  Vector3 normal_scale = Vector3(1.0, 1.0, 1.0));
 
     LocalTexture get_texture_at(const Point3 &p) const override;
-    Vector3 get_normal_at(double y, double x) const override;
+    Vector3 get_normal_at(const Point3 &p) const override;
 };

@@ -1,5 +1,6 @@
 #include "image2d.hh"
 
+#include <cmath>
 #include <fstream>
 
 #include "interval.hh"
@@ -69,6 +70,17 @@ Color Image2D::interpolate(float y, float x) const
     Color c1 = c10 * (1 - dx) + c11 * dx;
 
     return c0 * (1 - dy) + c1 * dy;
+}
+
+Vector3 Image2D::getNormal(int y, int x) const
+{
+    Color col = interpolate(y, x);
+
+    double n_x = -1 * (col.r_ - 0.5);
+    double n_z = -1 * (col.g_ - 0.5);
+    double n_y = std::sqrt(1 - n_x * n_x - n_z * n_z);
+
+    return Vector3(n_x, n_y, n_z);
 }
 
 void Image2D::writePPM(const char *filename) // P3 format raw PPM
