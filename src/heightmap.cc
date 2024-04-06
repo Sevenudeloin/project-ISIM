@@ -67,13 +67,13 @@ Image2D Heightmap::toImage2D()
 
 /**
  * @brief Flattens the sides of the heightmap by multiplying it by a 2D gaussian distribution.
- * Works for square heightmaps (if width != height, the function will return a heightmap with the same width and height).
+ * Works for square heightmaps (if width != height, the function will return a heightmap (width, width)).
  *
- * @param flatness_amount  How far the border is flatten [0, width/4[
+ * @param flatness_amount  How far the border is flatten [0, width/4[ ([0, base_sigma[)
  */
 Heightmap Heightmap::flattenSides(float flatness_amount) // FIXME make flatness_amount a scaling parameter and divide base sigma by it when calling gaussian ?
 {
-    // FIXME modifies in place or returns a new heightmap? and should be member or static ?
+    // FIXME modifies in place or returns a new heightmap? and should be member function or static ?
     Heightmap new_heightmap = Heightmap(width_, width_);
     Heightmap gaussian_heightmap = Heightmap(width_, width_);
 
@@ -82,12 +82,8 @@ Heightmap Heightmap::flattenSides(float flatness_amount) // FIXME make flatness_
         return (1.0f / 2 * M_PIf * sigma * sigma) * std::exp(-(x * x + y * y) / (2 * sigma * sigma));
     };
 
-    // for sigma = 1 for our size, sigma = (width_ / 2) / 3 = width_ / 6
-    // then need to do the following for every gaussian value : value + (width_ / 2) to go from 0 to width_
-
     // Apply the gaussian distribution to the heightmap
-    // float base_sigma = static_cast<float>(width_) / 6;
-    float base_sigma = static_cast<float>(width_) / 4;
+    float base_sigma = static_cast<float>(width_) / 4; // 4 is kind of arbitrary, could find a better way to calculate base_sigma
     std::cout << "base_sigma: " << base_sigma << std::endl;
 
     for (int y = 0; y < width_; y++)
@@ -112,11 +108,11 @@ Heightmap Heightmap::flattenSides(float flatness_amount) // FIXME make flatness_
         }
     }
 
-    // TODO delete later
-    Image2D gaussian_image = gaussian_heightmap.toImage2D();
-    gaussian_image.writePPM("../images/heightmaps/gaussian.ppm");
-    Image2D new_image = new_heightmap.toImage2D();
-    new_image.writePPM("../images/heightmaps/flattened.ppm");
+    // for debug purposes
+    // Image2D gaussian_image = gaussian_heightmap.toImage2D();
+    // gaussian_image.writePPM("../images/heightmaps/gaussian.ppm");
+    // Image2D new_image = new_heightmap.toImage2D();
+    // new_image.writePPM("../images/heightmaps/flattened.ppm");
 
     return new_heightmap;
 }
