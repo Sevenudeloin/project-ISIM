@@ -24,4 +24,7 @@ public:
     void set(int y, int x, float value);
 
     Image2D toImage2D();
+    
+    // works for square heightmaps
+    Heightmap flattenSides(float flatness_amount);
 };

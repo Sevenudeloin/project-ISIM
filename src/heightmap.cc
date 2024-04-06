@@ -1,8 +1,10 @@
 #include "heightmap.hh"
 
+#include <algorithm>
+#include <cmath>
+
 #include "image2d.hh"
 #include "ppm_parser.hh"
-#include <algorithm>
 
 Heightmap::Heightmap(int width, int height)
     : width_(width)
@@ -61,4 +63,60 @@ Image2D Heightmap::toImage2D()
     }
 
     return image;
+}
+
+/**
+ * @brief Flattens the sides of the heightmap by multiplying it by a 2D gaussian distribution.
+ * Works for square heightmaps (if width != height, the function will return a heightmap with the same width and height).
+ *
+ * @param flatness_amount  How far the border is flatten [0, width/4[
+ */
+Heightmap Heightmap::flattenSides(float flatness_amount) // FIXME make flatness_amount a scaling parameter and divide base sigma by it when calling gaussian ?
+{
+    // FIXME modifies in place or returns a new heightmap? and should be member or static ?
+    Heightmap new_heightmap = Heightmap(width_, width_);
+    Heightmap gaussian_heightmap = Heightmap(width_, width_);
+
+    // Create a 2D gaussian distribution
+    auto gaussian = [](float x, float y, float sigma) {
+        return (1.0f / 2 * M_PIf * sigma * sigma) * std::exp(-(x * x + y * y) / (2 * sigma * sigma));
+    };
+
+    // for sigma = 1 for our size, sigma = (width_ / 2) / 3 = width_ / 6
+    // then need to do the following for every gaussian value : value + (width_ / 2) to go from 0 to width_
+
+    // Apply the gaussian distribution to the heightmap
+    // float base_sigma = static_cast<float>(width_) / 6;
+    float base_sigma = static_cast<float>(width_) / 4;
+    std::cout << "base_sigma: " << base_sigma << std::endl;
+
+    for (int y = 0; y < width_; y++)
+    {
+        for (int x = 0; x < width_; x++)
+        {
+            float dx = x - width_ / 2;
+            float dy = y - width_ / 2;
+            float gaussian_value = gaussian(dx, dy, base_sigma - flatness_amount);
+
+            // Normalize gaussian value to [0, 1]
+            gaussian_value = gaussian_value / (gaussian(0, 0, base_sigma - flatness_amount));
+
+            // (if we need to keep more height from the original heightmap starting from the middle)
+            // Normalize to [0, a > 1] then clamp to [0, 1]
+            // gaussian_value = std::clamp(gaussian_value * a, 0.0f, 1.0f);
+
+            gaussian_heightmap.set(y, x, gaussian_value);
+
+            float value = height_map_[y][x] * gaussian_value;
+            new_heightmap.set(y, x, value);
+        }
+    }
+
+    // TODO delete later
+    Image2D gaussian_image = gaussian_heightmap.toImage2D();
+    gaussian_image.writePPM("../images/heightmaps/gaussian.ppm");
+    Image2D new_image = new_heightmap.toImage2D();
+    new_image.writePPM("../images/heightmaps/flattened.ppm");
+
+    return new_heightmap;
 }
