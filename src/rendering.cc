@@ -16,8 +16,9 @@ void Rendering::render(Scene &scene, Image2D &image)
             for (int x = 0; x < image.width_; x++)
             {
                 Ray ray = scene.cam_.getRayAt(y, x);
+                // std::cout << ray.origin_ << std::endl;
                 auto pixel_color = castRay(ray, scene, 1);
-                image.setPixel(x, y, pixel_color);
+                image.setPixel(y, x, pixel_color);
             }
         });
     }
@@ -32,6 +33,8 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter)
 {
     if (iter > max_iter)
         return Color(0.0, 0.0, 0.0);
+
+    // std::cout << ray.direction_ << std::endl;
 
     HitRecord closest_hit_record;
     bool has_hit = getClosestObj(ray, scene.objects_, closest_hit_record);
@@ -90,7 +93,6 @@ bool Rendering::getClosestObj(const Ray &ray,
     HitRecord closest_hit_record;
     closest_hit_record.t = utils::infinity;
     bool hit_anything = false;
-
     for (auto const &object : objects)
     {
         HitRecord object_hit_record;

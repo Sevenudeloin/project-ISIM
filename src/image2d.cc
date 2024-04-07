@@ -2,8 +2,10 @@
 
 #include <cmath>
 #include <fstream>
+#include <iostream>
 
 #include "interval.hh"
+#include "utils.hh"
 
 Image2D::Image2D()
     : width_(0)
@@ -35,7 +37,7 @@ void Image2D::setPixel(int y, int x, double r, double g, double b)
 
 void Image2D::setPixel(int y, int x, Color color)
 {
-    setPixel(x, y, color.r_, color.g_, color.b_);
+    setPixel(y, x, color.r_, color.g_, color.b_);
 }
 
 Color Image2D::getPixel(int y, int x) const
@@ -72,9 +74,12 @@ Color Image2D::interpolate(float y, float x) const
     return c0 * (1 - dy) + c1 * dy;
 }
 
-Vector3 Image2D::getNormal(int y, int x) const
+Vector3 Image2D::getNormal(double y, double x, bool raw) const
 {
     Color col = interpolate(y, x);
+
+    if (raw)
+        return Vector3::unit_vector(Vector3(col.r_, col.b_, col.g_));
 
     double n_x = -1 * (col.r_ - 0.5);
     double n_z = -1 * (col.g_ - 0.5);
@@ -83,7 +88,74 @@ Vector3 Image2D::getNormal(int y, int x) const
     return Vector3(n_x, n_y, n_z);
 }
 
-void Image2D::writePPM(const char *filename) // P3 format raw PPM
+void Image2D::minMaxNormalize()
+{
+    double min = utils::infinity;
+    double max = -utils::infinity;
+
+    for (int i = 0; i < width_ * height_; i++)
+    {
+        double r = pixels_[i]->color_.r_;
+        double g = pixels_[i]->color_.g_;
+        double b = pixels_[i]->color_.b_;
+
+        if (r < min)
+            min = r;
+        if (g < min)
+            min = g;
+        if (b < min)
+            min = b;
+
+        if (r > max)
+            max = r;
+        if (g > max)
+            max = g;
+        if (b > max)
+            max = b;
+    }
+
+    for (int i = 0; i < width_ * height_; i++)
+    {
+        double r = pixels_[i]->color_.r_;
+        double g = pixels_[i]->color_.g_;
+        double b = pixels_[i]->color_.b_;
+
+        r = (r - min) / (max - min);
+        g = (g - min) / (max - min);
+        b = (b - min) / (max - min);
+
+        pixels_[i]->color_ = Color(r, g, b);
+    }
+}
+
+void Image2D::sobelNormalize()
+{
+    double min = utils::infinity;
+    double max = -utils::infinity;
+
+    for (int i = 0; i < width_ * height_; i++)
+    {
+        double val = pixels_[i]->color_.r_;
+        if (val < min)
+            min = val;
+        if (val > max)
+            max = val;
+    }
+
+    double divisor = std::fmax(std::fabs(min), std::fabs(max));
+
+    for (int i = 0; i < width_ * height_; i++)
+    {
+        double r = ((pixels_[i]->color_.r_ / divisor) + 1.0) / 2.0;
+        double g = ((pixels_[i]->color_.r_ / divisor) + 1.0) / 2.0;
+        double b = ((pixels_[i]->color_.r_ / divisor) + 1.0) / 2.0;
+
+        pixels_[i]->color_ = Color(r, g, b);
+    }
+}
+
+void Image2D::writePPM(const char *filename,
+                       bool gamma_correct) const // P3 format raw PPM
 {
     std::ofstream file;
     file.open(filename);
@@ -102,15 +174,18 @@ void Image2D::writePPM(const char *filename) // P3 format raw PPM
         g = pixels_[i]->color_.g_;
         b = pixels_[i]->color_.b_;
 
-        r = Color::linear_to_gamma(r);
-        g = Color::linear_to_gamma(g);
-        b = Color::linear_to_gamma(b);
+        if (gamma_correct)
+        {
+            r = Color::linear_to_gamma(r);
+            g = Color::linear_to_gamma(g);
+            b = Color::linear_to_gamma(b);
+        }
 
-        static const Interval intensity(0.000, 0.999);
+        static const Interval intensity(0.0, 1.0);
 
-        file << static_cast<int>(256 * intensity.clamp(r)) << " "
-             << static_cast<int>(256 * intensity.clamp(g)) << " "
-             << static_cast<int>(256 * intensity.clamp(b)) << "\n";
+        file << static_cast<int>(255 * intensity.clamp(r)) << " "
+             << static_cast<int>(255 * intensity.clamp(g)) << " "
+             << static_cast<int>(255 * intensity.clamp(b)) << "\n";
     }
 
     file.close();

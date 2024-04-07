@@ -14,6 +14,11 @@ Color::Color(double r, double g, double b)
     , b_(b)
 {}
 
+Color Color::fromRGB(int r, int g, int b)
+{
+    return Color(r / 255.0, g / 255.0, b / 255.0);
+}
+
 Color Color::operator+(const Color &color)
 {
     return Color(r_ + color.r_, g_ + color.g_, b_ + color.b_);

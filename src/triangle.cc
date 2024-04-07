@@ -111,6 +111,10 @@ bool Triangle::hit(const Ray &ray, HitRecord &hit_record) const
         return false;
     }
 
+    // std::cout << "ray origin: " << ray.origin_ << std::endl;
+    // std::cout << "ray direction: " << ray.direction_ << std::endl;
+    // std::cout << t << " " << p << std::endl;
+
     hit_record.t = t;
     hit_record.p = p;
     if (parent_ != nullptr)

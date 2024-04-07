@@ -1,6 +1,7 @@
 #pragma once
 
 #include "color.hh"
+#include "heightmap.hh"
 #include "image2d.hh"
 #include "vector3.hh"
 
@@ -48,11 +49,13 @@ class TerrainTexture : public TextureMaterial
 {
 public:
     LocalTexture tex_;
-    Image2D normal_map_;
-    double normal_strength_;
+    std::shared_ptr<Heightmap> height_map_;
+    std::shared_ptr<Image2D> normal_map_;
+    std::shared_ptr<Image2D> texture_map_;
+    double sea_level_;
 
-    TerrainTexture(LocalTexture tex, const std::string &normal_filename,
-                   double normal_strength = 1.0);
+    TerrainTexture(LocalTexture tex, std::shared_ptr<Heightmap> height_map,
+                   double sea_level, double strength, double xy_scale);
 
     LocalTexture get_texture_at(const Point3 &p) const override;
     Vector3 get_normal_at(const Point3 &p) const override;

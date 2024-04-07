@@ -68,8 +68,17 @@ void Terrain::translate(const Vector3 &v)
     translation_ = translation_ + v;
 }
 
+LocalTexture Terrain::get_texture_at(const Point3 &p) const
+{
+    Point3 local_p = p - translation_;
+    local_p.x_ /= xy_scale_ * width_;
+    local_p.z_ /= xy_scale_ * height_;
+    return mat_->get_texture_at(local_p);
+}
+
 Vector3 Terrain::get_normal_at(const Point3 &p) const
 {
+    // return Vector3(0, 1, 0);
     Point3 local_p = p - translation_;
     local_p.x_ /= xy_scale_ * width_;
     local_p.z_ /= xy_scale_ * height_;
@@ -78,6 +87,7 @@ Vector3 Terrain::get_normal_at(const Point3 &p) const
 
 bool Terrain::hit(const Ray &ray, HitRecord &hit_record) const
 {
+    // std ::cout << ray.origin_ << std::endl;
     HitRecord closest_hit_record;
     closest_hit_record.t = utils::infinity;
     bool hit_anything = false;

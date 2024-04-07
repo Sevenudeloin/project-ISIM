@@ -23,7 +23,10 @@ public:
     Color getPixel(int y, int x) const;
 
     Color interpolate(float y, float x) const;
-    Vector3 getNormal(int y, int x) const;
+    Vector3 getNormal(double y, double x, bool raw = false) const;
 
-    void writePPM(const char *filename);
+    void minMaxNormalize();
+    void sobelNormalize();
+
+    void writePPM(const char *filename, bool gamma_correct = false) const;
 };

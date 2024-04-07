@@ -14,6 +14,9 @@ struct Color
     Color();
     Color(double r, double g, double b);
 
+    // values between 0 and 255 converted to [0, 1]
+    static Color fromRGB(int r, int g, int b);
+
     Color operator+(const Color &color);
     Color operator+=(const Color &color);
     Color operator-(const Color &color);

@@ -40,6 +40,7 @@ public:
 
     void translate(const Vector3 &v) override;
 
+    LocalTexture get_texture_at(const Point3 &p) const override;
     Vector3 get_normal_at(const Point3 &p) const override;
 
     static shared_ptr<Terrain> create_terrain(shared_ptr<Heightmap> heightmap,
