@@ -7,12 +7,14 @@
 
 Scene::Scene(Camera cam, list<shared_ptr<PhysObj>> objects,
              list<shared_ptr<Light>> lights, shared_ptr<SkyBox> skybox,
-             shared_ptr<AmbientLight> ambient_light)
+             shared_ptr<AmbientLight> ambient_light,
+             shared_ptr<AbsorptionVolume> fog)
     : cam_(cam)
     , objects_(objects)
     , lights_(lights)
     , skybox_(skybox)
     , ambient_light_(ambient_light)
+    , fog_(fog)
 {}
 
 Scene Scene::createTestScene(int image_height, int image_width)
@@ -30,8 +32,10 @@ Scene Scene::createTestScene(int image_height, int image_width)
         LocalTexture(Color(0.1, 0.7, 0.1), 1.0, 0.0, 1.0), full_heightmap,
         sea_level, strength, xy_scale);
 
+    Color ocean_color = Color::fromRGB(24, 24, 82);
     auto ocean_tex = make_shared<OceanTexture>(
-        LocalTexture(Color::fromRGB(24, 24, 82), 0.7, 0.3, 1, 0.0, 0.4, 60.0),
+        LocalTexture(ocean_color, 0.7, 0.3, 1, 0.0, 0.4,
+                     make_shared<ExponentialAbsorptionVolume>(ocean_color, 60)),
         "../images/normalmaps/water_normal.ppm", Vector3(50.0, 3.0, 50.0));
 
     list<shared_ptr<PhysObj>> objs;
@@ -59,7 +63,10 @@ Scene Scene::createTestScene(int image_height, int image_width)
     auto ambient_light =
         make_shared<AmbientLight>(0.05, Color::fromRGB(100, 100, 180));
 
-    return Scene(cam, objs, lights, skybox, ambient_light);
+    auto fog = make_shared<LinearAbsorptionVolume>(Color(0.6, 0.6, 0.6), 0.5,
+                                                   1.5, 0.2);
+
+    return Scene(cam, objs, lights, skybox, ambient_light, fog);
 }
 
 Scene Scene::createOceanScene(int image_height, int image_width)

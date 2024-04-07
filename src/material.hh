@@ -1,5 +1,6 @@
 #pragma once
 
+#include "absorption_volume.hh"
 #include "color.hh"
 #include "heightmap.hh"
 #include "image2d.hh"
@@ -13,13 +14,13 @@ struct LocalTexture
     double ns_;
     double emission_;
     double transparency_;
-    double absorption_;
+    std::shared_ptr<AbsorptionVolume> absorption_;
 
     LocalTexture();
 
     LocalTexture(Color color, double kd, double ks, double ns,
                  double emission = 0.0, double transparency = 0.0,
-                 double absorption = 0.0);
+                 std::shared_ptr<AbsorptionVolume> absorption = nullptr);
 };
 
 class TextureMaterial
