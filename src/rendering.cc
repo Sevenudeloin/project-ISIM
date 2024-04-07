@@ -55,10 +55,11 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter,
         {
             // Consider shadows
             Vector3 light_dir = light->computeDir(p);
-            double light_intensity = light->computeIntensity(light_dir);
             Ray light_dir_ray =
                 Ray(p + (utils::kEpsilon * light_dir), light_dir);
             bool has_hit_light_dir = hasAnyObj(light_dir_ray, scene.objects_);
+
+            double light_intensity = light->computeIntensity(light_dir_ray);
             if (has_hit_light_dir)
             {
                 light_intensity = 0.0;

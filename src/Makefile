@@ -8,7 +8,7 @@ OBJS = interval.o color.o diamond_square.o image2d.o main.o pixel.o vector3.o ra
 	terrain.o heightmap.o physobj.o triangle.o camera.o scene.o light.o ppm_parser.o \
 	rendering.o skybox.o thread_pool.o simplex_noise.o ocean.o material.o sunlight.o \
 	terrain_texture.o ocean_texture.o normal_map_generator.o terrain_texture_map_generator.o \
-	terrain_texture_parameters.o absorption_volume.o
+	terrain_texture_parameters.o absorption_volume.o clouds_plan.o
 
 all: proc_gen
 

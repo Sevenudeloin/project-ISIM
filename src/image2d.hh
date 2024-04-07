@@ -22,7 +22,7 @@ public:
 
     Color getPixel(int y, int x) const;
 
-    Color interpolate(float y, float x) const;
+    Color interpolate(float y, float x, bool loop = false) const;
     Vector3 getNormal(double y, double x, bool raw = false) const;
 
     void minMaxNormalize();

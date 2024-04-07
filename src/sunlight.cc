@@ -4,15 +4,28 @@
 #include "material.hh"
 #include "utils.hh"
 
-SunLight::SunLight(double intensity, double lati, double longi)
+SunLight::SunLight(double intensity, double lati, double longi,
+                   std::shared_ptr<CloudsPlan> clouds_plan)
     : Light(intensity, SunLight::base_lati_to_color(lati))
     , lati_(SunLight::lati_to_spherical(lati))
     , longi_(SunLight::longi_to_spherical(longi))
     , light_dir_(Vector3::spherical_to_cartesian(1.0, lati_, longi_))
+    , clouds_plan_(clouds_plan)
 {}
 
-double SunLight::computeIntensity(Vector3) const
+double SunLight::computeIntensity(const Ray &ray) const
 {
+    if (clouds_plan_)
+    {
+        HitRecord hit_record;
+        if (clouds_plan_->hit(ray, hit_record))
+        {
+            double clouds_shadow = 1.0
+                - (clouds_plan_->clouds_max_opacity_
+                   * hit_record.tex.color_.r_);
+            return intensity_ * clouds_shadow;
+        }
+    }
     return intensity_;
 }
 

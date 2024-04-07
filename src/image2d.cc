@@ -45,7 +45,7 @@ Color Image2D::getPixel(int y, int x) const
     return pixels_[y * width_ + x]->color_;
 }
 
-Color Image2D::interpolate(float y, float x) const
+Color Image2D::interpolate(float y, float x, bool loop) const
 {
     if (x < 0 || x >= width_ || y < 0 || y >= height_)
         return Color(0, 0, 0);
@@ -56,9 +56,19 @@ Color Image2D::interpolate(float y, float x) const
     int y1 = y0 + 1;
 
     if (x1 >= width_)
-        x1 = width_ - 1;
+    {
+        if (loop)
+            x1 = 0;
+        else
+            x1 = width_ - 1;
+    }
     if (y1 >= height_)
-        y1 = height_ - 1;
+    {
+        if (loop)
+            y1 = 0;
+        else
+            y1 = height_ - 1;
+    }
 
     float dx = x - x0;
     float dy = y - y0;
