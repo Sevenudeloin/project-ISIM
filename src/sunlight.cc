@@ -18,7 +18,7 @@ double SunLight::computeIntensity(Vector3) const
 
 Vector3 SunLight::computeDir(Point3) const
 {
-    return light_dir_;
+    return Vector3::unit_vector(light_dir_);
 }
 
 double SunLight::lati_to_spherical(double lati)

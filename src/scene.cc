@@ -25,7 +25,7 @@ Scene Scene::createTestScene(int image_height, int image_width)
         "../images/heightmaps/height_mountain_40x40.ppm");
 
     auto terrain_tex = make_shared<TerrainTexture>(
-        LocalTexture(Color(0.1, 0.7, 0.1), 1.0, 0.0, 0.1), full_heightmap,
+        LocalTexture(Color(0.1, 0.7, 0.1), 1.0, 0.0, 1.0), full_heightmap,
         sea_level, strength, xy_scale);
     auto ocean_tex = make_shared<OceanTexture>(
         LocalTexture(Color(0.1, 0.1, 0.9), 0.7, 0.3, 1),
@@ -44,11 +44,11 @@ Scene Scene::createTestScene(int image_height, int image_width)
 
     list<shared_ptr<Light>> lights;
     auto sunlight = make_shared<SunLight>(1.0, 25.0, 0.0);
-    lights.push_back(sunlight);
+    // lights.push_back(sunlight);
 
     double aspect_ratio =
         static_cast<double>(image_width) / static_cast<double>(image_height);
-    auto cam = Camera(Point3(0, 1, 4), Point3(0, 0, -10), Vector3(0, 1, 0),
+    auto cam = Camera(Point3(0, 10, 0), Point3(0, 0, -10), Vector3(0, 1, 0),
                       80.0, 1.0, aspect_ratio, image_width);
 
     auto skybox = make_shared<SkyBoxImage>("../images/skyboxes/skybox_1.ppm");

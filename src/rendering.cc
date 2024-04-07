@@ -46,6 +46,10 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter)
         LocalTexture loc_tex = closest_hit_record.tex;
 
         Color color = Color(0.0, 0.0, 0.0);
+
+        Vector3 reflect_ray_dir = Vector3::unit_vector(
+            Vector3::reflect(Vector3::unit_vector(ray.direction_), n));
+
         for (auto const &light : scene.lights_)
         {
             // Consider shadows
@@ -66,19 +70,21 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter)
             }
 
             // Specular componant
-            Vector3 reflect_ray_dir =
-                Vector3::reflect(Vector3::unit_vector(ray.direction_), n);
             double dot_specular = Vector3::dot(reflect_ray_dir, light_dir);
             if (dot_specular > 0)
                 color += loc_tex.ks_ * light_intensity * light->color_
                     * pow(dot_specular, loc_tex.ns_);
+        }
 
-            // Reflexion componant (No reflexion??)
+        // Reflexion componant
+        if (loc_tex.ks_ > 0)
+        {
             Ray reflect_ray =
                 Ray(p + (utils::kEpsilon * reflect_ray_dir), reflect_ray_dir);
             color += loc_tex.ks_ * castRay(reflect_ray, scene, iter + 1);
         }
 
+        // Emission componant
         color += loc_tex.emission_ * loc_tex.color_;
 
         return color;
