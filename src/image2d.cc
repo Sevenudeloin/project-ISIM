@@ -30,9 +30,9 @@ void Image2D::setPixel(const Pixel &pixel)
     pixels_[pixel.y_ * width_ + pixel.x_] = std::make_shared<Pixel>(pixel);
 }
 
-void Image2D::setPixel(int y, int x, double r, double g, double b)
+void Image2D::setPixel(int y, int x, double r, double g, double b, double a)
 {
-    pixels_[y * width_ + x] = std::make_shared<Pixel>(x, y, r, g, b);
+    pixels_[y * width_ + x] = std::make_shared<Pixel>(x, y, r, g, b, a);
 }
 
 void Image2D::setPixel(int y, int x, Color color)

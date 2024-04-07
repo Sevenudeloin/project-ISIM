@@ -17,7 +17,7 @@ public:
     Image2D(int width, int height);
 
     void setPixel(const Pixel &pixel);
-    void setPixel(int y, int x, double r, double g, double b);
+    void setPixel(int y, int x, double r, double g, double b, double a = 1.0);
     void setPixel(int y, int x, Color color);
 
     Color getPixel(int y, int x) const;

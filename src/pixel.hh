@@ -10,5 +10,5 @@ struct Pixel
 
     Pixel();
     Pixel(int x, int y, Color color);
-    Pixel(int x, int y, double r, double g, double b);
+    Pixel(int x, int y, double r, double g, double b, double a = 1.0);
 };

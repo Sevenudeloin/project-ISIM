@@ -6,22 +6,24 @@ Color::Color()
     : r_(0)
     , g_(0)
     , b_(0)
+    , a_(1.0)
 {}
 
-Color::Color(double r, double g, double b)
+Color::Color(double r, double g, double b, double a)
     : r_(r)
     , g_(g)
     , b_(b)
+    , a_(a)
 {}
 
-Color Color::fromRGB(int r, int g, int b)
+Color Color::fromRGB(int r, int g, int b, int a)
 {
-    return Color(r / 255.0, g / 255.0, b / 255.0);
+    return Color(r / 255.0, g / 255.0, b / 255.0, a / 255.0);
 }
 
 Color Color::operator+(const Color &color)
 {
-    return Color(r_ + color.r_, g_ + color.g_, b_ + color.b_);
+    return Color(r_ + color.r_, g_ + color.g_, b_ + color.b_, a_ + color.a_);
 }
 
 Color Color::operator+=(const Color &color)
@@ -29,12 +31,13 @@ Color Color::operator+=(const Color &color)
     r_ += color.r_;
     g_ += color.g_;
     b_ += color.b_;
+    a_ += color.a_;
     return *this;
 }
 
 Color Color::operator-(const Color &color)
 {
-    return Color(r_ - color.r_, g_ - color.g_, b_ - color.b_);
+    return Color(r_ - color.r_, g_ - color.g_, b_ - color.b_, a_ - color.a_);
 }
 
 Color Color::operator-=(const Color &color)
@@ -42,17 +45,18 @@ Color Color::operator-=(const Color &color)
     r_ -= color.r_;
     g_ -= color.g_;
     b_ -= color.b_;
+    a_ -= color.a_;
     return *this;
 }
 
 Color Color::operator*(double scalar)
 {
-    return Color(scalar * r_, scalar * g_, scalar * b_);
+    return Color(scalar * r_, scalar * g_, scalar * b_, scalar * a_);
 }
 
 Color Color::operator*(const Color &color)
 {
-    return Color(r_ * color.r_, g_ * color.g_, b_ * color.b_);
+    return Color(r_ * color.r_, g_ * color.g_, b_ * color.b_, a_ * color.a_);
 }
 
 double Color::linear_to_gamma(double linear_component)
@@ -62,12 +66,14 @@ double Color::linear_to_gamma(double linear_component)
 
 Color Color::clamp(const Interval &interval) const
 {
-    return Color(interval.clamp(r_), interval.clamp(g_), interval.clamp(b_));
+    return Color(interval.clamp(r_), interval.clamp(g_), interval.clamp(b_),
+                 interval.clamp(a_));
 }
 
 Color operator*(double scalar, const Color &color)
 {
-    return Color(scalar * color.r_, scalar * color.g_, scalar * color.b_);
+    return Color(scalar * color.r_, scalar * color.g_, scalar * color.b_,
+                 scalar * color.a_);
 }
 
 Color Color::temperature_to_color(double temperature)

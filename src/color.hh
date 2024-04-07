@@ -10,12 +10,13 @@ struct Color
     double r_;
     double g_;
     double b_;
+    double a_;
 
     Color();
-    Color(double r, double g, double b);
+    Color(double r, double g, double b, double a = 1.0);
 
     // values between 0 and 255 converted to [0, 1]
-    static Color fromRGB(int r, int g, int b);
+    static Color fromRGB(int r, int g, int b, int a = 255);
 
     Color operator+(const Color &color);
     Color operator+=(const Color &color);
@@ -37,6 +38,7 @@ struct Color
 
 inline std::ostream &operator<<(std::ostream &os, const Color &color)
 {
-    os << "Color(" << color.r_ << ", " << color.g_ << ", " << color.b_ << ")";
+    os << "Color(" << color.r_ << ", " << color.g_ << ", " << color.b_ << ", "
+       << color.a_ << ")";
     return os;
 }
