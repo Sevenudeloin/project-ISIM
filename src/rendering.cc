@@ -17,7 +17,8 @@ void Rendering::render(Scene &scene, Image2D &image)
             {
                 Ray ray = scene.cam_.getRayAt(y, x);
                 // std::cout << ray.origin_ << std::endl;
-                auto pixel_color = castRay(ray, scene, 1);
+                auto pixel_color = castRay(ray, scene, 1, 0.5,
+                                           make_shared<Color>(0.7, 0.7, 0.7));
                 image.setPixel(y, x, pixel_color);
             }
         });
@@ -30,7 +31,8 @@ void Rendering::render(Scene &scene, Image2D &image)
 }
 
 Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter,
-                         double absorption)
+                         double absorption_strength,
+                         shared_ptr<Color> absorption_color)
 {
     if (iter > max_iter)
         return Color(0.0, 0.0, 0.0);
@@ -94,18 +96,20 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter,
             Ray refracted_ray =
                 Ray(p + (utils::kEpsilon * ray.direction_), ray.direction_);
             color += loc_tex.transparency_
-                * castRay(refracted_ray, scene, iter + 1, loc_tex.absorption_);
+                * castRay(refracted_ray, scene, iter + 1, loc_tex.absorption_,
+                          std::make_shared<Color>(loc_tex.color_));
         }
 
         // Emission componant
         color += loc_tex.emission_ * loc_tex.color_;
 
         // Absorption of volume
-        if (absorption > 0.0)
+        if (absorption_strength > 0.0)
         {
-            // std::cout << "Absorption: " << absorption
-            //           << " with t = " << closest_hit_record.t << ::endl;
-            color = color * exp(-absorption * closest_hit_record.t);
+            double transmitance_coef =
+                exp(-absorption_strength * closest_hit_record.t);
+            color = color * transmitance_coef
+                + *absorption_color * (1 - transmitance_coef);
         }
 
         return color;

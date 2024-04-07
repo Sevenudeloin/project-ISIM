@@ -14,7 +14,8 @@ public:
     static void render(Scene &scene, Image2D &image);
 
     static Color castRay(const Ray &ray, const Scene &scene, int iter,
-                         double absorption = 0.0);
+                         double absorption = 0.0,
+                         shared_ptr<Color> absorption_color = nullptr);
 
     static bool getClosestObj(const Ray &ray,
                               const list<shared_ptr<PhysObj>> &objects,
