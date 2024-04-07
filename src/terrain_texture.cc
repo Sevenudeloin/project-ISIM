@@ -17,8 +17,6 @@ TerrainTexture::TerrainTexture(LocalTexture tex,
     texture_map_ = std::make_shared<Image2D>(
         TerrainTextureMapGenerator::generateTerrainTextureMap(
             height_map_, normal_map_, TerrainTextureParameters(), sea_level));
-
-    texture_map_->writePPM("../images/terrain_texture.ppm");
 }
 
 // p is in terrain local coordinates (0, _, 0) to (1, _, 1)
