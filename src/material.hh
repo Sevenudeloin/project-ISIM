@@ -13,11 +13,13 @@ struct LocalTexture
     double ns_;
     double emission_;
     double transparency_;
+    double absorption_;
 
     LocalTexture();
 
-    LocalTexture(Color color, double kd, double ks, double ns, double emission);
-    LocalTexture(Color color, double kd, double ks, double ns);
+    LocalTexture(Color color, double kd, double ks, double ns,
+                 double emission = 0.0, double transparency = 0.0,
+                 double absorption = 0.0);
 };
 
 class TextureMaterial

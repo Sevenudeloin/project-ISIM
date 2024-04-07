@@ -29,7 +29,8 @@ void Rendering::render(Scene &scene, Image2D &image)
     }
 }
 
-Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter)
+Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter,
+                         double absorption)
 {
     if (iter > max_iter)
         return Color(0.0, 0.0, 0.0);
@@ -68,7 +69,8 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter)
             if (dot_n_light > 0)
             {
                 color += loc_tex.kd_ * loc_tex.color_ * dot_n_light
-                    * light->color_ * light_intensity;
+                    * light->color_ * light_intensity
+                    * (1 - loc_tex.transparency_);
             }
 
             // Specular componant
@@ -86,8 +88,25 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter)
             color += loc_tex.ks_ * castRay(reflect_ray, scene, iter + 1);
         }
 
+        // Refraction componant
+        if (loc_tex.transparency_ > 0)
+        {
+            Ray refracted_ray =
+                Ray(p + (utils::kEpsilon * ray.direction_), ray.direction_);
+            color += loc_tex.transparency_
+                * castRay(refracted_ray, scene, iter + 1, loc_tex.absorption_);
+        }
+
         // Emission componant
         color += loc_tex.emission_ * loc_tex.color_;
+
+        // Absorption of volume
+        if (absorption > 0.0)
+        {
+            // std::cout << "Absorption: " << absorption
+            //           << " with t = " << closest_hit_record.t << ::endl;
+            color = color * exp(-absorption * closest_hit_record.t);
+        }
 
         return color;
     }

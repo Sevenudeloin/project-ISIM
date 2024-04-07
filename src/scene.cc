@@ -29,8 +29,9 @@ Scene Scene::createTestScene(int image_height, int image_width)
     auto terrain_tex = make_shared<TerrainTexture>(
         LocalTexture(Color(0.1, 0.7, 0.1), 1.0, 0.0, 1.0), full_heightmap,
         sea_level, strength, xy_scale);
+
     auto ocean_tex = make_shared<OceanTexture>(
-        LocalTexture(Color(0.1, 0.1, 0.9), 0.7, 0.3, 1),
+        LocalTexture(Color(0.1, 0.1, 0.9), 0.7, 0.3, 1, 0.0, 0.4, 60.0),
         "../images/normalmaps/water_normal.ppm", Vector3(50.0, 3.0, 50.0));
 
     list<shared_ptr<PhysObj>> objs;
@@ -50,7 +51,7 @@ Scene Scene::createTestScene(int image_height, int image_width)
 
     double aspect_ratio =
         static_cast<double>(image_width) / static_cast<double>(image_height);
-    auto cam = Camera(Point3(0, 5, 0), Point3(0, 0, -10), Vector3(0, 1, 0),
+    auto cam = Camera(Point3(0, 6, 5), Point3(0, 0, -10), Vector3(0, 1, 0),
                       80.0, 1.0, aspect_ratio, image_width);
 
     auto skybox = make_shared<SkyBoxImage>("../images/skyboxes/skybox_1.ppm");

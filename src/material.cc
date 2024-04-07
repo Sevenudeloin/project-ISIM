@@ -10,23 +10,20 @@ LocalTexture::LocalTexture()
     , ks_(0)
     , ns_(0)
     , emission_(0)
-{}
-
-LocalTexture::LocalTexture(Color color, double kd, double ks, double ns)
-    : color_(color)
-    , kd_(kd)
-    , ks_(ks)
-    , ns_(ns)
-    , emission_(0)
+    , transparency_(0)
+    , absorption_(0)
 {}
 
 LocalTexture::LocalTexture(Color color, double kd, double ks, double ns,
-                           double emission)
+                           double emission, double transparency,
+                           double absorption)
     : color_(color)
     , kd_(kd)
     , ks_(ks)
     , ns_(ns)
     , emission_(emission)
+    , transparency_(transparency)
+    , absorption_(absorption)
 {}
 
 UniformTexture::UniformTexture(LocalTexture tex)
