@@ -6,11 +6,13 @@
 #include "triangle.hh"
 
 Scene::Scene(Camera cam, list<shared_ptr<PhysObj>> objects,
-             list<shared_ptr<Light>> lights, shared_ptr<SkyBox> skybox)
+             list<shared_ptr<Light>> lights, shared_ptr<SkyBox> skybox,
+             shared_ptr<AmbientLight> ambient_light)
     : cam_(cam)
     , objects_(objects)
     , lights_(lights)
     , skybox_(skybox)
+    , ambient_light_(ambient_light)
 {}
 
 Scene Scene::createTestScene(int image_height, int image_width)
@@ -29,7 +31,7 @@ Scene Scene::createTestScene(int image_height, int image_width)
         sea_level, strength, xy_scale);
     auto ocean_tex = make_shared<OceanTexture>(
         LocalTexture(Color(0.1, 0.1, 0.9), 0.7, 0.3, 1),
-        "../images/normalmaps/water_normal.ppm", Vector3(50.0, 1.0, 50.0));
+        "../images/normalmaps/water_normal.ppm", Vector3(50.0, 3.0, 50.0));
 
     list<shared_ptr<PhysObj>> objs;
 
@@ -43,17 +45,20 @@ Scene Scene::createTestScene(int image_height, int image_width)
     objs.push_back(ocean);
 
     list<shared_ptr<Light>> lights;
-    auto sunlight = make_shared<SunLight>(1.0, 25.0, 0.0);
-    // lights.push_back(sunlight);
+    auto sunlight = make_shared<SunLight>(1.5, 25.0, 0.0);
+    lights.push_back(sunlight);
 
     double aspect_ratio =
         static_cast<double>(image_width) / static_cast<double>(image_height);
-    auto cam = Camera(Point3(0, 10, 0), Point3(0, 0, -10), Vector3(0, 1, 0),
+    auto cam = Camera(Point3(0, 5, 0), Point3(0, 0, -10), Vector3(0, 1, 0),
                       80.0, 1.0, aspect_ratio, image_width);
 
     auto skybox = make_shared<SkyBoxImage>("../images/skyboxes/skybox_1.ppm");
 
-    return Scene(cam, objs, lights, skybox);
+    auto ambient_light =
+        make_shared<AmbientLight>(0.05, Color::fromRGB(100, 100, 180));
+
+    return Scene(cam, objs, lights, skybox, ambient_light);
 }
 
 Scene Scene::createOceanScene(int image_height, int image_width)

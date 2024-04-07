@@ -23,3 +23,13 @@ Vector3 PointLight::computeDir(Point3 p) const
 {
     return Vector3::unit_vector(center_ - p);
 }
+
+AmbientLight::AmbientLight(double intensity, const Color color)
+    : intensity_(intensity)
+    , color_(color)
+{}
+
+Color AmbientLight::getAmbientLight() const
+{
+    return intensity_ * color_;
+}

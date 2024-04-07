@@ -12,6 +12,7 @@ struct LocalTexture
     double ks_;
     double ns_;
     double emission_;
+    double transparency_;
 
     LocalTexture();
 

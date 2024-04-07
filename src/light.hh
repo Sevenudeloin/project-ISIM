@@ -45,3 +45,14 @@ public:
 
     static Color base_lati_to_color(double lati);
 };
+
+class AmbientLight
+{
+public:
+    double intensity_;
+    Color color_;
+
+    AmbientLight(double intensity, const Color color);
+
+    Color getAmbientLight() const;
+};

@@ -45,7 +45,7 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter)
         Vector3 n = closest_hit_record.n;
         LocalTexture loc_tex = closest_hit_record.tex;
 
-        Color color = Color(0.0, 0.0, 0.0);
+        Color color = scene.ambient_light_->getAmbientLight();
 
         Vector3 reflect_ray_dir = Vector3::unit_vector(
             Vector3::reflect(Vector3::unit_vector(ray.direction_), n));
@@ -59,7 +59,9 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter)
                 Ray(p + (utils::kEpsilon * light_dir), light_dir);
             bool has_hit_light_dir = hasAnyObj(light_dir_ray, scene.objects_);
             if (has_hit_light_dir)
+            {
                 light_intensity = 0.0;
+            }
 
             // Diffuse componant
             double dot_n_light = Vector3::dot(n, light_dir);
