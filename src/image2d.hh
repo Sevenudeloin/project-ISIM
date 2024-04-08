@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include "heightmap.hh"
 #include "pixel.hh"
 #include "vector3.hh"
 
@@ -15,6 +16,8 @@ public:
 
     Image2D();
     Image2D(int width, int height);
+    Image2D(const Heightmap &heightmap);
+    Image2D(const std::string &filename);
 
     void setPixel(const Pixel &pixel);
     void setPixel(int y, int x, double r, double g, double b, double a = 1.0);

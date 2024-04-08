@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "interval.hh"
+#include "ppm_parser.hh"
 #include "utils.hh"
 
 Image2D::Image2D()
@@ -25,6 +26,26 @@ Image2D::Image2D(int width, int height)
     }
 }
 
+Image2D::Image2D(const Heightmap &heightmap)
+    : width_(heightmap.width_)
+    , height_(heightmap.height_)
+    , pixels_(std::vector<std::shared_ptr<Pixel>>(width_ * height_))
+{
+    for (int i = 0; i < width_ * height_; i++)
+    {
+        int x = i % width_;
+        int y = i / width_;
+        double val = heightmap.at(y, x);
+        pixels_[i] = std::make_shared<Pixel>(x, y, val, val, val);
+    }
+}
+
+Image2D::Image2D(const std::string &filename)
+{
+    PPMParser parser(filename);
+    parser.parse(*this);
+}
+
 void Image2D::setPixel(const Pixel &pixel)
 {
     pixels_[pixel.y_ * width_ + pixel.x_] = std::make_shared<Pixel>(pixel);
@@ -37,7 +58,7 @@ void Image2D::setPixel(int y, int x, double r, double g, double b, double a)
 
 void Image2D::setPixel(int y, int x, Color color)
 {
-    setPixel(y, x, color.r_, color.g_, color.b_);
+    setPixel(y, x, color.r_, color.g_, color.b_, color.a_);
 }
 
 Color Image2D::getPixel(int y, int x) const

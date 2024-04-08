@@ -1,24 +1,42 @@
 #include "wave_map_generator.hh"
 
 #include <cmath>
-#include <queue>
+#include <iostream>
+#include <list>
 #include <tuple>
 
 #include "utils.hh"
 
-Image2D
-WaveMapGenerator::generateWaveMap(std::shared_ptr<Heightmap> terrain_height_map,
-                                  std::shared_ptr<Image2D> ocean_normal_map,
-                                  const WaveMapParameters &params,
-                                  double sea_level)
+Image2D WaveMapGenerator::generateShoreWaveMap(
+    std::shared_ptr<Heightmap> terrain_height_map,
+    const WaveMapParameters &params, double sea_level)
 {
     Heightmap above_water_map =
         generateAboveWaterMap(terrain_height_map, sea_level);
 
     Heightmap dist_to_shore_map = generateDistToShoreMap(above_water_map);
 
-    Image2D wave_map =
-        distanceMapToWaveMap(dist_to_shore_map, params, ocean_normal_map);
+    Image2D wave_map = distanceMapToWaveMap(dist_to_shore_map, params);
+
+    wave_map.writePPM("../images/wave_map.ppm");
+
+    return wave_map;
+}
+
+Image2D WaveMapGenerator::generateDeepOceanWaveMap(
+    std::shared_ptr<Image2D> ocean_normal_map, const WaveMapParameters &params)
+{
+    Image2D wave_map(ocean_normal_map->width_, ocean_normal_map->height_);
+
+    for (int i = 0; i < ocean_normal_map->height_; i++)
+    {
+        for (int j = 0; j < ocean_normal_map->width_; j++)
+        {
+            Vector3 n = ocean_normal_map->getNormal(i, j);
+            Color wave_color = params.getDeepOceanWaveColor(n);
+            wave_map.setPixel(i, j, wave_color);
+        }
+    }
 
     return wave_map;
 }
@@ -53,7 +71,8 @@ WaveMapGenerator::generateDistToShoreMap(const Heightmap &above_water_map)
     int cols = above_water_map.width_;
     Heightmap distances(rows, cols);
 
-    std::queue<std::pair<int, int>> q;
+    std::list<std::pair<int, int>> above_pixels;
+    std::list<std::pair<int, int>> other_pixels;
 
     for (int i = 0; i < rows; i++)
     {
@@ -63,43 +82,65 @@ WaveMapGenerator::generateDistToShoreMap(const Heightmap &above_water_map)
             if (above > 0.0)
             {
                 distances.set(i, j, 0.0);
-                q.push({ i, j });
+
+                std::list<std::pair<int, int>> neighbors;
+                if (i > 0)
+                {
+                    neighbors.push_back({ i - 1, j });
+                }
+                if (i < rows - 1)
+                {
+                    neighbors.push_back({ i + 1, j });
+                }
+                if (j > 0)
+                {
+                    neighbors.push_back({ i, j - 1 });
+                }
+                if (j < cols - 1)
+                {
+                    neighbors.push_back({ i, j + 1 });
+                }
+
+                bool all_neighbors_are_above = true;
+                for (auto &n : neighbors)
+                {
+                    if (above_water_map.at(n.first, n.second) == 0.0)
+                    {
+                        all_neighbors_are_above = false;
+                        break;
+                    }
+                }
+                if (!all_neighbors_are_above)
+                {
+                    above_pixels.push_back({ i, j });
+                }
             }
             else
             {
-                distances.set(i, j, std::numeric_limits<float>::max());
+                other_pixels.push_back({ i, j });
             }
         }
     }
 
-    while (!q.empty())
+    for (auto &p : other_pixels)
     {
-        auto p = q.front();
-        q.pop();
-
-        int dx[] = { -1, 0, 1, 0 };
-        int dy[] = { 0, -1, 0, 1 };
-
-        for (int i = 0; i < 4; ++i)
+        double min_dist = std::numeric_limits<double>::max();
+        for (auto &a : above_pixels)
         {
-            int nx = p.first + dx[i];
-            int ny = p.second + dy[i];
-
-            if (nx >= 0 && nx < rows && ny >= 0 && ny < cols
-                && distances.at(ny, nx) == utils::infinity)
+            double d = dist(p.first, p.second, a.first, a.second);
+            if (d < min_dist)
             {
-                distances.set(ny, nx, dist(nx, ny, p.first, p.second));
-                q.push({ nx, ny });
+                min_dist = d;
             }
         }
+        distances.set(p.first, p.second, min_dist);
     }
 
     return distances;
 }
 
-Image2D WaveMapGenerator::distanceMapToWaveMap(
-    const Heightmap &distances, const WaveMapParameters &params,
-    std::shared_ptr<Image2D> ocean_normal_map)
+Image2D WaveMapGenerator::distanceMapToWaveMap(const Heightmap &distances,
+                                               const WaveMapParameters &params)
 {
     Image2D wave_map(distances.width_, distances.height_);
 
@@ -108,8 +149,7 @@ Image2D WaveMapGenerator::distanceMapToWaveMap(
         for (int j = 0; j < distances.width_; j++)
         {
             double distance = distances.at(i, j);
-            Vector3 n = ocean_normal_map->getNormal(i, j);
-            Color wave_color = params.getWaveColor(distance, n);
+            Color wave_color = params.getShoreWaveColor(distance);
             wave_map.setPixel(i, j, wave_color);
         }
     }

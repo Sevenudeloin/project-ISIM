@@ -10,19 +10,17 @@ LocalTexture::LocalTexture()
     , ks_(0)
     , ns_(0)
     , emission_(0)
-    , transparency_(0)
     , absorption_(nullptr)
 {}
 
 LocalTexture::LocalTexture(Color color, double kd, double ks, double ns,
-                           double emission, double transparency,
+                           double emission,
                            std::shared_ptr<AbsorptionVolume> absorption)
     : color_(color)
     , kd_(kd)
     , ks_(ks)
     , ns_(ns)
     , emission_(emission)
-    , transparency_(transparency)
     , absorption_(absorption)
 {}
 

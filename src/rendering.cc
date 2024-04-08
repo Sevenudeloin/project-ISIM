@@ -70,8 +70,7 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter,
             if (dot_n_light > 0)
             {
                 color += loc_tex.kd_ * loc_tex.color_ * dot_n_light
-                    * light->color_ * light_intensity
-                    * (1 - loc_tex.transparency_);
+                    * light->color_ * light_intensity * loc_tex.color_.a_;
             }
 
             // Specular componant
@@ -90,11 +89,11 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter,
         }
 
         // Refraction componant
-        if (loc_tex.transparency_ > 0)
+        if (loc_tex.color_.a_ < 1)
         {
             Ray refracted_ray =
                 Ray(p + (utils::kEpsilon * ray.direction_), ray.direction_);
-            color += loc_tex.transparency_
+            color += (1 - loc_tex.color_.a_)
                 * castRay(refracted_ray, scene, iter + 1, loc_tex.absorption_);
         }
 

@@ -13,13 +13,12 @@ struct LocalTexture
     double ks_;
     double ns_;
     double emission_;
-    double transparency_;
     std::shared_ptr<AbsorptionVolume> absorption_;
 
     LocalTexture();
 
     LocalTexture(Color color, double kd, double ks, double ns,
-                 double emission = 0.0, double transparency = 0.0,
+                 double emission = 0.0,
                  std::shared_ptr<AbsorptionVolume> absorption = nullptr);
 };
 
@@ -69,11 +68,14 @@ class OceanTexture : public TextureMaterial
 {
 public:
     LocalTexture tex_;
-    Image2D normal_map_;
+    std::shared_ptr<Image2D> normal_map_;
     Vector3 normal_scale_;
+    std::shared_ptr<Image2D> wave_map_;
 
-    OceanTexture(LocalTexture tex, const std::string &normal_filename,
+    OceanTexture(LocalTexture tex, std::shared_ptr<Image2D> normal_map,
                  Vector3 normal_scale = Vector3(1.0, 1.0, 1.0));
+
+    Point3 get_local_coords(const Point3 &p) const;
 
     LocalTexture get_texture_at(const Point3 &p) const override;
     Vector3 get_normal_at(const Point3 &p) const override;

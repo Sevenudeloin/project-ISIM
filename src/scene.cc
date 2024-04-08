@@ -28,15 +28,18 @@ Scene Scene::createTestScene(int image_height, int image_width)
     auto heightmap = make_shared<Heightmap>(
         "../images/heightmaps/height_mountain_40x40.ppm");
 
+    auto ocean_normal_map =
+        make_shared<Image2D>("../images/normalmaps/water_normal.ppm");
+
     auto terrain_tex = make_shared<TerrainTexture>(
         LocalTexture(Color(0.1, 0.7, 0.1), 1.0, 0.0, 1.0), full_heightmap,
         sea_level, strength, xy_scale);
 
-    Color ocean_color = Color::fromRGB(24, 24, 82);
+    Color ocean_color = Color::fromRGB(9, 22, 38, 0);
     auto ocean_tex = make_shared<OceanTexture>(
-        LocalTexture(ocean_color, 0.7, 0.3, 1, 0.0, 0.4,
-                     make_shared<ExponentialAbsorptionVolume>(ocean_color, 30)),
-        "../images/normalmaps/water_normal.ppm", Vector3(50.0, 3.0, 50.0));
+        LocalTexture(ocean_color, 1.0, 0.35, 2, 0.0,
+                     make_shared<ExponentialAbsorptionVolume>(ocean_color, 40)),
+        ocean_normal_map, Vector3(10.0, 3.0, 10.0));
 
     list<shared_ptr<PhysObj>> objs;
 
@@ -46,14 +49,11 @@ Scene Scene::createTestScene(int image_height, int image_width)
 
     auto ocean = make_shared<Ocean>(0, ocean_tex);
 
-    objs.push_back(terrain);
+    // objs.push_back(terrain);
     objs.push_back(ocean);
 
-    PPMParser cloud_img_parser("../images/cloudmaps/clouds_1.ppm");
-    Image2D cloud_mask;
-    cloud_img_parser.parse(cloud_mask);
-    auto clouds_plan = make_shared<CloudsPlan>(make_shared<Image2D>(cloud_mask),
-                                               20.0, 30.0, 0.9);
+    auto cloud_mask = make_shared<Image2D>("../images/cloudmaps/clouds_1.ppm");
+    auto clouds_plan = make_shared<CloudsPlan>(cloud_mask, 20.0, 30.0, 1.0);
 
     list<shared_ptr<Light>> lights;
     auto sunlight = make_shared<SunLight>(2.0, 25.0, 0.0, clouds_plan);
@@ -69,12 +69,13 @@ Scene Scene::createTestScene(int image_height, int image_width)
     auto ambient_light =
         make_shared<AmbientLight>(0.05, Color::fromRGB(100, 100, 180));
 
-    auto fog = make_shared<LinearAbsorptionVolume>(Color(0.6, 0.6, 0.6), 0.5,
-                                                   3.0, 0.25);
+    auto fog = make_shared<LinearAbsorptionVolume>(Color(0.6, 0.6, 0.6), 1.5,
+                                                   5.0, 0.25);
 
     return Scene(cam, objs, lights, skybox, ambient_light, fog);
 }
 
+/*
 Scene Scene::createOceanScene(int image_height, int image_width)
 {
     auto uniform_ocean_tex = make_shared<OceanTexture>(
@@ -136,3 +137,4 @@ Scene Scene::createIslandScene(int image_height, int image_width)
 
     return Scene(cam, objs, lights, skybox);
 }
+*/

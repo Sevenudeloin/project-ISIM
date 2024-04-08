@@ -105,6 +105,7 @@ int main(int argc, char *argv[])
 
     Scene scene = Scene::createTestScene(image_height, image_width);
 
+    /*
     if (scene_type == "ocean")
     {
         scene = Scene::createOceanScene(image_height, image_width);
@@ -113,6 +114,7 @@ int main(int argc, char *argv[])
     {
         scene = Scene::createIslandScene(image_height, image_width);
     }
+    */
 
     std::cout << capFirstLetter(scene_type) << " scene created" << std::endl;
 

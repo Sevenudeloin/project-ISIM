@@ -1,5 +1,6 @@
 #include "heightmap.hh"
 
+#include "image2d.hh"
 #include "ppm_parser.hh"
 
 Heightmap::Heightmap(int width, int height)
