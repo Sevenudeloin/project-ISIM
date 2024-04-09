@@ -1,11 +1,12 @@
 #include "scene.hh"
 
+#include <memory>
+
 #include "ocean.hh"
 #include "simplex_noise.hh"
 #include "terrain.hh"
 #include "terrain_texture.hh"
 #include "triangle.hh"
-#include <memory>
 
 Scene::Scene(Camera cam, list<shared_ptr<PhysObj>> objects,
              list<shared_ptr<Light>> lights, shared_ptr<SkyBox> skybox,
@@ -33,12 +34,20 @@ Scene Scene::createTestScene(int image_height, int image_width)
 
     int heightmap_width = 30;
 
-    SimplexNoiseGenerator simplexNoiseGenerator = SimplexNoiseGenerator(scale, 0.5f, 1.99f, 0.5f);
-    // SimplexNoiseGenerator simplexNoiseGenerator = SimplexNoiseGenerator(5 + std::log(scale), 0.1f/scale, 0.5f, 1.99f, 0.5f);
-    Heightmap heightmap1 = simplexNoiseGenerator.generateHeightmap(heightmap_width, heightmap_width, scale, offset_x, offset_y, offset_z);
+    SimplexNoiseGenerator simplexNoiseGenerator =
+        SimplexNoiseGenerator(scale, 0.5f, 1.99f, 0.5f);
+    // SimplexNoiseGenerator simplexNoiseGenerator = SimplexNoiseGenerator(5 +
+    // std::log(scale), 0.1f/scale, 0.5f, 1.99f, 0.5f);
+    Heightmap heightmap1 = simplexNoiseGenerator.generateHeightmap(
+        heightmap_width, heightmap_width, scale, offset_x, offset_y, offset_z);
     float upscaling = 10.f;
-    SimplexNoiseGenerator simplexNoiseGenerator2 = SimplexNoiseGenerator(scale * upscaling, 0.5f, 1.99f, 0.5f);
-    Heightmap heightmap2 = simplexNoiseGenerator2.generateHeightmap(heightmap_width * upscaling, heightmap_width * upscaling, scale * upscaling, offset_x, offset_y, offset_z);
+    SimplexNoiseGenerator simplexNoiseGenerator2 =
+        SimplexNoiseGenerator(scale * upscaling, 0.5f, 1.99f, 0.5f);
+    Heightmap heightmap2 = simplexNoiseGenerator2.generateHeightmap(
+        heightmap_width * upscaling, heightmap_width * upscaling,
+        scale * upscaling, offset_x, offset_y, offset_z);
+
+    heightmap2 = heightmap2.flattenSides(heightmap_width * upscaling / 42);
 
     // To preview the heightmaps
     Image2D heightmap_image = heightmap1.toImage2D();
@@ -46,16 +55,14 @@ Scene Scene::createTestScene(int image_height, int image_width)
     Image2D heightmap_image2 = heightmap2.toImage2D();
     heightmap_image2.writePPM("../images/heightmaps/heightmap_output2.ppm");
 
-    // heightmap2.flattenSides(heightmap_width * upscaling / 42);
-
     auto heightmap_ptr = make_shared<Heightmap>(heightmap1);
     // FIN DU CODE D EWAN
-  
+
     auto full_heightmap = make_shared<Heightmap>(
         "../images/heightmaps/height_mountain_500x500.ppm");
     auto heightmap = make_shared<Heightmap>(
         "../images/heightmaps/height_mountain_40x40.ppm");
-  
+
     auto ocean_normal_map =
         make_shared<Image2D>("../images/normalmaps/water_normal.ppm");
 
@@ -89,7 +96,7 @@ Scene Scene::createTestScene(int image_height, int image_width)
 
     double aspect_ratio =
         static_cast<double>(image_width) / static_cast<double>(image_height);
-  
+
     auto cam = Camera(Point3(0, 4, -3), Point3(0, 1, -10), Vector3(0, 1, 0),
                       85.0, 1.0, aspect_ratio, image_width);
 
