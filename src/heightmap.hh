@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "image2d.hh"
+class Image2D;
 
 class Heightmap
 {

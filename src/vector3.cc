@@ -152,3 +152,12 @@ Vector3 Vector3::random_on_hemisphere(const Vector3 &normal)
     else
         return -on_unit_sphere;
 }
+
+Vector3 Vector3::spherical_to_cartesian(double rho, double lati, double longi)
+{
+    double x = rho * std::sin(lati) * std::cos(longi);
+    double y = rho * std::cos(lati);
+    double z = rho * std::sin(lati) * std::sin(longi);
+
+    return Vector3(x, y, z);
+}

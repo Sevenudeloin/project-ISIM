@@ -3,7 +3,9 @@
 #include <memory>
 #include <vector>
 
+#include "heightmap.hh"
 #include "pixel.hh"
+#include "vector3.hh"
 
 class Image2D
 {
@@ -14,14 +16,20 @@ public:
 
     Image2D();
     Image2D(int width, int height);
+    Image2D(const Heightmap &heightmap);
+    Image2D(const std::string &filename);
 
     void setPixel(const Pixel &pixel);
-    void setPixel(int y, int x, double r, double g, double b);
+    void setPixel(int y, int x, double r, double g, double b, double a = 1.0);
     void setPixel(int y, int x, Color color);
 
     Color getPixel(int y, int x) const;
 
-    Color interpolate(float y, float x) const;
+    Color interpolate(float y, float x, bool loop = false) const;
+    Vector3 getNormal(double y, double x, bool raw = false) const;
 
-    void writePPM(const char *filename);
+    void minMaxNormalize();
+    void sobelNormalize();
+
+    void writePPM(const char *filename, bool gamma_correct = false) const;
 };

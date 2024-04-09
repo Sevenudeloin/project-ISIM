@@ -16,8 +16,8 @@ void Rendering::render(Scene &scene, Image2D &image)
             for (int x = 0; x < image.width_; x++)
             {
                 Ray ray = scene.cam_.getRayAt(y, x);
-                auto pixel_color = castRay(ray, scene, 1);
-                image.setPixel(x, y, pixel_color);
+                auto pixel_color = castRay(ray, scene, 1, scene.fog_);
+                image.setPixel(y, x, pixel_color);
             }
         });
     }
@@ -28,10 +28,13 @@ void Rendering::render(Scene &scene, Image2D &image)
     }
 }
 
-Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter)
+Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter,
+                         shared_ptr<AbsorptionVolume> absorption_volume)
 {
     if (iter > max_iter)
         return Color(0.0, 0.0, 0.0);
+
+    // std::cout << ray.direction_ << std::endl;
 
     HitRecord closest_hit_record;
     bool has_hit = getClosestObj(ray, scene.objects_, closest_hit_record);
@@ -42,39 +45,67 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter)
         Vector3 n = closest_hit_record.n;
         LocalTexture loc_tex = closest_hit_record.tex;
 
-        Color color = Color(0.0, 0.0, 0.0);
+        Color color = scene.ambient_light_->getAmbientLight();
+
+        Vector3 reflect_ray_dir = Vector3::unit_vector(
+            Vector3::reflect(Vector3::unit_vector(ray.direction_), n));
+
         for (auto const &light : scene.lights_)
         {
             // Consider shadows
-            Vector3 light_dir = Vector3::unit_vector(light->center_ - p);
-            double light_intensity = light->computeIntensity(light_dir);
+            Vector3 light_dir = light->computeDir(p);
             Ray light_dir_ray =
                 Ray(p + (utils::kEpsilon * light_dir), light_dir);
             bool has_hit_light_dir = hasAnyObj(light_dir_ray, scene.objects_);
+
+            double light_intensity = light->computeIntensity(light_dir_ray);
             if (has_hit_light_dir)
+            {
                 light_intensity = 0.0;
+            }
 
             // Diffuse componant
             double dot_n_light = Vector3::dot(n, light_dir);
             if (dot_n_light > 0)
             {
-                color +=
-                    loc_tex.kd_ * dot_n_light * light->color_ * light_intensity;
+                color += loc_tex.kd_ * loc_tex.color_ * dot_n_light
+                    * light->color_ * light_intensity * loc_tex.color_.a_;
             }
 
             // Specular componant
-            Vector3 reflect_ray_dir =
-                Vector3::reflect(Vector3::unit_vector(ray.direction_), n);
             double dot_specular = Vector3::dot(reflect_ray_dir, light_dir);
             if (dot_specular > 0)
                 color += loc_tex.ks_ * light_intensity * light->color_
                     * pow(dot_specular, loc_tex.ns_);
+        }
 
-            // Reflexion componant (No reflexion??)
+        // Reflexion componant
+        if (loc_tex.ks_ > 0)
+        {
             Ray reflect_ray =
                 Ray(p + (utils::kEpsilon * reflect_ray_dir), reflect_ray_dir);
             color += loc_tex.ks_ * castRay(reflect_ray, scene, iter + 1);
         }
+
+        // Refraction componant
+        if (loc_tex.color_.a_ < 1)
+        {
+            Ray refracted_ray =
+                Ray(p + (utils::kEpsilon * ray.direction_), ray.direction_);
+            color += (1 - loc_tex.color_.a_)
+                * castRay(refracted_ray, scene, iter + 1, loc_tex.absorption_);
+        }
+
+        // Emission componant
+        color += loc_tex.emission_ * loc_tex.color_;
+
+        // Absorption of volume
+        if (absorption_volume)
+        {
+            color = absorption_volume->getAbsorptionColor(closest_hit_record.t,
+                                                          color);
+        }
+
         return color;
     }
     return scene.skybox_->getSkyboxAt(ray.direction_);
@@ -87,7 +118,6 @@ bool Rendering::getClosestObj(const Ray &ray,
     HitRecord closest_hit_record;
     closest_hit_record.t = utils::infinity;
     bool hit_anything = false;
-
     for (auto const &object : objects)
     {
         HitRecord object_hit_record;

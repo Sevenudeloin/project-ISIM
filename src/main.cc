@@ -13,14 +13,15 @@
 
 std::string capFirstLetter(std::string text)
 {
-    if (!text.empty()) {
+    if (!text.empty())
+    {
         text[0] = toupper(text[0]);
     }
 
     return text;
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     char opt;
 
@@ -73,12 +74,19 @@ int main(int argc, char* argv[])
             std::stringstream ss_height(dim_str.substr(pos + 1));
             ss_width >> image_width;
             ss_height >> image_height;
-            if (image_width <= 0 || image_height <= 0) {
-                std::cerr << "Error: Invalid size format or dimensions. Please use the format '<width>x<height>'." << std::endl;
+            if (image_width <= 0 || image_height <= 0)
+            {
+                std::cerr << "Error: Invalid size format or dimensions. Please "
+                             "use the format '<width>x<height>'."
+                          << std::endl;
                 return 1;
             }
-        } else {
-            std::cerr << "Error: Invalid size format. Please use the format '<width>x<height>'." << std::endl;
+        }
+        else
+        {
+            std::cerr << "Error: Invalid size format. Please use the format "
+                         "'<width>x<height>'."
+                      << std::endl;
             return 1;
         }
     }
@@ -87,11 +95,16 @@ int main(int argc, char* argv[])
 
     Scene scene = Scene::createTestScene(image_height, image_width);
 
-    if (scene_type == "ocean") {
+    /*
+    if (scene_type == "ocean")
+    {
         scene = Scene::createOceanScene(image_height, image_width);
-    } else if (scene_type == "island") {
+    }
+    else if (scene_type == "island")
+    {
         scene = Scene::createIslandScene(image_height, image_width);
     }
+    */
 
     // FIXME(not important): when invalid name is given, default to test scene but still prints 'invalid scene' message
     std::cout << capFirstLetter(scene_type) << " scene created" << std::endl;
@@ -107,7 +120,7 @@ int main(int argc, char* argv[])
         std::chrono::duration<double> elapsed = end - start;
         std::cout << "Runtime : " << elapsed.count() << " seconds" << std::endl;
 
-        image.writePPM(output_filename.c_str());
+        image.writePPM(output_filename.c_str(), true);
     }
 
     return 0;

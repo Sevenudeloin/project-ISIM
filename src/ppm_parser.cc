@@ -43,7 +43,7 @@ bool PPMParser::parse(Image2D &img)
         {
             int r, g, b;
             file >> r >> g >> b;
-            img.setPixel(x, y,
+            img.setPixel(y, x,
                          Color(static_cast<double>(r) / 255.0,
                                static_cast<double>(g) / 255.0,
                                static_cast<double>(b) / 255.0));
