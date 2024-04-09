@@ -22,4 +22,9 @@ public:
 
     float at(int y, int x) const;
     void set(int y, int x, float value);
+
+    Image2D toImage2D();
+    
+    // works for square heightmaps
+    Heightmap flattenSides(float flatness_amount);
 };

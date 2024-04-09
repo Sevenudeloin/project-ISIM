@@ -1,5 +1,6 @@
 #include "simplex_noise.hh"
 
+#include <cmath>
 #include <cstdint> // uint8_t and int32_t 
 
 /**
@@ -15,6 +16,22 @@ SimplexNoiseGenerator::SimplexNoiseGenerator()
     , amplitude_(1.0f)
     , lacunarity_(2.0f)
     , persistence_(0.5f)
+{}
+
+/**
+ * Constructor to initialize a fractal noise summation using scale for octaves number and frequency
+ *
+ * @param scale        Scale to base octaves and frequency on
+ * @param amplitude    Amplitude ("height") of the first octave of noise (default to 1.0)
+ * @param lacunarity   Lacunarity specifies the frequency multiplier between successive octaves (default to 2.0).
+ * @param persistence  Persistence is the loss of amplitude between successive octaves (usually 1/lacunarity)
+ */
+SimplexNoiseGenerator::SimplexNoiseGenerator(float scale, float amplitude, float lacunarity, float persistence)
+    : octaves_(5 + std::log(scale))
+    , frequency_(0.1f / scale)
+    , amplitude_(amplitude)
+    , lacunarity_(lacunarity)
+    , persistence_(persistence)
 {}
 
 /**
@@ -376,7 +393,6 @@ float SimplexNoiseGenerator::noise(float x, float y, float z) {
 /**
  * Fractal/Fractional Brownian Motion (fBm) summation of 1D Perlin Simplex noise
  *
- * @param octaves  number of fraction of noise to sum
  * @param x        float coordinate
  *
  * @return noise value in the range[-1; 1], value of 0 on all integer coordinates.
@@ -401,7 +417,6 @@ float SimplexNoiseGenerator::fractal(float x) {
 /**
  * Fractal/Fractional Brownian Motion (fBm) summation of 2D Perlin Simplex noise
  *
- * @param octaves  number of fraction of noise to sum
  * @param x        x float coordinate
  * @param y        y float coordinate
  *
@@ -427,7 +442,6 @@ float SimplexNoiseGenerator::fractal(float x, float y) {
 /**
  * Fractal/Fractional Brownian Motion (fBm) summation of 3D Perlin Simplex noise
  *
- * @param octaves  number of fraction of noise to sum
  * @param x        x float coordinate
  * @param y        y float coordinate
  * @param z        z float coordinate
@@ -454,28 +468,29 @@ float SimplexNoiseGenerator::fractal(float x, float y, float z) {
 /**
     * Generate a 2D heightmap using Simplex noise and fBm
     * 
-    * @param width             sampled zone width
-    * @param height            sampled zone height
-    * @param nbsamples_width   number of samples in x axis (width) 
-    * @param nbsamples_height  number of samples in x axis (height) 
+    * @param width     heightmap width
+    * @param height    heightmap height
+    * @param scale     scale (the higher the more zoomed on the noise)
+    * @param offset_x  offset in x axis (to the right)
+    * @param offset_y  offset in y axis (to the bottom)
+    * @param offset_z  offset in z axis (to the top)
     *
     * @return 2D heightmap
     */
-Heightmap SimplexNoiseGenerator::generateHeightmap(float width, float height, int nbsamples_width, int nbsamples_height)
+Heightmap SimplexNoiseGenerator::generateHeightmap(int width, int height, float scale, float offset_x, float offset_y, float offset_z)
 {
-    Heightmap heightmap(nbsamples_width, nbsamples_height); // FIXME should work with a width and a height
+    Heightmap heightmap(width, height);
 
-    float x_sample = 0.0f;
-    float y_sample = 0.0f;
+    for (int row = 0; row < height; row++) {
+        float y = row - static_cast<float>(height) / 2 + scale * offset_y;
 
-    for (int j = 0; j < nbsamples_height; j++)
-    {
-        for (int i = 0; i < nbsamples_width; i++)
-        {
-            heightmap.set(j, i, fractal(octaves_, y_sample, x_sample));
-            x_sample += width / nbsamples_width;
+        for (int col = 0; col < width; col++) {
+            float x = col - static_cast<float>(width) / 2 + scale * offset_x;
+
+            float height = fractal(x, y) + offset_z;
+            height = (height + 1.0f) / 2.0f;
+            heightmap.set(row, col, height);
         }
-        y_sample += height / nbsamples_height;
     }
 
     return heightmap;

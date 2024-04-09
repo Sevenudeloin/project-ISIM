@@ -214,9 +214,9 @@ void Image2D::writePPM(const char *filename,
 
         static const Interval intensity(0.0, 1.0);
 
-        file << static_cast<int>(255 * intensity.clamp(r)) << " "
-             << static_cast<int>(255 * intensity.clamp(g)) << " "
-             << static_cast<int>(255 * intensity.clamp(b)) << "\n";
+        file << static_cast<int>(255.999 * intensity.clamp(r)) << " "
+             << static_cast<int>(255.999 * intensity.clamp(g)) << " "
+             << static_cast<int>(255.999 * intensity.clamp(b)) << "\n";
     }
 
     file.close();

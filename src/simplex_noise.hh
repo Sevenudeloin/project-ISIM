@@ -9,12 +9,13 @@ class SimplexNoiseGenerator : public Generator
 {
 public:
     SimplexNoiseGenerator();
+    SimplexNoiseGenerator(float scale, float amplitude, float lacunarity, float persistence);
     SimplexNoiseGenerator(size_t octaves, float frequency, float amplitude, float lacunarity, float persistence);
 
     // 1D Perlin simplex noise
     float noise(float x);
     // 2D Perlin simplex noise
-    float noise(float x, float y);
+    float noise(float x, float y) override;
     // 3D Perlin simplex noise
     float noise(float x, float y, float z);
 
@@ -24,7 +25,7 @@ public:
     float fractal(float x, float y, float z); // 3D
 
     // Heightmap generation
-    Heightmap generateHeightmap(float width, float height, int nbsamples_width, int nbsamples_height);
+    Heightmap generateHeightmap(int width, int height, float scale, float offset_x=5.9f, float offset_y=5.1f, float offset_z=0.05f) override;
 
 private:
     // Parameters of Fractional Brownian Motion (fBm) : sum of N "octaves" of noise
