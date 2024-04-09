@@ -16,7 +16,6 @@ void Rendering::render(Scene &scene, Image2D &image)
             for (int x = 0; x < image.width_; x++)
             {
                 Ray ray = scene.cam_.getRayAt(y, x);
-                // std::cout << ray.origin_ << std::endl;
                 auto pixel_color = castRay(ray, scene, 1, scene.fog_);
                 image.setPixel(y, x, pixel_color);
             }

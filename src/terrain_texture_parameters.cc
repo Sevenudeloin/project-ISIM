@@ -6,54 +6,64 @@
 #include "utils.hh"
 
 TerrainTextureParameters::TerrainTextureParameters(
-    std::list<std::tuple<double, Color>> normal_height_colors,
-    Color above_color, double cliff_threshold, Color cliff_color,
-    double beach_height, Color beach_color)
-    : normal_height_colors_(normal_height_colors)
-    , above_color_(above_color)
-    , cliff_color_(cliff_color)
+    std::list<std::tuple<double, std::shared_ptr<TerrainLayerTexture>>>
+        terrain_layers_textures,
+    std::shared_ptr<TerrainLayerTexture> above_texture, double cliff_threshold,
+    std::shared_ptr<TerrainLayerTexture> cliff_texture, double beach_height,
+    std::shared_ptr<TerrainLayerTexture> beach_texture)
+    : terrain_layers_textures_(terrain_layers_textures)
+    , above_texture_(above_texture)
+    , cliff_texture_(cliff_texture)
     , beach_height_(beach_height)
-    , beach_color_(beach_color)
+    , beach_texture_(beach_texture)
 {
     cliff_threshold_ = std::sin(utils::degrees_to_radians(cliff_threshold));
 }
 
 TerrainTextureParameters::TerrainTextureParameters()
-    : normal_height_colors_(std::list<std::tuple<double, Color>>())
-    , above_color_(Color::fromRGB(255, 255, 255))
-    , cliff_color_(Color::fromRGB(110, 92, 68))
+    : terrain_layers_textures_(
+        std::list<std::tuple<double, std::shared_ptr<TerrainLayerTexture>>>())
+    , above_texture_(std::make_shared<TerrainLayerTexture>(
+          TerrainLayerTexture::snow_texture))
+    , cliff_texture_(std::make_shared<TerrainLayerTexture>(
+          TerrainLayerTexture::cliff_texture))
     , beach_height_(0.05)
-    , beach_color_(Color::fromRGB(237, 209, 154))
+    , beach_texture_(std::make_shared<TerrainLayerTexture>(
+          TerrainLayerTexture::beach_texture))
 {
     cliff_threshold_ = std::sin(utils::degrees_to_radians(70));
 
     // Add grass texture layer
-    normal_height_colors_.push_back(
-        std::make_tuple(0.8, Color::fromRGB(117, 171, 106)));
+    terrain_layers_textures_.push_back(
+        std::make_tuple(0.8,
+                        std::make_shared<TerrainLayerTexture>(
+                            TerrainLayerTexture::grass_texture)));
 
     // Add rock texture layer
-    normal_height_colors_.push_back(
-        std::make_tuple(0.9, Color::fromRGB(110, 92, 68)));
+    terrain_layers_textures_.push_back(
+        std::make_tuple(0.9,
+                        std::make_shared<TerrainLayerTexture>(
+                            TerrainLayerTexture::cliff_texture)));
 }
 
-Color TerrainTextureParameters::getTerrainColor(double height, Vector3 n,
-                                                double sea_level) const
+LocalTexture TerrainTextureParameters::getTerrainTexture(Point3 p, Vector3 n,
+                                                         double sea_level) const
 {
     if (n.y_ < cliff_threshold_)
     {
-        return cliff_color_;
+        return cliff_texture_->get_texture_at(p);
     }
-    if (height < sea_level + beach_height_)
+    if (p.y_ < sea_level + beach_height_)
     {
-        return beach_color_;
+        return beach_texture_->get_texture_at(p);
     }
-    for (auto it = normal_height_colors_.begin();
-         it != normal_height_colors_.end(); ++it)
+    for (auto it = terrain_layers_textures_.begin();
+         it != terrain_layers_textures_.end(); ++it)
     {
-        if (height < std::get<0>(*it))
+        if (p.y_ < std::get<0>(*it))
         {
-            return std::get<1>(*it);
+            return std::get<1>(*it)->get_texture_at(p);
         }
     }
-    return above_color_;
+    return above_texture_->get_texture_at(p);
 }

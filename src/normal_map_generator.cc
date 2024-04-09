@@ -43,9 +43,6 @@ NormalMapGenerator::generateNormalMap(std::shared_ptr<Heightmap> height_map,
         }
     }
 
-    // sobelX.sobelNormalize();
-    // sobelY.sobelNormalize();
-
     // Calculer la normale
     for (int i = 0; i < height_map->height_; ++i)
     {
@@ -57,13 +54,6 @@ NormalMapGenerator::generateNormalMap(std::shared_ptr<Heightmap> height_map,
             normal_map.setPixel(i, j, c);
         }
     }
-
-    // normal_map.minMaxNormalize();
-
-    // sobelX.writePPM("../images/sobelX.ppm");
-    // sobelY.writePPM("../images/sobelY.ppm");
-
-    // normal_map.writePPM("../images/normal_map.ppm");
 
     return normal_map;
 }

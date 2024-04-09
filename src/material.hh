@@ -48,20 +48,25 @@ public:
 const static UniformTexture default_mat(LocalTexture(Color(0.5, 0.5, 0.5), 0.8,
                                                      0.1, 0.5));
 
-class TerrainTexture : public TextureMaterial
+class TerrainLayerTexture : public TextureMaterial
 {
 public:
     LocalTexture tex_;
-    std::shared_ptr<Heightmap> height_map_;
-    std::shared_ptr<Image2D> normal_map_;
     std::shared_ptr<Image2D> texture_map_;
-    double sea_level_;
+    Vector3 scale_;
 
-    TerrainTexture(LocalTexture tex, std::shared_ptr<Heightmap> height_map,
-                   double sea_level, double strength, double xy_scale);
+    TerrainLayerTexture(LocalTexture tex, std::shared_ptr<Image2D> texture_map,
+                        Vector3 scale = Vector3(1.0, 1.0, 1.0));
+
+    Point3 get_uv(const Point3 &p) const;
 
     LocalTexture get_texture_at(const Point3 &p) const override;
     Vector3 get_normal_at(const Point3 &p) const override;
+
+    const static TerrainLayerTexture grass_texture;
+    const static TerrainLayerTexture cliff_texture;
+    const static TerrainLayerTexture beach_texture;
+    const static TerrainLayerTexture snow_texture;
 };
 
 class OceanTexture : public TextureMaterial
@@ -75,7 +80,7 @@ public:
     OceanTexture(LocalTexture tex, std::shared_ptr<Image2D> normal_map,
                  Vector3 normal_scale = Vector3(1.0, 1.0, 1.0));
 
-    Point3 get_local_coords(const Point3 &p) const;
+    Point3 get_uv(const Point3 &p) const;
 
     LocalTexture get_texture_at(const Point3 &p) const override;
     Vector3 get_normal_at(const Point3 &p) const override;

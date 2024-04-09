@@ -3,6 +3,7 @@
 #include "ocean.hh"
 #include "simplex_noise.hh"
 #include "terrain.hh"
+#include "terrain_texture.hh"
 #include "triangle.hh"
 
 Scene::Scene(Camera cam, list<shared_ptr<PhysObj>> objects,
@@ -31,9 +32,9 @@ Scene Scene::createTestScene(int image_height, int image_width)
     auto ocean_normal_map =
         make_shared<Image2D>("../images/normalmaps/water_normal.ppm");
 
+    auto terrain_tex_params = TerrainTextureParameters();
     auto terrain_tex = make_shared<TerrainTexture>(
-        LocalTexture(Color(0.1, 0.7, 0.1), 1.0, 0.0, 1.0), full_heightmap,
-        sea_level, strength, xy_scale);
+        full_heightmap, sea_level, strength, xy_scale, terrain_tex_params, 3);
 
     Color ocean_color = Color::fromRGB(9, 22, 38, 0);
     auto ocean_tex = make_shared<OceanTexture>(
@@ -47,9 +48,9 @@ Scene Scene::createTestScene(int image_height, int image_width)
         Terrain::create_terrain(heightmap, xy_scale, strength, terrain_tex,
                                 Vector3(-20, -(sea_level * strength), -43));
 
-    auto ocean = make_shared<Ocean>(0, ocean_tex);
+    auto ocean = make_shared<Ocean>(sea_level, ocean_tex);
 
-    // objs.push_back(terrain);
+    objs.push_back(terrain);
     objs.push_back(ocean);
 
     auto cloud_mask = make_shared<Image2D>("../images/cloudmaps/clouds_1.ppm");
