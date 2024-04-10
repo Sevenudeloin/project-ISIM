@@ -24,7 +24,7 @@ Scene Scene::createTestScene(int image_height, int image_width)
 {
     double sea_level = 0.2;
     double xy_scale = 1.0;
-    double strength = 3.0;
+    double strength = 4.0;
 
     // FIXME : mettre toute la génération proc de heightmap dans une fonction
     float scale = 3.f;

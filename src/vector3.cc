@@ -161,3 +161,27 @@ Vector3 Vector3::spherical_to_cartesian(double rho, double lati, double longi)
 
     return Vector3(x, y, z);
 }
+
+Vector3 Vector3::cartesian_to_cylindric(const Vector3 &vect)
+{
+    double rho = std::sqrt(vect.x_ * vect.x_ + vect.z_ * vect.z_);
+    double theta = 0.0;
+    if (vect.x_ == 0)
+    {
+        if (vect.z_ > 0)
+        {
+            theta = utils::pi / 2;
+        }
+        else
+        {
+            theta = -utils::pi / 2;
+        }
+    }
+    else
+    {
+        theta = std::atan(vect.x_ / vect.z_);
+    }
+    double z = vect.y_;
+
+    return Vector3(rho, theta, z);
+}
