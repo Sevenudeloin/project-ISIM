@@ -45,7 +45,7 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter,
         Vector3 n = closest_hit_record.n;
         LocalTexture loc_tex = closest_hit_record.tex;
 
-        Color color = scene.ambient_light_->getAmbientLight();
+        Color color = scene.ambient_light_->getAmbientLight() * loc_tex.color_;
 
         Vector3 reflect_ray_dir = Vector3::unit_vector(
             Vector3::reflect(Vector3::unit_vector(ray.direction_), n));

@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "terrain_texture.hh"
+
 Point3 Terrain::make_terrain_point_at(int y, int x, float height)
 {
     return Point3(xy_scale_ * x, height_scale_ * height, xy_scale_ * y);
@@ -16,6 +18,7 @@ Terrain::Terrain(int height, int width, shared_ptr<TextureMaterial> mat)
     , heightmap_(std::make_shared<Heightmap>(width, height))
     , mesh_(height,
             vector<SquareTriangle>(width, SquareTriangle(nullptr, nullptr)))
+    , oceanic_plan_(nullptr)
 {}
 
 Terrain::Terrain(shared_ptr<Heightmap> heightmap, float xy_scale,
@@ -29,6 +32,10 @@ Terrain::Terrain(shared_ptr<Heightmap> heightmap, float xy_scale,
     , mesh_(heightmap->height_,
             vector<SquareTriangle>(heightmap->width_,
                                    SquareTriangle(nullptr, nullptr)))
+    , oceanic_plan_(std::make_shared<TerrainOceanicPlan>(
+          0,
+          std::dynamic_pointer_cast<TerrainTexture>(mat)
+              ->params_.beach_texture_))
 {}
 
 void Terrain::create_mesh()
@@ -66,6 +73,7 @@ void Terrain::create_mesh()
 void Terrain::translate(const Vector3 &v)
 {
     translation_ = translation_ + v;
+    oceanic_plan_->translate(v);
 }
 
 LocalTexture Terrain::get_texture_at(const Point3 &p) const
@@ -113,6 +121,14 @@ bool Terrain::hit(const Ray &ray, HitRecord &hit_record) const
                 hit_anything = true;
             }
         }
+    }
+
+    HitRecord oceanic_plan_hit_record;
+    if (oceanic_plan_->hit(ray, oceanic_plan_hit_record)
+        && oceanic_plan_hit_record.t < closest_hit_record.t)
+    {
+        closest_hit_record = oceanic_plan_hit_record;
+        hit_anything = true;
     }
 
     if (!hit_anything)

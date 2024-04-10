@@ -24,7 +24,7 @@ Scene Scene::createTestScene(int image_height, int image_width)
 {
     double sea_level = 0.2;
     double xy_scale = 1.0;
-    double strength = 3.0;
+    double strength = 4.0;
 
     // FIXME : mettre toute la génération proc de heightmap dans une fonction
     float scale = 3.f;
@@ -73,7 +73,7 @@ Scene Scene::createTestScene(int image_height, int image_width)
     Color ocean_color = Color::fromRGB(9, 22, 38, 0);
     auto ocean_tex = make_shared<OceanTexture>(
         LocalTexture(ocean_color, 1.0, 0.35, 2, 0.0,
-                     make_shared<ExponentialAbsorptionVolume>(ocean_color, 40)),
+                     make_shared<ExponentialAbsorptionVolume>(ocean_color, 20)),
         ocean_normal_map, Vector3(10.0, 3.0, 10.0));
 
     list<shared_ptr<PhysObj>> objs;
@@ -82,7 +82,7 @@ Scene Scene::createTestScene(int image_height, int image_width)
         Terrain::create_terrain(heightmap, xy_scale, strength, terrain_tex,
                                 Vector3(-20, -(sea_level * strength), -43));
 
-    auto ocean = make_shared<Ocean>(sea_level, ocean_tex);
+    auto ocean = make_shared<Ocean>(0, ocean_tex);
 
     objs.push_back(terrain);
     objs.push_back(ocean);

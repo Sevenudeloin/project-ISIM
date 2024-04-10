@@ -61,6 +61,7 @@ public:
 
     static Vector3 spherical_to_cartesian(double rho, double lati,
                                           double longi);
+    static Vector3 cartesian_to_cylindric(const Vector3 &vect);
 };
 
 using Point3 = Vector3;
