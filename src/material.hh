@@ -48,15 +48,23 @@ public:
 const static UniformTexture default_mat(LocalTexture(Color(0.5, 0.5, 0.5), 0.8,
                                                      0.1, 0.5));
 
+enum TextureProjectionType
+{
+    TOP_CARTESIAN,
+    CYLINDRIC,
+};
+
 class TerrainLayerTexture : public TextureMaterial
 {
 public:
     LocalTexture tex_;
     std::shared_ptr<Image2D> texture_map_;
     Vector3 scale_;
+    TextureProjectionType projection_type_;
 
     TerrainLayerTexture(LocalTexture tex, std::shared_ptr<Image2D> texture_map,
-                        Vector3 scale = Vector3(1.0, 1.0, 1.0));
+                        Vector3 scale = Vector3(1.0, 1.0, 1.0),
+                        TextureProjectionType projection_type = TOP_CARTESIAN);
 
     Point3 get_uv(const Point3 &p) const;
 
@@ -64,6 +72,7 @@ public:
     Vector3 get_normal_at(const Point3 &p) const override;
 
     const static TerrainLayerTexture grass_texture;
+    const static TerrainLayerTexture rock_texture;
     const static TerrainLayerTexture cliff_texture;
     const static TerrainLayerTexture beach_texture;
     const static TerrainLayerTexture snow_texture;

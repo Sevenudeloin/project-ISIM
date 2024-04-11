@@ -68,6 +68,16 @@ Color Image2D::getPixel(int y, int x) const
 
 Color Image2D::interpolate(float y, float x, bool loop) const
 {
+    if (loop)
+    {
+        x = std::fmod(x, width_);
+        y = std::fmod(y, height_);
+        if (x < 0)
+            x += width_;
+        if (y < 0)
+            y += height_;
+    }
+
     if (x < 0 || x >= width_ || y < 0 || y >= height_)
         return Color(0, 0, 0);
 

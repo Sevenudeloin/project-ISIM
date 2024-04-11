@@ -43,7 +43,7 @@ TerrainTextureParameters::TerrainTextureParameters()
     terrain_layers_textures_.push_back(
         std::make_tuple(0.9,
                         std::make_shared<TerrainLayerTexture>(
-                            TerrainLayerTexture::cliff_texture)));
+                            TerrainLayerTexture::rock_texture)));
 }
 
 LocalTexture TerrainTextureParameters::getTerrainTexture(Point3 p, Vector3 n,

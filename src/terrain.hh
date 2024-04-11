@@ -5,6 +5,7 @@
 
 #include "heightmap.hh"
 #include "physobj.hh"
+#include "terrain_oceanic_plan.hh"
 #include "triangle.hh"
 #include "utils.hh"
 
@@ -25,6 +26,7 @@ private:
     float height_scale_;
     shared_ptr<Heightmap> heightmap_;
     Triangle2DMesh mesh_;
+    shared_ptr<TerrainOceanicPlan> oceanic_plan_;
 
     Point3 make_terrain_point_at(int y, int x, float height);
 

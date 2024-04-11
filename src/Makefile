@@ -9,7 +9,7 @@ OBJS = interval.o color.o diamond_square.o image2d.o main.o pixel.o vector3.o ra
 	rendering.o skybox.o thread_pool.o simplex_noise.o ocean.o material.o sunlight.o \
 	terrain_texture.o ocean_texture.o normal_map_generator.o terrain_texture_map_generator.o \
 	terrain_texture_parameters.o absorption_volume.o clouds_plan.o wave_map_generator.o \
-	wave_map_parameters.o terrain_layer_texture.o simplex_island_generator.o
+	wave_map_parameters.o terrain_layer_texture.o terrain_oceanic_plan.o simplex_island_generator.o
 
 all: proc_gen
 
