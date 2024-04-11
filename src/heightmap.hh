@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+#include <limits>
+
 class Image2D;
 
 class Heightmap
@@ -23,8 +25,8 @@ public:
     float at(int y, int x) const;
     void set(int y, int x, float value);
 
-    Image2D toImage2D();
-    
-    // works for square heightmaps
-    Heightmap flattenSides(float flatness_amount);
+    // The following methods only work for square heightmaps
+    Heightmap multiplyByGaussian(float base_sigma);
+    bool areSidesFlat(float threshold = std::numeric_limits<float>::epsilon());
+    Heightmap flattenSides(float threshold = std::numeric_limits<float>::epsilon());
 };

@@ -2,8 +2,9 @@
 
 #include <memory>
 
+#include "heightmap.hh"
 #include "ocean.hh"
-#include "simplex_noise.hh"
+#include "simplex_island_generator.hh"
 #include "terrain.hh"
 #include "terrain_texture.hh"
 #include "triangle.hh"
@@ -34,28 +35,21 @@ Scene Scene::createTestScene(int image_height, int image_width)
 
     int heightmap_width = 30;
 
-    SimplexNoiseGenerator simplexNoiseGenerator =
-        SimplexNoiseGenerator(scale, 0.5f, 1.99f, 0.5f);
-    // SimplexNoiseGenerator simplexNoiseGenerator = SimplexNoiseGenerator(5 +
-    // std::log(scale), 0.1f/scale, 0.5f, 1.99f, 0.5f);
-    Heightmap heightmap1 = simplexNoiseGenerator.generateHeightmap(
-        heightmap_width, heightmap_width, scale, offset_x, offset_y, offset_z);
     float upscaling = 10.f;
-    SimplexNoiseGenerator simplexNoiseGenerator2 =
-        SimplexNoiseGenerator(scale * upscaling, 0.5f, 1.99f, 0.5f);
-    Heightmap heightmap2 = simplexNoiseGenerator2.generateHeightmap(
-        heightmap_width * upscaling, heightmap_width * upscaling,
-        scale * upscaling, offset_x, offset_y, offset_z);
+    Heightmap base_heightmap = Heightmap(heightmap_width, heightmap_width);
+    Heightmap upscaled_heightmap = Heightmap(heightmap_width * upscaling, heightmap_width * upscaling);
 
-    heightmap2 = heightmap2.flattenSides(heightmap_width * upscaling / 42);
+    SimplexIslandParameters params = SimplexIslandParameters(scale, offset_x, offset_y, offset_z, 1.0f);
+
+    SimplexIslandGenerator simplexIslandGenerator = SimplexIslandGenerator();
+    simplexIslandGenerator.generateHeightmaps(base_heightmap, upscaled_heightmap, params);
 
     // To preview the heightmaps
-    Image2D heightmap_image = heightmap1.toImage2D();
-    heightmap_image.writePPM("../images/heightmaps/heightmap_output.ppm");
-    Image2D heightmap_image2 = heightmap2.toImage2D();
-    heightmap_image2.writePPM("../images/heightmaps/heightmap_output2.ppm");
+    Image2D base_img = Image2D(base_heightmap);
+    Image2D upscaled_img = Image2D(upscaled_heightmap);
+    base_img.writePPM("../images/heightmaps/base_flattened.ppm");
+    upscaled_img.writePPM("../images/heightmaps/upscaled_flattened.ppm");
 
-    auto heightmap_ptr = make_shared<Heightmap>(heightmap1);
     // FIN DU CODE D EWAN
 
     auto full_heightmap = make_shared<Heightmap>(
