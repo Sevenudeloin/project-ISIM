@@ -32,12 +32,10 @@ void SimplexIslandGenerator::generateHeightmaps(Heightmap& base_heightmap, Heigh
     auto base_simplexNoiseGenerator = SimplexNoiseGenerator(params.scale, params.amplitude, params.lacunarity, params.persistence);
     base_heightmap = base_simplexNoiseGenerator.generateHeightmap(base_heightmap.width_, base_heightmap.height_, params.scale, params.offset_x, params.offset_y, params.offset_z);
 
-    // base_heightmap = base_heightmap.flattenSides(base_heightmap.width_ / params.flatness_amount);
-    base_heightmap = base_heightmap.flattenSides(base_heightmap.width_ / 18.f);
-
+    base_heightmap = base_heightmap.flattenSides(0.05f);
+    
     auto upscaled_simplexNoiseGenerator = SimplexNoiseGenerator(params.scale * upscaling, params.amplitude, params.lacunarity, params.persistence);
     upscaled_heightmap = upscaled_simplexNoiseGenerator.generateHeightmap(upscaled_heightmap.width_, upscaled_heightmap.height_, params.scale * upscaling, params.offset_x, params.offset_y, params.offset_z);
 
-    // upscaled_heightmap = upscaled_heightmap.flattenSides(upscaled_heightmap.width_ / params.flatness_amount);
-    upscaled_heightmap = upscaled_heightmap.flattenSides(upscaled_heightmap.width_ / 18.f);
+    upscaled_heightmap = upscaled_heightmap.flattenSides(0.05f);
 }

@@ -49,31 +49,14 @@ void Heightmap::set(int y, int x, float value)
     height_map_[y][x] = value;
 }
 
-Image2D Heightmap::toImage2D()
-{
-    Image2D image(width_, height_);
-
-    for (int y = 0; y < height_; y++)
-    {
-        for (int x = 0; x < width_; x++)
-        {
-            float height = this->at(y, x);
-            image.setPixel(y, x, height, height, height);
-        }
-    }
-
-    return image;
-}
-
 /**
- * @brief Flattens the sides of the heightmap by multiplying it by a 2D gaussian distribution.
- * Works for square heightmaps (if width != height, the function will return a heightmap (width, width)).
+ * @brief Return a new heightmap, which is the multiplication of the heightmap by a 2D gaussian distribution.
+ * Works for square heightmaps (if width != height, the function will return a heightmap of dimension (width, width)).
  *
- * @param flatness_amount  How far the border is flatten [0, width/4[ ([0, base_sigma[)
+ * @param base_sigma  Standard deviation of the 2D gaussian
  */
-Heightmap Heightmap::flattenSides(float flatness_amount) // FIXME make flatness_amount a scaling parameter and divide base sigma by it when calling gaussian ?
+Heightmap Heightmap::multiplyByGaussian(float base_sigma)
 {
-    // FIXME modifies in place or returns a new heightmap? and should be member function or static ?
     Heightmap new_heightmap = Heightmap(width_, width_);
     Heightmap gaussian_heightmap = Heightmap(width_, width_);
 
@@ -82,23 +65,20 @@ Heightmap Heightmap::flattenSides(float flatness_amount) // FIXME make flatness_
         return (1.0f / 2 * M_PIf * sigma * sigma) * std::exp(-(x * x + y * y) / (2 * sigma * sigma));
     };
 
-    // Apply the gaussian distribution to the heightmap
-    float base_sigma = static_cast<float>(width_) / 4; // 4 is kind of arbitrary, could find a better way to calculate base_sigma
-    std::cout << "base_sigma: " << base_sigma << std::endl;
-
     for (int y = 0; y < width_; y++)
     {
         for (int x = 0; x < width_; x++)
         {
             float dx = x - width_ / 2;
             float dy = y - width_ / 2;
-            float gaussian_value = gaussian(dx, dy, base_sigma - flatness_amount);
+            float gaussian_value = gaussian(dx, dy, base_sigma);
 
             // Normalize gaussian value to [0, 1]
-            gaussian_value = gaussian_value / (gaussian(0, 0, base_sigma - flatness_amount));
+            gaussian_value = gaussian_value / (gaussian(0, 0, base_sigma));
 
             // (if we need to keep more height from the original heightmap starting from the middle)
             // Normalize to [0, a > 1] then clamp to [0, 1]
+            // float a = 2.0f;
             // gaussian_value = std::clamp(gaussian_value * a, 0.0f, 1.0f);
 
             gaussian_heightmap.set(y, x, gaussian_value);
@@ -109,10 +89,58 @@ Heightmap Heightmap::flattenSides(float flatness_amount) // FIXME make flatness_
     }
 
     // for debug purposes
-    // Image2D gaussian_image = gaussian_heightmap.toImage2D();
-    // gaussian_image.writePPM("../images/heightmaps/gaussian.ppm");
-    // Image2D new_image = new_heightmap.toImage2D();
-    // new_image.writePPM("../images/heightmaps/flattened.ppm");
+
+    // Image2D gaussian_image = Image2D(gaussian_heightmap);
+    // gaussian_image.writePPM("gaussian.ppm", false);
+    // Image2D new_image = Image2D(new_heightmap);
+    // new_image.writePPM("flattened.ppm", false);
 
     return new_heightmap;
 }
+
+/**
+ * @brief Check if the sides of the heightmap are flat (under a certain threshold).
+ *
+ * @param threshold  Threshold value to consider a side as flat (default=std::numeric_limits<float>::epsilon())
+ */
+bool Heightmap::areSidesFlat(float threshold)
+{
+    for (int i = 0; i < width_; i++)
+    {
+        if (this->at(0, i) > threshold || this->at(width_ - 1, i) > threshold
+            || this->at(i, 0) > threshold || this->at(i, width_ - 1) > threshold)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * @brief Return a flattened heightmap, by multiplying the current instance by a 2D gaussian distribution until the sides are under a certain threshold.
+ *
+ * @param threshold  Threshold value to consider a side as flat (default=std::numeric_limits<float>::epsilon())
+ */
+Heightmap Heightmap::flattenSides(float threshold)
+{
+    Heightmap res_heightmap = *this;
+    float base_sigma = static_cast<float>(width_) / 2; // TODO refine starting sigma value
+
+    int debug_count = 0;
+
+    while (!res_heightmap.areSidesFlat(threshold))
+    {
+        res_heightmap = this->multiplyByGaussian(base_sigma);
+
+        std::cout << "base_sigma: " << base_sigma << std::endl;
+
+        base_sigma /= 2; // TODO refine iteration process
+
+        debug_count++;
+    }
+
+    std::cout << "Iterations: " << debug_count << std::endl;
+
+    return res_heightmap;
+} 
