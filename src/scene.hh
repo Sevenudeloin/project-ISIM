@@ -30,6 +30,5 @@ public:
           shared_ptr<AbsorptionVolume> fog = nullptr);
 
     static Scene createTestScene(int image_height, int image_width);
-    // static Scene createOceanScene(int image_height, int image_width);
-    // static Scene createIslandScene(int image_height, int image_width);
+    static Scene createSimplexScene(int image_height, int image_width);
 };
