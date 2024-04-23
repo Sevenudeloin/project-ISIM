@@ -1,16 +1,18 @@
 #include "dla_generator.hh"
+#include "heightmap.hh"
 
-// TODO graph structure ?
+#include <cmath>
 
-// DLA is bounded to CPU (but we dont care anyway)
+// Implementation of DLA Algorithm (intuition from https://youtu.be/gsJHzBTPG0Y?si=jipP7Z0xBVCW3Ip6):
+// algorithm bounded to CPU (but we dont care)
 
-void DLAGenerator::populateGrid(Heightmap& grid, float density_threshold) {
+void DLAGenerator::populateGrid(Heightmap& grid) {
     int pixels_count = 0;
     float density = static_cast<float>(pixels_count) / (grid.height_ * grid.width_);
 }
 
 /**
- * DLA Algorithm:
+ * @brief Main algorithm
  * 
  * Generate low resolution grid and populate it until a certain density threshold (populateGrid())
  * Repeat:
@@ -21,10 +23,29 @@ void DLAGenerator::populateGrid(Heightmap& grid, float density_threshold) {
  *      Add more detail to the crisp one (populateGrid())
  *      Use populated crisp image to add the new detail to the blurry version (FIXME this is unclear)
  *
- * =====
- * 
- * Experiment with hyperparameters values to get different results
+ * @param width  width of the final square heightmap (FOR NOW CHOOSE A POWER OF 2 ABOVE 2^3)
  */
+Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
+    int power_of_two = 3;
+    int base_width = 8; // 2^3
+
+    Heightmap low_res_grid = Heightmap(base_width, base_width);
+    populateGrid(low_res_grid);
+
+    // Heightmap high_res_crisp_grid = // TODO;
+    // Heightmap high_res_blurry_grid = // TODO;
+    
+    while (std::pow(2, power_of_two) <= width) {
+        // TODO
+
+        power_of_two++;
+        // low_res_grid = high_res_crisp_grid;
+        // high_res_crisp_grid = ;
+    }
+    
+    return high_res_blurry_grid;
+}
+
 
 /**
  * Upscaling (crisp image):
