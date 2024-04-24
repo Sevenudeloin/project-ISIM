@@ -1,14 +1,32 @@
 #include "dla_generator.hh"
-#include "heightmap.hh"
 
 #include <cmath>
+#include <iostream>
+#include <random>
+
+#include "heightmap.hh"
 
 // Implementation of DLA Algorithm (intuition from https://youtu.be/gsJHzBTPG0Y?si=jipP7Z0xBVCW3Ip6):
 // algorithm bounded to CPU (but we dont care)
 
-void DLAGenerator::populateGrid(Heightmap& grid) {
+/**
+ * @brief TODO
+ *
+ * @param[in, out] grid   grid to populate
+ * @param[in, out] graph  graph representation of the pixels of the grid to populate
+ */
+void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
+    // random direction choice (1, 2, 3, 4)
+    std::random_device rd;
+    std::mt19937 rng(rd());
+    std::uniform_int_distribution<std::mt19937::result_type> dist4(1,4);
+
+    // std::cout << dist4(rng) << std::endl;
+
     int pixels_count = 0;
     float density = static_cast<float>(pixels_count) / (grid.height_ * grid.width_);
+
+    std::array<int, 2> pixel_coords = { 0, 0 }; // TODO initialize randomly
 }
 
 /**
@@ -24,6 +42,8 @@ void DLAGenerator::populateGrid(Heightmap& grid) {
  *      Use populated crisp image to add the new detail to the blurry version (FIXME this is unclear)
  *
  * @param width  width of the final square heightmap (FOR NOW CHOOSE A POWER OF 2 ABOVE 2^3)
+ *
+ * @return high resolution square heightmap representing a terrain (mountains)
  */
 Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
     int power_of_two = 3;

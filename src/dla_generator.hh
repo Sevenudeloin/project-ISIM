@@ -6,12 +6,12 @@
 
 struct Edge
 {
-    int nodes[2];
+    std::array<int, 2> nodes;
     float height; // keep this ?
 };
 
 // Experiment with generator hyperparameters to get different results
-class DLAGenerator
+class DLAGenerator // Diffusion Limited Aggregation
 {
 public:
     using Graph = std::map<int, std::vector<Edge>>; // ints are identifiers
@@ -20,7 +20,7 @@ public:
     // default (find default values for parameters)
     // with parameters as arguments
 
-    void populateGrid(Heightmap& grid);
+    void populateGrid(Heightmap& grid, Graph& graph);
 
     // Generate high resolution (square) heightmap using DLA algorithm
     Heightmap generateUpscaledHeightmap(int width);
