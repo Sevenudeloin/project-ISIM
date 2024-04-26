@@ -10,23 +10,76 @@
 // algorithm bounded to CPU (but we dont care)
 
 /**
+ * @brief Get random coordinates for a pixel in a 2D grid
+ *
+ * @param width   grid width
+ * @param height  grid height
+ *
+ * @return random coordinates for a pixel in a 2D grid
+ */
+std::array<int, 2> getRandom2DPixelCoordinates(int width, int height) {
+    std::random_device rd;
+    std::mt19937 rng(rd()); // use fixed seed if need to get reproducible results
+
+    std::uniform_int_distribution<std::mt19937::result_type> dist_height(0, height - 1);
+    std::uniform_int_distribution<std::mt19937::result_type> dist_width(0, width - 1);
+
+    return { static_cast<int>(dist_height(rng)), static_cast<int>(dist_width(rng)) };
+}
+
+/**
  * @brief TODO
  *
  * @param[in, out] grid   grid to populate
  * @param[in, out] graph  graph representation of the pixels of the grid to populate
  */
 void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
-    // random direction choice (1, 2, 3, 4)
-    std::random_device rd;
-    std::mt19937 rng(rd());
-    std::uniform_int_distribution<std::mt19937::result_type> dist4(1,4);
+    std::array<int, 2> pixel_coords = getRandom2DPixelCoordinates(grid.width_, grid.height_); // { y, x }
 
-    // std::cout << dist4(rng) << std::endl;
-
-    int pixels_count = 0;
+    int pixels_count = 1;
     float density = static_cast<float>(pixels_count) / (grid.height_ * grid.width_);
 
-    std::array<int, 2> pixel_coords = { 0, 0 }; // TODO initialize randomly
+    // random direction choice (1, 2, 3, 4)
+    std::random_device rd;
+    std::mt19937 rng(rd()); // use fixed seed if need to get reproducible results
+    std::uniform_int_distribution<std::mt19937::result_type> dist4(1,4);
+
+    while (density < this->density_threshold_) {
+        // TODO initialize randomly
+        pixel_coords = { 0, 0 }; // { y, x }
+
+        while (true) {
+            // move the pixel in a random cardinal direction
+            int direction = dist4(rng);
+            switch (direction) {
+                case 1: // right
+                    pixel_coords[1] = (pixel_coords[1] + 1 < grid.width_) ? (pixel_coords[1] + 1) : (pixel_coords[1]);
+                    break;
+                case 2: // left
+                    pixel_coords[1] = (pixel_coords[1] - 1 >= 0) ? (pixel_coords[1] - 1) : (pixel_coords[1]);
+                    break;
+                case 3: // up
+                    pixel_coords[0] = (pixel_coords[0] - 1 >= 0) ? (pixel_coords[0] - 1) : (pixel_coords[0]);
+                    break;
+                case 4: // down
+                    pixel_coords[0] = (pixel_coords[0] + 1 < grid.height_) ? (pixel_coords[0] + 1) : (pixel_coords[0]);
+                    break;
+                default:
+                    break;
+            }
+
+            // check if the pixel is next to another pixel
+            if () {
+                // add it to the graph and generate another pixel
+                //     - (if multiple pixels next to it, add it to the one closest to the "center axis (x, y)"
+                //       of the grid if the origin of this new basis is the center of the grid)
+                break;
+            }
+        }
+
+        pixels_count++;
+        density = static_cast<float>(pixels_count) / (grid.height_ * grid.width_);
+    }
 }
 
 /**
