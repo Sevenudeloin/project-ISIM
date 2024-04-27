@@ -43,7 +43,7 @@ std::array<int, 2> DLAGenerator::getRandom2DPixelCoordinates(int width, int heig
 }
 
 /**
- * @brief TODO !!! Exolain principle of the graph, that we store nodes labels in the grid
+ * @brief TODO !!! Explain principle of the graph, that we store nodes labels in the grid
  *
  * @param[in, out] grid   grid to populate
  * @param[in, out] graph  graph representation of the pixels of the grid to populate
@@ -89,10 +89,10 @@ void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
             }
 
             // && works here because of short-circuit evaluation
-            bool is_there_right_pixel = (x + 1 < grid.width_) && (grid.at(y, x + 1) == 1);
-            bool is_there_left_pixel = (x - 1 >= 0) && (grid.at(y, x - 1) == 1);
-            bool is_there_up_pixel = (y - 1 >= 0) && (grid.at(y - 1, x) == 1);
-            bool is_there_down_pixel = (y + 1 < grid.height_) && (grid.at(y + 1, x) == 1);
+            bool is_there_right_pixel = (x + 1 < grid.width_) && (grid.at(y, x + 1) > 0);
+            bool is_there_left_pixel = (x - 1 >= 0) && (grid.at(y, x - 1) > 0);
+            bool is_there_up_pixel = (y - 1 >= 0) && (grid.at(y - 1, x) > 0);
+            bool is_there_down_pixel = (y + 1 < grid.height_) && (grid.at(y + 1, x) > 0);
 
             // check if the pixel is next to another pixel
             if (is_there_right_pixel || is_there_left_pixel || is_there_up_pixel || is_there_down_pixel) {
@@ -108,12 +108,16 @@ void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
                 // FIXME: for now add edge to the first node found, should be the closest to the center axis
                 if (is_there_right_pixel) {
                     graph.adjacency_list_[node_label].push_back(grid.at(y, x + 1));
+                    graph.adjacency_list_[grid.at(y, x + 1)].push_back(node_label);
                 } else if (is_there_left_pixel) {
                     graph.adjacency_list_[node_label].push_back(grid.at(y, x - 1));
+                    graph.adjacency_list_[grid.at(y, x - 1)].push_back(node_label);
                 } else if (is_there_up_pixel) {
                     graph.adjacency_list_[node_label].push_back(grid.at(y - 1, x));
+                    graph.adjacency_list_[grid.at(y - 1, x)].push_back(node_label);
                 } else if (is_there_down_pixel) {
                     graph.adjacency_list_[node_label].push_back(grid.at(y + 1, x));
+                    graph.adjacency_list_[grid.at(y + 1, x)].push_back(node_label);
                 }
 
                 break;

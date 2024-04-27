@@ -23,7 +23,7 @@ struct Graph
 
     Graph();
 
-    void exportToDot(const std::string &filename);
+    void exportToDot(const std::string& filename);
 };
 
 }

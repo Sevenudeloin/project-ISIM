@@ -80,6 +80,8 @@ int main(int argc, char *argv[])
         std::cout << graph.nodes_list_.size() << " nodes in the graph" << std::endl;
         std::cout << graph.adjacency_list_.size() << " adjacency lists" << std::endl;
 
+        graph.exportToDot("../images/DLA/DLA_graph.dot");
+
         Image2D test_grid = Image2D(grid);
         test_grid.writePPM("../images/DLA/DLA_test.ppm", false);
 
