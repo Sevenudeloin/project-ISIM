@@ -73,12 +73,12 @@ int main(int argc, char *argv[])
         generator.populateGrid(grid, graph);
 
         int grid_amount = grid.getAmountAboveThreshold(0);
-        std::cout << "Amount: " << grid_amount << std::endl;
+        std::cout << "Number of pixels in grid: " << grid_amount << std::endl;
         float grid_density = static_cast<float>(grid.getAmountAboveThreshold(0)) / (grid.height_ * grid.width_);
-        std::cout << "Density: " << grid_density << std::endl;
+        std::cout << "Grid density: " << grid_density << std::endl;
 
-        std::cout << graph.nodes_list_.size() << " nodes in the graph" << std::endl;
-        std::cout << graph.adjacency_list_.size() << " adjacency lists" << std::endl;
+        std::cout << graph.nodes_list_.size() << " nodes in the graph" << std::endl; // + 1 because of the dummy node
+        std::cout << graph.adjacency_list_.size() << " adjacency lists" << std::endl; // + 1 because of the dummy node
 
         graph.exportToDot("../images/DLA/DLA_graph.dot");
 

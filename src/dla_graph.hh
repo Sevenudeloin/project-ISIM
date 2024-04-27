@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <ostream>
 #include <vector>
 
 namespace DLA {
@@ -11,7 +12,14 @@ struct Node
     int y_;
     int x_;
     float height_;
+
 };
+
+inline std::ostream& operator<<(std::ostream& os, const Node& node)
+{
+    os << "Node " << node.label_ << " (y: " << node.y_ << ", x: " << node.x_ << ") - height: " << node.height_ << std::endl;
+    return os;
+}
 
 struct Graph
 {

@@ -69,24 +69,7 @@ void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
         }
 
         while (true) {
-            // move the pixel in a random cardinal direction
-            int direction = dist4_(rng_); // random direction choice (1, 2, 3, 4)
-            switch (direction) {
-                case 1: // right
-                    x = (x + 1 < grid.width_) ? (x + 1) : x;
-                    break;
-                case 2: // left
-                    x = (x - 1 >= 0) ? (x - 1) : x;
-                    break;
-                case 3: // up
-                    y = (y - 1 >= 0) ? (y - 1) : y;
-                    break;
-                case 4: // down
-                    y = (y + 1 < grid.height_) ? (y + 1) : y;
-                    break;
-                default:
-                    break;
-            }
+            // check if the pixel is next to another pixel
 
             // && works here because of short-circuit evaluation
             bool is_there_right_pixel = (x + 1 < grid.width_) && (grid.at(y, x + 1) > 0);
@@ -94,14 +77,13 @@ void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
             bool is_there_up_pixel = (y - 1 >= 0) && (grid.at(y - 1, x) > 0);
             bool is_there_down_pixel = (y + 1 < grid.height_) && (grid.at(y + 1, x) > 0);
 
-            // check if the pixel is next to another pixel
             if (is_there_right_pixel || is_there_left_pixel || is_there_up_pixel || is_there_down_pixel) {
                 // add it to the graph and continue
                 //     - (if multiple pixels next to it, add edge to the one closest to the "center axis (x, y)"
                 //       of the grid if the origin of this new basis is the center of the grid)
 
                 int node_label = graph.nodes_list_.size();
-                grid.height_map_[y][x] = node_label;
+                grid.set(y, x, node_label);
                 graph.nodes_list_.push_back(std::make_shared<Node>(node_label, y, x, 1.0f));
                 graph.adjacency_list_.push_back({});
 
@@ -121,6 +103,26 @@ void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
                 }
 
                 break;
+            }
+
+            // move the pixel in a random cardinal direction
+
+            int direction = dist4_(rng_); // random direction choice (1, 2, 3, 4)
+            switch (direction) {
+                case 1: // right
+                    x = (x + 1 < grid.width_) ? (x + 1) : x;
+                    break;
+                case 2: // left
+                    x = (x - 1 >= 0) ? (x - 1) : x;
+                    break;
+                case 3: // up
+                    y = (y - 1 >= 0) ? (y - 1) : y;
+                    break;
+                case 4: // down
+                    y = (y + 1 < grid.height_) ? (y + 1) : y;
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -154,7 +156,7 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
 
     std::array<int, 2> pixel_coords = getRandom2DPixelCoordinates(low_res_grid.width_, low_res_grid.height_);
     int node_label = graph.nodes_list_.size(); // should be 1 (first actual node)
-    low_res_grid.height_map_[pixel_coords[0]][pixel_coords[1]] = node_label;
+    low_res_grid.set(pixel_coords[0], pixel_coords[1], node_label);
     graph.nodes_list_.push_back(std::make_shared<Node>(node_label, pixel_coords[0], pixel_coords[1], 1.0f));
     graph.adjacency_list_.push_back({});
 
