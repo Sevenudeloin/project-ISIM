@@ -90,21 +90,25 @@ void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
                 //       of the grid if the origin of this new basis is the center of the grid)
 
                 int node_label = graph.nodes_list_.size();
-                grid.height_map_[y][x] = node_label; // store label of the graph node as value in the grid
+                grid.height_map_[y][x] = node_label;
                 graph.nodes_list_.push_back(std::make_shared<Node>(node_label, y, x, 1.0f));
                 graph.adjacency_list_.push_back({});
 
-                // if (is_there_right_pixel) {
-                // } else if (is_there_left_pixel) {
-                // } else if (is_there_up_pixel) {
-                // } else if (is_there_down_pixel) {
-                // }
+                // FIXME: for now add edge to the first node found, should be the closest to the center axis
+                if (is_there_right_pixel) {
+                    graph.adjacency_list_[node_label].push_back(grid.at(y, x + 1));
+                } else if (is_there_left_pixel) {
+                    graph.adjacency_list_[node_label].push_back(grid.at(y, x - 1));
+                } else if (is_there_up_pixel) {
+                    graph.adjacency_list_[node_label].push_back(grid.at(y - 1, x));
+                } else if (is_there_down_pixel) {
+                    graph.adjacency_list_[node_label].push_back(grid.at(y + 1, x));
+                }
 
                 break;
             }
         }
 
-        grid.height_map_[y][x] = 1;
         pixels_count++;
         density = static_cast<float>(pixels_count) / (grid.height_ * grid.width_);
     }
@@ -135,7 +139,7 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
 
     std::array<int, 2> pixel_coords = getRandom2DPixelCoordinates(low_res_grid.width_, low_res_grid.height_); // { y, x }
     int node_label = graph.nodes_list_.size(); // should be 1 (first actual node)
-    low_res_grid.height_map_[pixel_coords[0]][pixel_coords[1]] = node_label; // store label of the graph node as value in the grid
+    low_res_grid.height_map_[pixel_coords[0]][pixel_coords[1]] = node_label;
     graph.nodes_list_.push_back(std::make_shared<Node>(node_label, pixel_coords[0], pixel_coords[1], 1.0f));
     graph.adjacency_list_.push_back({});
 
