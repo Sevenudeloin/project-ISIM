@@ -4,6 +4,7 @@
 #include <sstream>
 #include <unistd.h>
 
+#include "dla_generator.hh"
 #include "heightmap.hh"
 #include "image2d.hh"
 #include "rendering.hh"
@@ -30,8 +31,9 @@ int main(int argc, char *argv[])
     std::string scene_type = "test";
     bool only_preview = false;
     bool show_help = false;
+    bool x_debug = false;
 
-    while ((opt = getopt(argc, argv, "o:d:s:ph")) != -1) {
+    while ((opt = getopt(argc, argv, "o:d:s:pxh")) != -1) {
         switch (opt) {
             case 'o':
                 output_filename = optarg;
@@ -45,6 +47,9 @@ int main(int argc, char *argv[])
             case 'p':
                 only_preview = true;
                 break;
+            case 'x':
+                x_debug = true;
+                break;
             case 'h':
                 show_help = true;
                 break;
@@ -52,6 +57,33 @@ int main(int argc, char *argv[])
                 std::cerr << "Usage: " << argv[0] << " [-o <output_filename>] [-d <width>x<height>] [-s <scene_type>] [-p] [-h]" << std::endl;
                 return 1;
         }
+    }
+
+    if (x_debug)
+    {
+        std::cout << "Debug mode enabled" << std::endl;
+        Heightmap grid = Heightmap(8, 8);
+        DLA::Graph graph = DLA::Graph();
+        DLA::DLAGenerator generator = DLA::DLAGenerator(0.5, 5); 
+
+        grid.height_map_[4][5] = 1;
+        graph.nodes_list_.push_back(std::make_shared<DLA::Node>(1, 4, 5, 1.0f));
+        graph.adjacency_list_.push_back({});
+
+        generator.populateGrid(grid, graph);
+
+        int grid_amount = grid.getAmountAboveThreshold(0);
+        std::cout << "Amount: " << grid_amount << std::endl;
+        float grid_density = static_cast<float>(grid.getAmountAboveThreshold(0)) / (grid.height_ * grid.width_);
+        std::cout << "Density: " << grid_density << std::endl;
+
+        std::cout << graph.nodes_list_.size() << " nodes in the graph" << std::endl;
+        std::cout << graph.adjacency_list_.size() << " adjacency lists" << std::endl;
+
+        Image2D test_grid = Image2D(grid);
+        test_grid.writePPM("../images/DLA/DLA_test.ppm", false);
+
+        return 0;
     }
 
     if (show_help) {

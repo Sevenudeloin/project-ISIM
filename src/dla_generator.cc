@@ -28,7 +28,7 @@ DLAGenerator::DLAGenerator(float density_threshold, int seed)
 {}
 
 /**
- * @brief Get random coordinates for a pixel in a 2D grid
+ * @brief Format for coordinates: { y, x }
  *
  * @param width   grid width
  * @param height  grid height
@@ -50,12 +50,23 @@ std::array<int, 2> DLAGenerator::getRandom2DPixelCoordinates(int width, int heig
  */
 void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
     int pixels_count = grid.getAmountAboveThreshold(0);
+    if (pixels_count == 0) {
+        throw std::runtime_error("DLAGenerator: populateGrid: Need at least one pixel on the grid to populate it");
+    }
+
     float density = static_cast<float>(pixels_count) / (grid.height_ * grid.width_);
 
     while (density < this->density_threshold_) {
-        std::array<int, 2> pixel_coords = getRandom2DPixelCoordinates(grid.width_, grid.height_); // { y, x }
+        std::array<int, 2> pixel_coords = getRandom2DPixelCoordinates(grid.width_, grid.height_);
         int y = pixel_coords[0];
         int x = pixel_coords[1];
+
+        // check if there is already a pixel at this position
+        while (grid.at(y, x) != 0) {
+            pixel_coords = getRandom2DPixelCoordinates(grid.width_, grid.height_);
+            y = pixel_coords[0];
+            x = pixel_coords[1];
+        }
 
         while (true) {
             // move the pixel in a random cardinal direction
@@ -137,7 +148,7 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
     Heightmap low_res_grid = Heightmap(base_width, base_width);
     Graph graph;
 
-    std::array<int, 2> pixel_coords = getRandom2DPixelCoordinates(low_res_grid.width_, low_res_grid.height_); // { y, x }
+    std::array<int, 2> pixel_coords = getRandom2DPixelCoordinates(low_res_grid.width_, low_res_grid.height_);
     int node_label = graph.nodes_list_.size(); // should be 1 (first actual node)
     low_res_grid.height_map_[pixel_coords[0]][pixel_coords[1]] = node_label;
     graph.nodes_list_.push_back(std::make_shared<Node>(node_label, pixel_coords[0], pixel_coords[1], 1.0f));

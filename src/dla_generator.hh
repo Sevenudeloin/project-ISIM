@@ -1,33 +1,11 @@
 #pragma once
 
-#include <memory>
 #include <random>
 
+#include "dla_graph.hh"
 #include "heightmap.hh"
 
 namespace DLA {
-
-struct Node
-{
-    int label_; // start from 1
-    int y_;
-    int x_;
-    float height_;
-};
-
-struct Graph
-{
-    using AdjacencyList = std::vector<std::vector<int>>; // adjacency list representation of the graph (by label, position in the list is the label of the node)
-    using NodesList = std::vector<std::shared_ptr<Node>>; // list of nodes in the graph (position of the node in the vector should be the label of the node)
-
-    AdjacencyList adjacency_list_;
-    NodesList nodes_list_;
-
-    Graph() {
-        adjacency_list_.push_back(std::vector<int>()); // add a dummy node at the beginning
-        nodes_list_.push_back(nullptr); // add a dummy node at the beginning
-    };
-};
 
 // TODO: Experiment with generator hyperparameters to get different results
 class DLAGenerator // Diffusion Limited Aggregation

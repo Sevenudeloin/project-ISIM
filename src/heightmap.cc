@@ -145,6 +145,11 @@ Heightmap Heightmap::flattenSides(float threshold)
     return res_heightmap;
 } 
 
+/**
+ * @param threshold  Threshold value to consider a pixel as above the threshold
+ *
+ * @return the amount of pixels above a certain threshold.
+ */
 int Heightmap::getAmountAboveThreshold(float threshold)
 {
     int count = 0;
