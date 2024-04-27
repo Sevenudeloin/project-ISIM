@@ -144,3 +144,21 @@ Heightmap Heightmap::flattenSides(float threshold)
 
     return res_heightmap;
 } 
+
+int Heightmap::getAmountAboveThreshold(float threshold)
+{
+    int count = 0;
+
+    for (int y = 0; y < height_; y++)
+    {
+        for (int x = 0; x < width_; x++)
+        {
+            if (height_map_[y][x] > threshold)
+            {
+                count++;
+            }
+        }
+    }
+
+    return count;
+}
