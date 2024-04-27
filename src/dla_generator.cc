@@ -1,8 +1,10 @@
 #include "dla_generator.hh"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <memory>
 
 #include "heightmap.hh"
@@ -42,6 +44,12 @@ std::array<int, 2> DLAGenerator::getRandom2DPixelCoordinates(int width, int heig
     return { static_cast<int>(dist_height(rng_)), static_cast<int>(dist_width(rng_)) };
 }
 
+float distanceToCenter(int width, int height, int y, int x) {
+    int center_y = height / 2;
+    int center_x = width / 2;
+    return std::sqrt(std::pow(y - center_y, 2) + std::pow(x - center_x, 2));
+}
+
 /**
  * @brief TODO !!! Explain principle of the graph, that we store nodes labels in the grid
  *
@@ -71,33 +79,47 @@ void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
         while (true) {
             // check if the pixel is next to another pixel
 
-            // && works here because of short-circuit evaluation
+            // (&& works here because of short-circuit evaluation)
             bool is_there_right_pixel = (x + 1 < grid.width_) && (grid.at(y, x + 1) > 0);
             bool is_there_left_pixel = (x - 1 >= 0) && (grid.at(y, x - 1) > 0);
             bool is_there_up_pixel = (y - 1 >= 0) && (grid.at(y - 1, x) > 0);
             bool is_there_down_pixel = (y + 1 < grid.height_) && (grid.at(y + 1, x) > 0);
 
             if (is_there_right_pixel || is_there_left_pixel || is_there_up_pixel || is_there_down_pixel) {
-                // add it to the graph and continue
-                //     - (if multiple pixels next to it, add edge to the one closest to the "center axis (x, y)"
-                //       of the grid if the origin of this new basis is the center of the grid)
+                // add it to the graph and continue the main loop
+                // (if multiple pixels next to it, add edge to the one closest to the center of the grid)
 
                 int node_label = graph.nodes_list_.size();
                 grid.set(y, x, node_label);
                 graph.nodes_list_.push_back(std::make_shared<Node>(node_label, y, x, 1.0f));
                 graph.adjacency_list_.push_back({});
 
-                // FIXME: for now add edge to the first node found, should be the closest to the center axis
-                if (is_there_right_pixel) {
+                float right_pixel_to_center = std::numeric_limits<float>::max();
+                float left_pixel_to_center = std::numeric_limits<float>::max();
+                float up_pixel_to_center = std::numeric_limits<float>::max();
+                float down_pixel_to_center = std::numeric_limits<float>::max();
+
+                if (is_there_right_pixel)
+                    right_pixel_to_center = distanceToCenter(grid.width_, grid.height_, y, x + 1);
+                if (is_there_left_pixel)
+                    left_pixel_to_center = distanceToCenter(grid.width_, grid.height_, y, x - 1);
+                if (is_there_up_pixel)
+                    up_pixel_to_center = distanceToCenter(grid.width_, grid.height_, y - 1, x);
+                if (is_there_down_pixel)
+                    down_pixel_to_center = distanceToCenter(grid.width_, grid.height_, y + 1, x);
+
+                float min_distance_to_center = std::min({ right_pixel_to_center, left_pixel_to_center, up_pixel_to_center, down_pixel_to_center });
+
+                if (right_pixel_to_center == min_distance_to_center) {
                     graph.adjacency_list_[node_label].push_back(grid.at(y, x + 1));
                     graph.adjacency_list_[grid.at(y, x + 1)].push_back(node_label);
-                } else if (is_there_left_pixel) {
+                } else if (left_pixel_to_center == min_distance_to_center) {
                     graph.adjacency_list_[node_label].push_back(grid.at(y, x - 1));
                     graph.adjacency_list_[grid.at(y, x - 1)].push_back(node_label);
-                } else if (is_there_up_pixel) {
+                } else if (up_pixel_to_center == min_distance_to_center) {
                     graph.adjacency_list_[node_label].push_back(grid.at(y - 1, x));
                     graph.adjacency_list_[grid.at(y - 1, x)].push_back(node_label);
-                } else if (is_there_down_pixel) {
+                } else if (down_pixel_to_center == min_distance_to_center) {
                     graph.adjacency_list_[node_label].push_back(grid.at(y + 1, x));
                     graph.adjacency_list_[grid.at(y + 1, x)].push_back(node_label);
                 }
