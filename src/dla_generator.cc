@@ -1,5 +1,6 @@
 #include "dla_generator.hh"
 
+#include <array>
 #include <cmath>
 #include <iostream>
 #include <memory>
@@ -42,22 +43,17 @@ std::array<int, 2> DLAGenerator::getRandom2DPixelCoordinates(int width, int heig
 }
 
 /**
- * @brief TODO
+ * @brief TODO !!! Exolain principle of the graph, that we store nodes labels in the grid
  *
  * @param[in, out] grid   grid to populate
  * @param[in, out] graph  graph representation of the pixels of the grid to populate
  */
 void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
-    std::array<int, 2> pixel_coords = getRandom2DPixelCoordinates(grid.width_, grid.height_); // { y, x }
-    grid.height_map_[pixel_coords[0]][pixel_coords[1]] = 1; // FIXME: do i store 1 or the label of the node in the graph?
-    graph.nodes_list_.push_back(std::make_shared<Node>(0, pixel_coords[0], pixel_coords[1], 1.0f));
-    graph.adjacency_list_.push_back({});
-
-    int pixels_count = 1;
+    int pixels_count = grid.getAmountAboveThreshold(0);
     float density = static_cast<float>(pixels_count) / (grid.height_ * grid.width_);
 
     while (density < this->density_threshold_) {
-        pixel_coords = getRandom2DPixelCoordinates(grid.width_, grid.height_); // { y, x }
+        std::array<int, 2> pixel_coords = getRandom2DPixelCoordinates(grid.width_, grid.height_); // { y, x }
         int y = pixel_coords[0];
         int x = pixel_coords[1];
 
@@ -93,8 +89,9 @@ void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
                 //     - (if multiple pixels next to it, add edge to the one closest to the "center axis (x, y)"
                 //       of the grid if the origin of this new basis is the center of the grid)
 
-                grid.height_map_[y][x] = 1; // FIXME: do i store 1 or the label of the node in the graph?
-                graph.nodes_list_.push_back(std::make_shared<Node>(static_cast<int>(graph.nodes_list_.size()), y, x, 1.0f));
+                int node_label = graph.nodes_list_.size();
+                grid.height_map_[y][x] = node_label; // store label of the graph node as value in the grid
+                graph.nodes_list_.push_back(std::make_shared<Node>(node_label, y, x, 1.0f));
                 graph.adjacency_list_.push_back({});
 
                 // if (is_there_right_pixel) {
@@ -134,7 +131,15 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
     int base_width = 8; // 2^3
 
     Heightmap low_res_grid = Heightmap(base_width, base_width);
-    populateGrid(low_res_grid);
+    Graph graph;
+
+    std::array<int, 2> pixel_coords = getRandom2DPixelCoordinates(low_res_grid.width_, low_res_grid.height_); // { y, x }
+    int node_label = graph.nodes_list_.size(); // should be 1 (first actual node)
+    low_res_grid.height_map_[pixel_coords[0]][pixel_coords[1]] = node_label; // store label of the graph node as value in the grid
+    graph.nodes_list_.push_back(std::make_shared<Node>(node_label, pixel_coords[0], pixel_coords[1], 1.0f));
+    graph.adjacency_list_.push_back({});
+
+    populateGrid(low_res_grid, graph);
 
     // Heightmap high_res_crisp_grid = // TODO;
     // Heightmap high_res_blurry_grid = // TODO;
@@ -144,10 +149,14 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
 
         power_of_two++;
         // low_res_grid = high_res_crisp_grid;
+        
+        // When upsacling, will need to update the graph representation of the grid, to make the y and x coordinates of the nodes match the new grid
+        // and set grid values at the new coordinates to the label of the node
         // high_res_crisp_grid = ;
     }
     
-    return high_res_blurry_grid;
+    // return high_res_blurry_grid;
+    return low_res_grid; // FIXME DELETE
 }
 
 
