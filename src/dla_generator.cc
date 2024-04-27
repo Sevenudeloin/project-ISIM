@@ -35,6 +35,9 @@ std::array<int, 2> getRandom2DPixelCoordinates(int width, int height) {
  */
 void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
     std::array<int, 2> pixel_coords = getRandom2DPixelCoordinates(grid.width_, grid.height_); // { y, x }
+    grid.height_map_[pixel_coords[0]][pixel_coords[1]] = 1; // FIXME: do i store 1 or the label of the node in the graph?
+    graph.nodes_list_.push_back({0, pixel_coords[0], pixel_coords[1], 1.0f});
+    graph.adjacency_list_.push_back({});
 
     int pixels_count = 1;
     float density = static_cast<float>(pixels_count) / (grid.height_ * grid.width_);
@@ -45,38 +48,57 @@ void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
     std::uniform_int_distribution<std::mt19937::result_type> dist4(1,4);
 
     while (density < this->density_threshold_) {
-        // TODO initialize randomly
-        pixel_coords = { 0, 0 }; // { y, x }
+        pixel_coords = getRandom2DPixelCoordinates(grid.width_, grid.height_); // { y, x }
+        int y = pixel_coords[0];
+        int x = pixel_coords[1];
 
         while (true) {
             // move the pixel in a random cardinal direction
             int direction = dist4(rng);
             switch (direction) {
                 case 1: // right
-                    pixel_coords[1] = (pixel_coords[1] + 1 < grid.width_) ? (pixel_coords[1] + 1) : (pixel_coords[1]);
+                    x = (x + 1 < grid.width_) ? (x + 1) : x;
                     break;
                 case 2: // left
-                    pixel_coords[1] = (pixel_coords[1] - 1 >= 0) ? (pixel_coords[1] - 1) : (pixel_coords[1]);
+                    x = (x - 1 >= 0) ? (x - 1) : x;
                     break;
                 case 3: // up
-                    pixel_coords[0] = (pixel_coords[0] - 1 >= 0) ? (pixel_coords[0] - 1) : (pixel_coords[0]);
+                    y = (y - 1 >= 0) ? (y - 1) : y;
                     break;
                 case 4: // down
-                    pixel_coords[0] = (pixel_coords[0] + 1 < grid.height_) ? (pixel_coords[0] + 1) : (pixel_coords[0]);
+                    y = (y + 1 < grid.height_) ? (y + 1) : y;
                     break;
                 default:
                     break;
             }
 
+            // && works here because of short-circuit evaluation
+            bool is_there_right_pixel = (x + 1 < grid.width_) && (grid.at(y, x + 1) == 1);
+            bool is_there_left_pixel = (x - 1 >= 0) && (grid.at(y, x - 1) == 1);
+            bool is_there_up_pixel = (y - 1 >= 0) && (grid.at(y - 1, x) == 1);
+            bool is_there_down_pixel = (y + 1 < grid.height_) && (grid.at(y + 1, x) == 1);
+
             // check if the pixel is next to another pixel
-            if () {
-                // add it to the graph and generate another pixel
-                //     - (if multiple pixels next to it, add it to the one closest to the "center axis (x, y)"
+            if (is_there_right_pixel || is_there_left_pixel || is_there_up_pixel || is_there_down_pixel) {
+                // add it to the graph and continue
+                //     - (if multiple pixels next to it, add edge to the one closest to the "center axis (x, y)"
                 //       of the grid if the origin of this new basis is the center of the grid)
+
+                grid.height_map_[y][x] = 1; // FIXME: do i store 1 or the label of the node in the graph?
+                graph.nodes_list_.push_back({static_cast<int>(graph.nodes_list_.size()), y, x, 1.0f});
+                graph.adjacency_list_.push_back({});
+
+                // if (is_there_right_pixel) {
+                // } else if (is_there_left_pixel) {
+                // } else if (is_there_up_pixel) {
+                // } else if (is_there_down_pixel) {
+                // }
+
                 break;
             }
         }
 
+        grid.height_map_[y][x] = 1;
         pixels_count++;
         density = static_cast<float>(pixels_count) / (grid.height_ * grid.width_);
     }
