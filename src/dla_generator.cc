@@ -2,12 +2,29 @@
 
 #include <cmath>
 #include <iostream>
-#include <random>
+#include <memory>
 
 #include "heightmap.hh"
 
 // Implementation of DLA Algorithm (intuition from https://youtu.be/gsJHzBTPG0Y?si=jipP7Z0xBVCW3Ip6):
 // algorithm bounded to CPU (but we dont care)
+
+namespace DLA {
+
+DLAGenerator::DLAGenerator()
+    : rng_(rd_())
+    , density_threshold_(0.5f)
+{}
+
+DLAGenerator::DLAGenerator(float density_threshold)
+    : rng_(rd_())
+    , density_threshold_(density_threshold)
+{}
+
+DLAGenerator::DLAGenerator(float density_threshold, int seed)
+    : rng_(seed)
+    , density_threshold_(density_threshold)
+{}
 
 /**
  * @brief Get random coordinates for a pixel in a 2D grid
@@ -17,14 +34,11 @@
  *
  * @return random coordinates for a pixel in a 2D grid
  */
-std::array<int, 2> getRandom2DPixelCoordinates(int width, int height) {
-    std::random_device rd;
-    std::mt19937 rng(rd()); // use fixed seed if need to get reproducible results
-
+std::array<int, 2> DLAGenerator::getRandom2DPixelCoordinates(int width, int height) {
     std::uniform_int_distribution<std::mt19937::result_type> dist_height(0, height - 1);
     std::uniform_int_distribution<std::mt19937::result_type> dist_width(0, width - 1);
 
-    return { static_cast<int>(dist_height(rng)), static_cast<int>(dist_width(rng)) };
+    return { static_cast<int>(dist_height(rng_)), static_cast<int>(dist_width(rng_)) };
 }
 
 /**
@@ -36,16 +50,11 @@ std::array<int, 2> getRandom2DPixelCoordinates(int width, int height) {
 void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
     std::array<int, 2> pixel_coords = getRandom2DPixelCoordinates(grid.width_, grid.height_); // { y, x }
     grid.height_map_[pixel_coords[0]][pixel_coords[1]] = 1; // FIXME: do i store 1 or the label of the node in the graph?
-    graph.nodes_list_.push_back({0, pixel_coords[0], pixel_coords[1], 1.0f});
+    graph.nodes_list_.push_back(std::make_shared<Node>(0, pixel_coords[0], pixel_coords[1], 1.0f));
     graph.adjacency_list_.push_back({});
 
     int pixels_count = 1;
     float density = static_cast<float>(pixels_count) / (grid.height_ * grid.width_);
-
-    // random direction choice (1, 2, 3, 4)
-    std::random_device rd;
-    std::mt19937 rng(rd()); // use fixed seed if need to get reproducible results
-    std::uniform_int_distribution<std::mt19937::result_type> dist4(1,4);
 
     while (density < this->density_threshold_) {
         pixel_coords = getRandom2DPixelCoordinates(grid.width_, grid.height_); // { y, x }
@@ -54,7 +63,7 @@ void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
 
         while (true) {
             // move the pixel in a random cardinal direction
-            int direction = dist4(rng);
+            int direction = dist4_(rng_); // random direction choice (1, 2, 3, 4)
             switch (direction) {
                 case 1: // right
                     x = (x + 1 < grid.width_) ? (x + 1) : x;
@@ -85,7 +94,7 @@ void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
                 //       of the grid if the origin of this new basis is the center of the grid)
 
                 grid.height_map_[y][x] = 1; // FIXME: do i store 1 or the label of the node in the graph?
-                graph.nodes_list_.push_back({static_cast<int>(graph.nodes_list_.size()), y, x, 1.0f});
+                graph.nodes_list_.push_back(std::make_shared<Node>(static_cast<int>(graph.nodes_list_.size()), y, x, 1.0f));
                 graph.adjacency_list_.push_back({});
 
                 // if (is_there_right_pixel) {
@@ -168,3 +177,5 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
  * Assign each pixel the maximum value of pixels that are downstream from it (using the graph representation) + 1
  * Use smooth falloff formula: 1 - 1 / (1 + h), to assign a height value (float) from the value (int) to the pixel
  */
+
+}
