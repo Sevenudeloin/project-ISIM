@@ -52,10 +52,17 @@ float distanceToCenter(int width, int height, int y, int x) {
 }
 
 /**
- * @brief TODO !!! Explain principle of the graph, that we store nodes labels in the grid
+ * @brief Add pixels to the grid until a certain density threshold is reached. Pixels are spawned randomly and
+ * move in a random cardinal direction until they are next to another pixel.
+ * A node is then added to the graph with the pixel coordinates and a height value. The value of the pixel in
+ * the grid is set to the node label (which is also the position in the nodes_list_ and adjacency_list_ of the
+ * graph).
+ * An edge is created between this node and the node corresponding to the pixel that it stuck to in the grid.
+ * If there are multiple pixels next to it, the edge is created with the node of the pixel closest to the center
+ * of the grid.
  *
  * @param[in, out] grid   grid to populate
- * @param[in, out] graph  graph representation of the pixels of the grid to populate
+ * @param[in, out] graph  graph representation of the pixels of the grid
  */
 void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
     int pixels_count = grid.getAmountAboveThreshold(0);

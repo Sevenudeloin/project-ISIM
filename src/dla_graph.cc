@@ -5,15 +5,22 @@
 
 namespace DLA {
 
+/**
+ * @brief Construct a new Graph object. Add a dummy node at the beginning (nullptr in node list and empty list in adjacency list).
+ */
 Graph::Graph() {
     adjacency_list_ = std::vector<std::vector<int>>();
     nodes_list_ = std::vector<std::shared_ptr<Node>>();
 
-    // add a dummy node at the beginning
     adjacency_list_.push_back(std::vector<int>());
     nodes_list_.push_back(nullptr);
 }
 
+/**
+ * @brief Graph is undirected, so we add the edge to both nodes' adjacency list.
+ *
+ * @param edges_to_add  A vector of pairs of integers containing edges to add to the graph.
+ */
 void Graph::addEdges(const std::vector<std::array<int, 2>>& edges_to_add) {
     for (const auto& edge : edges_to_add) {
         int node1_label = edge[0];
@@ -25,6 +32,11 @@ void Graph::addEdges(const std::vector<std::array<int, 2>>& edges_to_add) {
     }
 }
 
+/**
+ * @brief Graph is undirected, so we remove the edge from both nodes' adjacency list.
+ *
+ * @param edges_to_remove  A vector of pairs of integers containing edges to remove from the graph.
+ */
 void Graph::removeEdges(const std::vector<std::array<int, 2>>& edges_to_remove) {
     for (const auto& edge : edges_to_remove) {
         int node1_label = edge[0];
@@ -36,7 +48,13 @@ void Graph::removeEdges(const std::vector<std::array<int, 2>>& edges_to_remove) 
     } 
 }
 
-void Graph::exportToDot(const std::string& filename) { // FIXME CHECK FUNCTION !!! NOT VERIFIED FIXME FIXME
+/**
+ * @brief Export the graph under the DOT format (.dot).
+ * Can be exported to png using graphviz: `dot -Tpng graph.dot -o graph.png`
+ *
+ * @param filename  The name of the file to export the graph to.      
+ */
+void Graph::exportToDot(const std::string& filename) {
     std::ofstream file(filename);
     if (!file.is_open()) {
         throw std::runtime_error("DLA Graph: exportToDot: Could not open file " + filename);
