@@ -70,20 +70,38 @@ int main(int argc, char *argv[])
         graph.nodes_list_.push_back(std::make_shared<DLA::Node>(1, 4, 5, 1.0f));
         graph.adjacency_list_.push_back({});
 
+        // =====
+
         generator.populateGrid(grid, graph);
 
         int grid_amount = grid.getAmountAboveThreshold(0);
         std::cout << "Number of pixels in grid: " << grid_amount << std::endl;
-        float grid_density = static_cast<float>(grid.getAmountAboveThreshold(0)) / (grid.height_ * grid.width_);
+        float grid_density = static_cast<float>(grid_amount) / (grid.height_ * grid.width_);
         std::cout << "Grid density: " << grid_density << std::endl;
 
         std::cout << graph.nodes_list_.size() << " nodes in the graph" << std::endl; // + 1 because of the dummy node
         std::cout << graph.adjacency_list_.size() << " adjacency lists" << std::endl; // + 1 because of the dummy node
 
         graph.exportToDot("../images/DLA/DLA_graph.dot");
-
         Image2D test_grid = Image2D(grid);
         test_grid.writePPM("../images/DLA/DLA_test.ppm", false);
+
+        std::cout << "=====Upscaling grid=====" << std::endl;
+
+        Heightmap upscaled_grid = generator.upscaleCrispGrid(grid, graph);
+
+        int upscaled_grid_amount = upscaled_grid.getAmountAboveThreshold(0);
+        std::cout << "Number of pixels in upscaled grid: " << upscaled_grid_amount << std::endl;
+        float upscaled_grid_density = static_cast<float>(upscaled_grid_amount) / (upscaled_grid.height_ * upscaled_grid.width_);
+        std::cout << "Upscaled grid density: " << upscaled_grid_density << std::endl;
+
+        std::cout << graph.nodes_list_.size() << " nodes in the graph" << std::endl; // + 1 because of the dummy node
+        std::cout << graph.adjacency_list_.size() << " adjacency lists" << std::endl; // + 1 because of the dummy node
+
+        graph.exportToDot("../images/DLA/DLA_upscaled_graph.dot");
+
+        Image2D upscaled_test_grid = Image2D(upscaled_grid);
+        upscaled_test_grid.writePPM("../images/DLA/DLA_upscaled_test.ppm", false);
 
         return 0;
     }

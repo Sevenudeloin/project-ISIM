@@ -154,6 +154,51 @@ void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
 }
 
 /**
+ * @brief Upscaling crisp grid:
+ * 
+ * Use graph representation of the grid (which pixels stuck to which one during population of the grid)
+ * to draw the graph edges on a higher resolution grid
+ * => first subdivide the edges in 2 smaller edges (if we 2x the resolution each time)
+ * => add random offset to intermediate points to ensure the result doesnt contain lots of straight lines) => FIXME (UNCLEAR)
+ *
+ * @param[in] grid        low resolution grid (crisp)
+ * @param[in, out] graph  graph representation of the pixels of the grid
+ *
+ * @return higher resolution (2x) version of the grid passed as argument (crisp)
+ */
+Heightmap DLAGenerator::upscaleCrispGrid(const Heightmap& low_res_grid, Graph& graph) {
+    Heightmap high_res_grid = Heightmap(low_res_grid.width_ * 2, low_res_grid.height_ * 2);
+
+    // update graph representation to match the new grid (y and x coordinates of the nodes)
+    // and set grid values at the new coordinates to the label of the node
+    for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
+        graph.nodes_list_[i]->y_ *= 2;
+        graph.nodes_list_[i]->x_ *= 2;
+
+        high_res_grid.set(graph.nodes_list_[i]->y_, graph.nodes_list_[i]->x_, graph.nodes_list_[i]->label_);
+    }
+
+    return high_res_grid;
+}
+
+/**
+ * Upscaling (blurry grid):
+ *
+ * Use linear interpolation on small resolution grid to get a (2x probably) higher resolution grid
+ * Blur slighlty the higher resolution grid by using a convolution with a gaussian? kernel
+ */
+
+/**
+ * Make an island / moutain shape on the blurry image:
+ * 
+ * Use height values (first integers, then floats using the smooth falloff formula)
+ * 
+ * Assign outermost pixels value 1
+ * Assign each pixel the maximum value of pixels that are downstream from it (using the graph representation) + 1
+ * Use smooth falloff formula: 1 - 1 / (1 + h), to assign a height value (float) from the value (int) to the pixel
+ */
+
+/**
  * @brief Main algorithm
  * 
  * Generate low resolution grid and populate it until a certain density threshold (populateGrid())
@@ -203,31 +248,5 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
 }
 
 
-/**
- * Upscaling (crisp image):
- * 
- * Get graph representation of the grid (which pixels stuck to which one during population of the grid => TODO in populateGrid())
- * => maybe use adjacency matrix representation
- * Draw the graph edges on a higher resolution grid
- * => first subdivide the edges in 2 smaller edges (if we 2x the resolution each time)
- * => add random offset to intermediate points to ensure the result doesnt contain lots of straight lines)
- */
-
-/**
- * Upscaling (blurry image):
- *
- * Use linear interpolation on small resolution grid to get a (2x probably) higher resolution grid
- * Blur slighlty the higher resolution grid by using a convolution with a gaussian? kernel
- */
-
-/**
- * Make an island / moutain shape on the blurry image:
- * 
- * Use height values (first integers, then floats using the smooth falloff formula)
- * 
- * Assign outermost pixels value 1
- * Assign each pixel the maximum value of pixels that are downstream from it (using the graph representation) + 1
- * Use smooth falloff formula: 1 - 1 / (1 + h), to assign a height value (float) from the value (int) to the pixel
- */
 
 }

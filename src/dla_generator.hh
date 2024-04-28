@@ -26,6 +26,8 @@ public:
     std::array<int, 2> getRandom2DPixelCoordinates(int width, int height); // no real need to put it here but needs random engine class attribute
     void populateGrid(Heightmap& grid, Graph& graph); // FIXME: maybe give the graph as shared_ptr
 
+    Heightmap upscaleCrispGrid(const Heightmap& low_res_grid, Graph& graph);
+
     // Generate high resolution (square) heightmap using DLA algorithm
     Heightmap generateUpscaledHeightmap(int width);
 
