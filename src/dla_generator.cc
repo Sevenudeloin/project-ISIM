@@ -170,7 +170,7 @@ bool edgeAlreadyProcessed(const std::vector<std::array<int, 2>>& processed_edges
  * Use graph representation of the grid (which pixels stuck to which one during population of the grid)
  * to draw the graph edges on a higher resolution grid
  * => first subdivide the edges in 2 smaller edges (if we 2x the resolution each time)
- * => add random offset to intermediate points to ensure the result doesnt contain lots of straight lines) => FIXME (UNCLEAR)
+ * => TODO add random offset to intermediate points to ensure the result doesnt contain lots of straight lines) => FIXME (UNCLEAR)
  *
  * @param[in] grid        low resolution grid (crisp)
  * @param[in, out] graph  graph representation of the pixels of the grid
@@ -210,7 +210,7 @@ Heightmap DLAGenerator::upscaleCrispGrid(const Heightmap& low_res_grid, Graph& g
             int middle_y = (node1->y_ + node2->y_) / 2;
             int middle_x = (node1->x_ + node2->x_) / 2;
 
-            // add random offset to intermediate points (TODO: depending on direction e.g up/down if node1 y and node2 y is the same, left/right if x is the same)
+            // TODO: add random offset to intermediate points (TODO: depending on direction e.g up/down if node1 y and node2 y is the same, left/right if x is the same)
             // int offset_y = dist4_(rng_) - 3; // -1, 0, 1
             // int offset_x = dist4_(rng_) - 3; // -1, 0, 1
             // middle_y += offset_y;
@@ -296,8 +296,6 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
         power_of_two++;
         // low_res_grid = high_res_crisp_grid;
         
-        // When upsacling, will need to update the graph representation of the grid, to make the y and x coordinates of the nodes match the new grid
-        // and set grid values at the new coordinates to the label of the node
         // high_res_crisp_grid = ;
     }
     
