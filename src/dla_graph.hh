@@ -31,6 +31,9 @@ struct Graph
 
     Graph();
 
+    void addEdges(const std::vector<std::array<int, 2>>& edges_to_add);
+    void removeEdges(const std::vector<std::array<int, 2>>& edges_to_remove);
+
     void exportToDot(const std::string& filename);
 };
 

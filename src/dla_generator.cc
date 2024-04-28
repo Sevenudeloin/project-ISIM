@@ -6,6 +6,7 @@
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <vector>
 
 #include "heightmap.hh"
 
@@ -153,6 +154,16 @@ void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
     }
 }
 
+bool edgeAlreadyProcessed(const std::vector<std::array<int, 2>>& processed_edges, int node1_label, int node2_label) {
+    for (const auto& edge : processed_edges) {
+        if ((edge[0] == node1_label && edge[1] == node2_label) || (edge[0] == node2_label && edge[1] == node1_label)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 /**
  * @brief Upscaling crisp grid:
  * 
@@ -177,6 +188,53 @@ Heightmap DLAGenerator::upscaleCrispGrid(const Heightmap& low_res_grid, Graph& g
 
         high_res_grid.set(graph.nodes_list_[i]->y_, graph.nodes_list_[i]->x_, graph.nodes_list_[i]->label_);
     }
+
+    std::vector<std::array<int, 2>> processed_edges = {};
+    std::vector<std::array<int, 2>> edges_to_add = {};
+
+    size_t low_res_graph_size = graph.nodes_list_.size();
+
+    for (size_t i = 1; i < low_res_graph_size; i++) {
+        size_t node_degree = graph.adjacency_list_[i].size();
+
+        for (size_t j = 0; j < node_degree; j++) {
+            std::shared_ptr<Node> node1 = graph.nodes_list_[i];
+            std::shared_ptr<Node> node2 = graph.nodes_list_[graph.adjacency_list_[i][j]];
+
+            if (edgeAlreadyProcessed(processed_edges, node1->label_, node2->label_)) {
+                continue;
+            }
+
+            // Create a new node in the middle of the edge
+
+            int middle_y = (node1->y_ + node2->y_) / 2;
+            int middle_x = (node1->x_ + node2->x_) / 2;
+
+            // add random offset to intermediate points (TODO: depending on direction e.g up/down if node1 y and node2 y is the same, left/right if x is the same)
+            // int offset_y = dist4_(rng_) - 3; // -1, 0, 1
+            // int offset_x = dist4_(rng_) - 3; // -1, 0, 1
+            // middle_y += offset_y;
+            // middle_x += offset_x;
+
+            // Add the middle node to the graph and the grid
+
+            int middle_node_label = graph.nodes_list_.size();
+            graph.nodes_list_.push_back(std::make_shared<Node>(middle_node_label, middle_y, middle_x, 1.0f));
+            graph.adjacency_list_.push_back({});
+
+            edges_to_add.push_back({ node1->label_, middle_node_label });
+            edges_to_add.push_back({ middle_node_label, node2->label_ });
+
+            high_res_grid.set(middle_y, middle_x, middle_node_label);
+
+            // Store the processed edge to avoid processing it again (undirected graph)
+
+            processed_edges.push_back({ node1->label_, node2->label_ });
+        }
+    }
+
+    graph.removeEdges(processed_edges);
+    graph.addEdges(edges_to_add);
 
     return high_res_grid;
 }
