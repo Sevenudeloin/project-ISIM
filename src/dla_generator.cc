@@ -249,7 +249,7 @@ Heightmap DLAGenerator::upscaleCrispGrid(const Heightmap& low_res_grid, Graph& g
 /**
  * Upscaling (blurry grid):
  *
- * Use linear interpolation on small resolution grid to get a (2x probably) higher resolution grid
+ * Use linear interpolation on small resolution grid to get a 2x higher resolution grid
  * Blur slighlty the higher resolution grid by using a convolution with a gaussian? kernel
  */
 
@@ -275,7 +275,7 @@ Heightmap DLAGenerator::upscaleCrispGrid(const Heightmap& low_res_grid, Graph& g
  *      Add more detail to the crisp one (populateGrid())
  *      Use populated crisp image to add the new detail to the blurry version (FIXME this is unclear)
  *
- * @param width  width of the final square heightmap (FOR NOW CHOOSE A POWER OF 2 ABOVE 2^3)
+ * @param width  width of the final square heightmap (FOR NOW CHOOSE A POWER OF 2 (minimum will be 2^3 anyway))
  *
  * @return high resolution square heightmap representing a terrain (mountains)
  */
@@ -286,6 +286,7 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
     Heightmap low_res_grid = Heightmap(base_width, base_width);
     Graph graph;
 
+    // Add first pixel to the grid (also first real node of the graph) 
     std::array<int, 2> pixel_coords = getRandom2DPixelCoordinates(low_res_grid.width_, low_res_grid.height_);
     int node_label = graph.nodes_list_.size(); // should be 1 (first actual node)
     low_res_grid.set(pixel_coords[0], pixel_coords[1], node_label);
@@ -294,22 +295,22 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
 
     populateGrid(low_res_grid, graph);
 
-    // Heightmap high_res_crisp_grid = // TODO;
     // Heightmap high_res_blurry_grid = // TODO;
     
-    while (std::pow(2, power_of_two) <= width) {
+    Heightmap high_res_crisp_grid = low_res_grid;
+    while (std::pow(2, power_of_two) < width) {
         // TODO
 
+        Heightmap high_res_crisp_grid = upscaleCrispGrid(low_res_grid, graph);
+        populateGrid(high_res_crisp_grid, graph);
+
+        low_res_grid = high_res_crisp_grid;
         power_of_two++;
-        // low_res_grid = high_res_crisp_grid;
-        
-        // high_res_crisp_grid = ;
     }
     
     // return high_res_blurry_grid;
-    return low_res_grid; // FIXME DELETE
+    return high_res_crisp_grid; // FIXME DELETE
 }
-
 
 
 }
