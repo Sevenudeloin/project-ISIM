@@ -301,16 +301,26 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
     while (std::pow(2, power_of_two) < width) {
         // TODO
 
-        Heightmap high_res_crisp_grid = upscaleCrispGrid(low_res_grid, graph);
+        high_res_crisp_grid = upscaleCrispGrid(low_res_grid, graph);
         populateGrid(high_res_crisp_grid, graph);
 
         low_res_grid = high_res_crisp_grid;
         power_of_two++;
     }
     
-    // return high_res_blurry_grid;
-    return high_res_crisp_grid; // FIXME DELETE
-}
+    // TODO DELETE only for debug
+    int high_res_crisp_grid_amount = high_res_crisp_grid.getAmountAboveThreshold(0);
+    std::cout << "Number of pixels in upscaled grid: " << high_res_crisp_grid_amount << std::endl;
+    float high_res_crisp_grid_density = static_cast<float>(high_res_crisp_grid_amount) / (high_res_crisp_grid.height_ * high_res_crisp_grid.width_);
+    std::cout << "Upscaled grid density: " << high_res_crisp_grid_density << std::endl;
 
+    std::cout << graph.nodes_list_.size() << " nodes in the graph" << std::endl; // + 1 because of the dummy node
+    std::cout << graph.adjacency_list_.size() << " adjacency lists" << std::endl; // + 1 because of the dummy node
+
+    graph.exportToDot("../images/DLA/DLA_upscaled_graph.dot");
+    // FIXME DELETE END
+
+    return high_res_crisp_grid; // FIXME replace by return high_res_blurry_grid;
+}
 
 }
