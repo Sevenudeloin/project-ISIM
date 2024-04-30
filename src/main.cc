@@ -20,6 +20,55 @@ std::string capFirstLetter(std::string text)
     return text;
 }
 
+void showHelpMenu(char* argv[]) {
+    std::cout << "Usage: " << argv[0] << " [-o <output_filename>] [-d <width>x<height>] [-s <scene_type>] [-p] [-h]" << std::endl;
+    std::cout << "Options:" << std::endl;
+    std::cout << "  -o <output_filename>  Specify the path to the output file (default is images/output.ppm)" << std::endl;
+    std::cout << "  -d <width>x<height>   Specify the dimensions of the output image (default is 720x480)" << std::endl;
+    std::cout << "  -s <scene_type>       Specify the scene (available: test, simplex), (default is test)" << std::endl;
+    std::cout << "  -p                    Preview terrain heightmap only (available at images/heightmaps/heightmap_output.ppm)" << std::endl;
+    std::cout << "  -h                    Show this help menu" << std::endl;
+}
+
+void tmpDLADebug() {
+    std::cout << "Debug mode enabled" << std::endl;
+    Heightmap grid = Heightmap(8, 8);
+    DLA::Graph graph = DLA::Graph();
+    DLA::DLAGenerator generator = DLA::DLAGenerator(0.3, 5); 
+
+    grid.height_map_[4][5] = 1;
+    graph.nodes_list_.push_back(std::make_shared<DLA::Node>(1, 4, 5, 1.0f));
+    graph.adjacency_list_.push_back({});
+
+    // =====
+
+    generator.populateGrid(grid, graph);
+
+    int grid_amount = grid.getAmountAboveThreshold(0);
+    std::cout << "Number of pixels in grid: " << grid_amount << std::endl;
+    float grid_density = static_cast<float>(grid_amount) / (grid.height_ * grid.width_);
+    std::cout << "Grid density: " << grid_density << std::endl;
+
+    std::cout << graph.nodes_list_.size() << " nodes in the graph" << std::endl; // + 1 because of the dummy node
+    std::cout << graph.adjacency_list_.size() << " adjacency lists" << std::endl; // + 1 because of the dummy node
+
+    graph.exportToDot("../images/DLA/DLA_graph.dot");
+    Image2D test_grid = Image2D(grid);
+    test_grid.writePPM("../images/DLA/DLA_test.ppm", false);
+
+    std::cout << "=====Upscaling grid=====" << std::endl;
+
+    auto start = std::chrono::high_resolution_clock::now();
+    Heightmap upscaled_grid = generator.generateUpscaledHeightmap(64);
+
+    Image2D upscaled_test_grid = Image2D(upscaled_grid);
+    upscaled_test_grid.writePPM("../images/DLA/DLA_upscaled_test.ppm", false);
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    std::cout << "Upscaling crisp runtime : " << elapsed.count() << " seconds" << std::endl;
+}
+
 int main(int argc, char *argv[])
 {
     char opt;
@@ -61,54 +110,12 @@ int main(int argc, char *argv[])
 
     if (x_debug)
     {
-        std::cout << "Debug mode enabled" << std::endl;
-        Heightmap grid = Heightmap(8, 8);
-        DLA::Graph graph = DLA::Graph();
-        DLA::DLAGenerator generator = DLA::DLAGenerator(0.3, 5); 
-
-        grid.height_map_[4][5] = 1;
-        graph.nodes_list_.push_back(std::make_shared<DLA::Node>(1, 4, 5, 1.0f));
-        graph.adjacency_list_.push_back({});
-
-        // =====
-
-        generator.populateGrid(grid, graph);
-
-        int grid_amount = grid.getAmountAboveThreshold(0);
-        std::cout << "Number of pixels in grid: " << grid_amount << std::endl;
-        float grid_density = static_cast<float>(grid_amount) / (grid.height_ * grid.width_);
-        std::cout << "Grid density: " << grid_density << std::endl;
-
-        std::cout << graph.nodes_list_.size() << " nodes in the graph" << std::endl; // + 1 because of the dummy node
-        std::cout << graph.adjacency_list_.size() << " adjacency lists" << std::endl; // + 1 because of the dummy node
-
-        graph.exportToDot("../images/DLA/DLA_graph.dot");
-        Image2D test_grid = Image2D(grid);
-        test_grid.writePPM("../images/DLA/DLA_test.ppm", false);
-
-        std::cout << "=====Upscaling grid=====" << std::endl;
-
-        auto start = std::chrono::high_resolution_clock::now();
-        Heightmap upscaled_grid = generator.generateUpscaledHeightmap(1024);
-
-        Image2D upscaled_test_grid = Image2D(upscaled_grid);
-        upscaled_test_grid.writePPM("../images/DLA/DLA_upscaled_test.ppm", false);
-
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> elapsed = end - start;
-        std::cout << "Upscaling crisp runtime : " << elapsed.count() << " seconds" << std::endl;
-
+        tmpDLADebug();
         return 0;
     }
 
     if (show_help) {
-        std::cout << "Usage: " << argv[0] << " [-o <output_filename>] [-d <width>x<height>] [-s <scene_type>] [-p] [-h]" << std::endl;
-        std::cout << "Options:" << std::endl;
-        std::cout << "  -o <output_filename>  Specify the path to the output file (default is images/output.ppm)" << std::endl;
-        std::cout << "  -d <width>x<height>   Specify the dimensions of the output image (default is 720x480)" << std::endl;
-        std::cout << "  -s <scene_type>       Specify the scene (available: test, simplex), (default is test)" << std::endl;
-        std::cout << "  -p                    Preview terrain heightmap only (available at images/heightmaps/heightmap_output.ppm)" << std::endl;
-        std::cout << "  -h                    Show this help menu" << std::endl;
+        showHelpMenu(argv);
         return 0;
     }
 
