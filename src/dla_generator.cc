@@ -15,6 +15,9 @@
 
 namespace DLA {
 
+std::uniform_int_distribution<std::mt19937::result_type> DLAGenerator::dist4_(1, 4);
+// std::uniform_int_distribution<std::mt19937::result_type> DLAGenerator::dist5_(1, 5);
+
 DLAGenerator::DLAGenerator()
     : rng_(rd_())
     , density_threshold_(0.5f)
@@ -214,10 +217,10 @@ Heightmap DLAGenerator::upscaleCrispGrid(const Heightmap& low_res_grid, Graph& g
 
             // Create a new node in the middle of the edge
 
-            int middle_y = (node1->y_ + node2->y_) / 2;
-            int middle_x = (node1->x_ + node2->x_) / 2;
+            int middle_y = std::round((node1->y_ + node2->y_) / 2);
+            int middle_x = std::round((node1->x_ + node2->x_) / 2);
 
-            // TODO: add random offset to intermediate points (TODO: depending on direction e.g up/down if node1 y and node2 y is the same, left/right if x is the same)
+            // TODO: add random offset to intermediate points and round coordinates
             // int offset_y = dist4_(rng_) - 3; // -1, 0, 1
             // int offset_x = dist4_(rng_) - 3; // -1, 0, 1
             // middle_y += offset_y;
@@ -254,14 +257,59 @@ Heightmap DLAGenerator::upscaleCrispGrid(const Heightmap& low_res_grid, Graph& g
  */
 
 /**
- * Make an island / moutain shape on the blurry image:
+ * @brief Process graph height values to make an island / moutain shape on the blurry image:
  * 
- * Use height values (first integers, then floats using the smooth falloff formula)
+ * Use height values (first integers, then at the end converted to floats using the smooth falloff formula)
  * 
  * Assign outermost pixels value 1
- * Assign each pixel the maximum value of pixels that are downstream from it (using the graph representation) + 1
+ * Assign each pixel the maximum value of pixels that are downstream from it + 1
  * Use smooth falloff formula: 1 - 1 / (1 + h), to assign a height value (float) from the value (int) to the pixel
+ *
+ * @param[in, out] graph  graph representation of the pixels of the (crisp) grid
  */
+ void setGraphHeightValues(const Heightmap& grid, Graph& graph) {
+    // Assign outermost pixels height value 1
+    for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
+        if (graph.adjacency_list_[i].size() == 1) {
+            graph.nodes_list_[i]->height_ = 1.0f;
+        }
+    }
+
+    // Assign each pixel the maximum value of pixels that are downstream from it + 1
+    for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
+        float max_downstream_height = 1.0f;
+        Node& current_node = *graph.nodes_list_[i];
+
+        for (size_t j = 0; j < graph.adjacency_list_[i].size(); j++) {
+            int adjacent_node_label = graph.adjacency_list_[i][j];
+            Node& adjacent_node = *graph.nodes_list_[adjacent_node_label];
+            
+            // check if adjacent node is downstream (further away from the center of the grid)
+            float current_distance_to_center = distanceToCenter(grid.width_, grid.height_, current_node.y_, current_node.x_);
+            float adjacent_distance_to_center = distanceToCenter(grid.width_, grid.height_, adjacent_node.y_, adjacent_node.x_);
+            if (adjacent_distance_to_center > current_distance_to_center) {
+                float adjacent_node_height = graph.nodes_list_[adjacent_node_label]->height_;
+
+                if (adjacent_node_height > max_downstream_height) {
+                    max_downstream_height = adjacent_node_height;
+                }
+            }
+
+        }
+
+        graph.nodes_list_[i]->height_ = max_downstream_height + 1.0f;
+    }
+
+    // smooth fall-off formula: 1 - 1 / (1 + h)
+    auto smooth_falloff = [](int h) -> float {
+        return 1.0f - 1.0f / (1.0f + static_cast<float>(h));
+    };
+
+    // for every node we convert the "integer" height value to the real height value using the smooth falloff formula
+    for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
+        graph.nodes_list_[i]->height_ = smooth_falloff(graph.nodes_list_[i]->height_);
+    }
+ }
 
 /**
  * @brief Main algorithm
@@ -319,6 +367,8 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
 
     graph.exportToDot("../images/DLA/DLA_upscaled_graph.dot");
     // FIXME DELETE END
+
+    // return high_res_blurry_grid;
 
     return high_res_crisp_grid; // FIXME replace by return high_res_blurry_grid;
 }

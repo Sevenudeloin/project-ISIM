@@ -13,7 +13,9 @@ class DLAGenerator // Diffusion Limited Aggregation
 private:
     std::random_device rd_;
     std::mt19937 rng_;
-    std::uniform_int_distribution<std::mt19937::result_type> dist4_{1, 4};
+
+    static std::uniform_int_distribution<std::mt19937::result_type> dist4_;
+    // static std::uniform_int_distribution<std::mt19937::result_type> dist5_;
 
 public:
     // TODO add more attributes here
