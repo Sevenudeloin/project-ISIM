@@ -296,17 +296,20 @@ Heightmap DLAGenerator::upscaleBlurryGrid(const Heightmap& low_res_blurry_grid) 
             float low_res_y = static_cast<float>(y) / 2;
             float low_res_x = static_cast<float>(x) / 2;
 
+            int y_ceil_pos = (std::ceil(low_res_y) < low_res_blurry_grid.height_) ? std::ceil(low_res_y) : low_res_blurry_grid.height_ - 1;
+            int x_ceil_pos = (std::ceil(low_res_x) < low_res_blurry_grid.width_) ? std::ceil(low_res_x) : low_res_blurry_grid.width_ - 1;
+
             if (low_res_y == std::floor(low_res_y) && low_res_x == std::floor(low_res_x)) {
                 high_res_grid.set(y, x, low_res_blurry_grid.at(low_res_y, low_res_x));
             } else if (low_res_y == std::floor(low_res_y)) {
-                high_res_grid.set(y, x, (low_res_blurry_grid.at(low_res_y, std::floor(low_res_x)) + low_res_blurry_grid.at(low_res_y, std::ceil(low_res_x))) / 2);
+                high_res_grid.set(y, x, (low_res_blurry_grid.at(low_res_y, std::floor(low_res_x)) + low_res_blurry_grid.at(low_res_y, x_ceil_pos)) / 2);
             } else if (low_res_x == std::floor(low_res_x)) {
-                high_res_grid.set(y, x, (low_res_blurry_grid.at(std::floor(low_res_y), low_res_x) + low_res_blurry_grid.at(std::ceil(low_res_y), low_res_x)) / 2);
+                high_res_grid.set(y, x, (low_res_blurry_grid.at(std::floor(low_res_y), low_res_x) + low_res_blurry_grid.at(y_ceil_pos, low_res_x)) / 2);
             } else {
                 float top_left = low_res_blurry_grid.at(std::floor(low_res_y), std::floor(low_res_x));
-                float top_right = low_res_blurry_grid.at(std::floor(low_res_y), std::ceil(low_res_x));
-                float bottom_left = low_res_blurry_grid.at(std::ceil(low_res_y), std::floor(low_res_x));
-                float bottom_right = low_res_blurry_grid.at(std::ceil(low_res_y), std::ceil(low_res_x));
+                float top_right = low_res_blurry_grid.at(std::floor(low_res_y), x_ceil_pos);
+                float bottom_left = low_res_blurry_grid.at(y_ceil_pos, std::floor(low_res_x));
+                float bottom_right = low_res_blurry_grid.at(y_ceil_pos, x_ceil_pos);
 
                 high_res_grid.set(y, x, (top_left + top_right + bottom_left + bottom_right) / 4);
             }
@@ -314,13 +317,13 @@ Heightmap DLAGenerator::upscaleBlurryGrid(const Heightmap& low_res_blurry_grid) 
     }
 
     // Blur slightly the higher resolution grid by using a convolution with a gaussian kernel
-    std::vector<std::vector<float>> gaussian_kernel_3x3 = {
-        { 1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f },
-        { 2.0f / 16.0f, 4.0f / 16.0f, 2.0f / 16.0f },
-        { 1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f }
-    };
+    // std::vector<std::vector<float>> gaussian_kernel_3x3 = {
+    //     { 1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f },
+    //     { 2.0f / 16.0f, 4.0f / 16.0f, 2.0f / 16.0f },
+    //     { 1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f }
+    // };
 
-    convolution(high_res_grid, gaussian_kernel_3x3);
+    // convolution(high_res_grid, gaussian_kernel_3x3);
 
     return high_res_grid;
 }
@@ -439,7 +442,7 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
     while (std::pow(2, power_of_two) < width) {
         // crisp grid
 
-        high_res_crisp_grid = upscaleCrispGrid(low_res_grid, graph);
+        high_res_crisp_grid = upscaleCrispGrid(low_res_crisp_grid, graph);
         populateGrid(high_res_crisp_grid, graph);
         setGraphHeightValues(high_res_crisp_grid, graph);
 
