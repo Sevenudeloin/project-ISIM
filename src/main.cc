@@ -32,41 +32,40 @@ void showHelpMenu(char* argv[]) {
 
 void tmpDLADebug() {
     std::cout << "Debug mode enabled" << std::endl;
-    Heightmap grid = Heightmap(8, 8);
-    DLA::Graph graph = DLA::Graph();
+    int width = 256;
+    Heightmap grid = Heightmap(256, 256);
     DLA::DLAGenerator generator = DLA::DLAGenerator(0.3, 5); 
-
-    grid.height_map_[4][5] = 1;
-    graph.nodes_list_.push_back(std::make_shared<DLA::Node>(1, 4, 5, 1.0f));
-    graph.adjacency_list_.push_back({});
 
     // =====
 
-    generator.populateGrid(grid, graph);
-
-    int grid_amount = grid.getAmountAboveThreshold(0);
-    std::cout << "Number of pixels in grid: " << grid_amount << std::endl;
-    float grid_density = static_cast<float>(grid_amount) / (grid.height_ * grid.width_);
-    std::cout << "Grid density: " << grid_density << std::endl;
-
-    std::cout << graph.nodes_list_.size() << " nodes in the graph" << std::endl; // + 1 because of the dummy node
-    std::cout << graph.adjacency_list_.size() << " adjacency lists" << std::endl; // + 1 because of the dummy node
-
-    graph.exportToDot("../images/DLA/DLA_graph.dot");
-    Image2D test_grid = Image2D(grid);
-    test_grid.writePPM("../images/DLA/DLA_test.ppm", false);
-
-    std::cout << "=====Upscaling grid=====" << std::endl;
-
     auto start = std::chrono::high_resolution_clock::now();
-    Heightmap upscaled_grid = generator.generateUpscaledHeightmap(64);
+    Heightmap upscaled_grid = generator.generateUpscaledHeightmap(width);
 
-    Image2D upscaled_test_grid = Image2D(upscaled_grid);
-    upscaled_test_grid.writePPM("../images/DLA/DLA_upscaled_test.ppm", false);
+    Heightmap normalized_grid = Heightmap(upscaled_grid);
+    // find max height to normalize
+    float max_height = 0.0f;
+    for (int y = 0; y < width; y++) {
+        for (int x = 0; x < width; x++) {
+            if (normalized_grid.at(y, x) > max_height)
+            {
+                max_height = normalized_grid.at(y, x);
+            }
+        }
+    }
+
+    // normalize
+    for (int y = 0; y < width; y++) {
+        for (int x = 0; x < width; x++) {
+            normalized_grid.set(y, x, normalized_grid.at(y, x) / max_height);
+        }
+    }
+
+    Image2D normalized_grid_image = Image2D(normalized_grid);
+    normalized_grid_image.writePPM("../images/DLA/DLA_test.ppm", false);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end - start;
-    std::cout << "Upscaling crisp runtime : " << elapsed.count() << " seconds" << std::endl;
+    std::cout << "full DLA runtime : " << elapsed.count() << " seconds" << std::endl;
 }
 
 int main(int argc, char *argv[])

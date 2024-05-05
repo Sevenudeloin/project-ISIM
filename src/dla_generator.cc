@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 
+#include "dla_graph.hh"
 #include "heightmap.hh"
 
 // Implementation of DLA Algorithm (intuition from https://youtu.be/gsJHzBTPG0Y?si=jipP7Z0xBVCW3Ip6):
@@ -187,8 +188,8 @@ bool edgeAlreadyProcessed(const std::vector<std::array<int, 2>>& processed_edges
  *
  * @return higher resolution (2x) version of the grid passed as argument (crisp)
  */
-Heightmap DLAGenerator::upscaleCrispGrid(const Heightmap& low_res_grid, Graph& graph) {
-    Heightmap high_res_grid = Heightmap(low_res_grid.width_ * 2, low_res_grid.height_ * 2);
+Heightmap DLAGenerator::upscaleCrispGrid(const Heightmap& low_res_crisp_grid, Graph& graph) {
+    Heightmap high_res_grid = Heightmap(low_res_crisp_grid.width_ * 2, low_res_crisp_grid.height_ * 2);
 
     // update graph representation to match the new grid (y and x coordinates of the nodes)
     // and set grid values at the new coordinates to the label of the node
@@ -250,11 +251,79 @@ Heightmap DLAGenerator::upscaleCrispGrid(const Heightmap& low_res_grid, Graph& g
 }
 
 /**
- * Upscaling (blurry grid):
+ * @brief Convolution of a grid with a square kernel, with odd length
+ * We skip the outermost pixels of the grid (border) to avoid out of bounds access
+ * -> works because we work with "island" shaped grids so we should not care about the borders
+ *
+ * @param[in, out] grid  grid to convolve
+ * @param[in] kernel     square kernel to use for the convolution
+ */
+void convolution(Heightmap& grid, const std::vector<std::vector<float>>& kernel) {
+    int kernel_size = kernel.size();
+    int kernel_center = std::floor(kernel_size / 2);
+
+    for (int y = kernel_center; y < grid.height_ - kernel_center; y++) {
+        for (int x = kernel_center; x < grid.width_ - kernel_center; x++) {
+            float new_value = 0.0f;
+
+            for (int i = 0; i < kernel_size; i++) {
+                for (int j = 0; j < kernel_size; j++) {
+                    new_value += kernel[i][j] * grid.at(y + i - kernel_center, x + j - kernel_center);
+                }
+            }
+
+            grid.set(y, x, new_value);
+        }
+    }
+}
+
+/**
+ * @brief Upscaling blurry grid:
  *
  * Use linear interpolation on small resolution grid to get a 2x higher resolution grid
- * Blur slighlty the higher resolution grid by using a convolution with a gaussian? kernel
+ * Blur slighlty the higher resolution grid by using a convolution with a gaussian kernel
+ *
+ * @param[in] low_res_blurry_grid  low resolution grid (blurry) to upscale
+ *
+ * @return higher resolution (2x) version of the (blurry) grid passed as argument
  */
+Heightmap DLAGenerator::upscaleBlurryGrid(const Heightmap& low_res_blurry_grid) {
+    Heightmap high_res_grid = Heightmap(low_res_blurry_grid.width_ * 2, low_res_blurry_grid.height_ * 2);
+
+    // Use linear interpolation on small resolution grid to get a 2x higher resolution grid
+    for (int y = 0; y < high_res_grid.height_; y++) {
+        for (int x = 0; x < high_res_grid.width_; x++) {
+            float low_res_y = static_cast<float>(y) / 2;
+            float low_res_x = static_cast<float>(x) / 2;
+
+            if (low_res_y == std::floor(low_res_y) && low_res_x == std::floor(low_res_x)) {
+                high_res_grid.set(y, x, low_res_blurry_grid.at(low_res_y, low_res_x));
+            } else if (low_res_y == std::floor(low_res_y)) {
+                high_res_grid.set(y, x, (low_res_blurry_grid.at(low_res_y, std::floor(low_res_x)) + low_res_blurry_grid.at(low_res_y, std::ceil(low_res_x))) / 2);
+            } else if (low_res_x == std::floor(low_res_x)) {
+                high_res_grid.set(y, x, (low_res_blurry_grid.at(std::floor(low_res_y), low_res_x) + low_res_blurry_grid.at(std::ceil(low_res_y), low_res_x)) / 2);
+            } else {
+                float top_left = low_res_blurry_grid.at(std::floor(low_res_y), std::floor(low_res_x));
+                float top_right = low_res_blurry_grid.at(std::floor(low_res_y), std::ceil(low_res_x));
+                float bottom_left = low_res_blurry_grid.at(std::ceil(low_res_y), std::floor(low_res_x));
+                float bottom_right = low_res_blurry_grid.at(std::ceil(low_res_y), std::ceil(low_res_x));
+
+                high_res_grid.set(y, x, (top_left + top_right + bottom_left + bottom_right) / 4);
+            }
+        }
+    }
+
+    // Blur slightly the higher resolution grid by using a convolution with a gaussian kernel
+    std::vector<std::vector<float>> gaussian_kernel_3x3 = {
+        { 1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f },
+        { 2.0f / 16.0f, 4.0f / 16.0f, 2.0f / 16.0f },
+        { 1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f }
+    };
+
+    convolution(high_res_grid, gaussian_kernel_3x3);
+
+    return high_res_grid;
+}
 
 /**
  * @brief Process graph height values to make an island / moutain shape on the blurry image:
@@ -265,9 +334,10 @@ Heightmap DLAGenerator::upscaleCrispGrid(const Heightmap& low_res_grid, Graph& g
  * Assign each pixel the maximum value of pixels that are downstream from it + 1
  * Use smooth falloff formula: 1 - 1 / (1 + h), to assign a height value (float) from the value (int) to the pixel
  *
+ * @param[in] grid        (crisp) grid used to compute the distance to the center
  * @param[in, out] graph  graph representation of the pixels of the (crisp) grid
  */
- void setGraphHeightValues(const Heightmap& grid, Graph& graph) {
+void setGraphHeightValues(const Heightmap& grid, Graph& graph) {
     // Assign outermost pixels height value 1
     for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
         if (graph.adjacency_list_[i].size() == 1) {
@@ -309,19 +379,34 @@ Heightmap DLAGenerator::upscaleCrispGrid(const Heightmap& low_res_grid, Graph& g
     for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
         graph.nodes_list_[i]->height_ = smooth_falloff(graph.nodes_list_[i]->height_);
     }
- }
+}
+
+/**
+ * @brief Add height values to the blurry grid using the graph representation
+ *
+ * -> override the pixels of the blurry grid that are in the crisp grid with
+ * their height value in the graph
+ *
+ * @param[in, out] blurry_grid  grid to add height values to
+ * @param[in] graph             graph representation of the pixels of the (crisp) grid that hold the height values
+ */
+void addHeightToBlurryGrid(Heightmap& blurry_grid, const Graph& graph) {
+    for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
+        blurry_grid.set(graph.nodes_list_[i]->y_, graph.nodes_list_[i]->x_, graph.nodes_list_[i]->height_);
+    }
+}
 
 /**
  * @brief Main algorithm
  * 
  * Generate low resolution grid and populate it until a certain density threshold (populateGrid())
  * Repeat:
- *      Make 2 larger (higher resolution) grids from this one (i think 2x resolution):
+ *      Make 2 larger (higher resolution) grids from this one (2x resolution):
  *      - a blurry one
  *      - a crisp one
  *      
- *      Add more detail to the crisp one (populateGrid())
- *      Use populated crisp image to add the new detail to the blurry version (FIXME this is unclear)
+ *      Add more detail to the crisp one
+ *      Use populated crisp image to add the new detail to the blurry version
  *
  * @param width  width of the final square heightmap (FOR NOW CHOOSE A POWER OF 2 (minimum will be 2^3 anyway))
  *
@@ -335,6 +420,7 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
     Graph graph;
 
     // Add first pixel to the grid (also first real node of the graph) 
+
     std::array<int, 2> pixel_coords = getRandom2DPixelCoordinates(low_res_grid.width_, low_res_grid.height_);
     int node_label = graph.nodes_list_.size(); // should be 1 (first actual node)
     low_res_grid.set(pixel_coords[0], pixel_coords[1], node_label);
@@ -343,16 +429,29 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
 
     populateGrid(low_res_grid, graph);
 
-    // Heightmap high_res_blurry_grid = // TODO;
-    
-    Heightmap high_res_crisp_grid = low_res_grid;
+    // Main loop
+
+    Heightmap low_res_crisp_grid = low_res_grid;
+    Heightmap low_res_blurry_grid = low_res_grid;
+
+    Heightmap high_res_crisp_grid = low_res_crisp_grid;
+    Heightmap high_res_blurry_grid = low_res_blurry_grid;
     while (std::pow(2, power_of_two) < width) {
-        // TODO
+        // crisp grid
 
         high_res_crisp_grid = upscaleCrispGrid(low_res_grid, graph);
         populateGrid(high_res_crisp_grid, graph);
+        setGraphHeightValues(high_res_crisp_grid, graph);
 
-        low_res_grid = high_res_crisp_grid;
+        // blurry grid
+
+        high_res_blurry_grid = upscaleBlurryGrid(low_res_blurry_grid);
+        addHeightToBlurryGrid(high_res_blurry_grid, graph);
+
+        // loop management
+
+        low_res_crisp_grid = high_res_crisp_grid;
+        low_res_blurry_grid = high_res_blurry_grid;
         power_of_two++;
     }
     
@@ -368,9 +467,7 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
     graph.exportToDot("../images/DLA/DLA_upscaled_graph.dot");
     // FIXME DELETE END
 
-    // return high_res_blurry_grid;
-
-    return high_res_crisp_grid; // FIXME replace by return high_res_blurry_grid;
+    return high_res_blurry_grid;
 }
 
 }
