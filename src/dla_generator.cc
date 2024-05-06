@@ -398,7 +398,12 @@ void setGraphHeightValues(const Heightmap& grid, Graph& graph) {
  */
 void addHeightToBlurryGrid(Heightmap& blurry_grid, const Graph& graph) {
     for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
-        blurry_grid.set(graph.nodes_list_[i]->y_, graph.nodes_list_[i]->x_, graph.nodes_list_[i]->height_);
+        float graph_height = graph.nodes_list_[i]->height_;
+        float blurry_grid_height = blurry_grid.at(graph.nodes_list_[i]->y_, graph.nodes_list_[i]->x_);
+
+        if (graph_height > blurry_grid_height) {
+            blurry_grid.set(graph.nodes_list_[i]->y_, graph.nodes_list_[i]->x_, graph_height);
+        }
     }
 }
 
