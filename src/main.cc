@@ -32,7 +32,7 @@ void showHelpMenu(char* argv[]) {
 
 void tmpDLADebug() {
     std::cout << "Debug mode enabled" << std::endl;
-    int width = 1024;
+    int width = 256;
     Heightmap grid = Heightmap(width, width);
     DLA::DLAGenerator generator = DLA::DLAGenerator(0.3, 5); 
 
@@ -62,9 +62,9 @@ void tmpDLADebug() {
 
     Heightmap upscaled_grid = generator.generateUpscaledHeightmap(width);
 
-    Image2D upscaled_grid_image = Image2D(upscaled_grid);
-    upscaled_grid_image.minMaxNormalize();
-    upscaled_grid_image.writePPM("../images/DLA/DLA_test.ppm", false);
+    // Image2D upscaled_grid_image = Image2D(upscaled_grid);
+    // upscaled_grid_image.minMaxNormalize();
+    // upscaled_grid_image.writePPM("../images/DLA/DLA_test.ppm", false);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end - start;

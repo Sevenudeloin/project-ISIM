@@ -11,6 +11,8 @@
 #include "dla_graph.hh"
 #include "heightmap.hh"
 
+#include "image2d.hh"
+
 // Implementation of DLA Algorithm (intuition from https://youtu.be/gsJHzBTPG0Y?si=jipP7Z0xBVCW3Ip6):
 // algorithm bounded to CPU (but we dont care)
 
@@ -471,6 +473,17 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
         high_res_blurry_grid = upscaleBlurryGrid(low_res_blurry_grid);
         addHeightToBlurryGrid(high_res_blurry_grid, graph);
 
+        // TODO DELETE only for debug
+        Image2D crisp_grid_image = Image2D(high_res_crisp_grid);
+        std::string filename_crisp = "../images/DLA/DLA_upscaled_crisp_" + std::to_string(power_of_two) + ".ppm";
+        crisp_grid_image.writePPM(filename_crisp.c_str(), false);
+
+        Image2D blurry_grid_image = Image2D(high_res_blurry_grid);
+        blurry_grid_image.minMaxNormalize();
+        std::string filename_blurry = "../images/DLA/DLA_upscaled_blurry_" + std::to_string(power_of_two) + ".ppm";
+        blurry_grid_image.writePPM(filename_blurry.c_str(), false);
+        // TODO DELETE END
+
         // loop management
 
         low_res_crisp_grid = high_res_crisp_grid;
@@ -488,7 +501,7 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
     std::cout << graph.adjacency_list_.size() << " adjacency lists" << std::endl; // + 1 because of the dummy node
 
     graph.exportToDot("../images/DLA/DLA_upscaled_graph.dot");
-    // FIXME DELETE END
+    // TODO DELETE END
 
     return high_res_blurry_grid;
 }
