@@ -317,13 +317,13 @@ Heightmap DLAGenerator::upscaleBlurryGrid(const Heightmap& low_res_blurry_grid) 
     }
 
     // Blur slightly the higher resolution grid by using a convolution with a gaussian kernel
-    // std::vector<std::vector<float>> gaussian_kernel_3x3 = {
-    //     { 1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f },
-    //     { 2.0f / 16.0f, 4.0f / 16.0f, 2.0f / 16.0f },
-    //     { 1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f }
-    // };
+    std::vector<std::vector<float>> gaussian_kernel_3x3 = {
+        { 1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f },
+        { 2.0f / 16.0f, 4.0f / 16.0f, 2.0f / 16.0f },
+        { 1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f }
+    };
 
-    // convolution(high_res_grid, gaussian_kernel_3x3);
+    convolution(high_res_grid, gaussian_kernel_3x3);
 
     return high_res_grid;
 }
@@ -391,12 +391,32 @@ void setGraphHeightValues(const Heightmap& grid, Graph& graph) {
  * their height value in the graph
  *
  * @param[in, out] blurry_grid  grid to add height values to
- * @param[in] graph             graph representation of the pixels of the (crisp) grid that hold the height values
+ * @param[in] graph             graph representa    Image2D high_res_grid_image = Image2D(high_res_blurry_grid);
+    high_res_grid_image.writePPM("../images/DLA/DLA_upscaled_blurry.ppm", false);tion of the pixels of the (crisp) grid that hold the height values
  */
 void addHeightToBlurryGrid(Heightmap& blurry_grid, const Graph& graph) {
     for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
         blurry_grid.set(graph.nodes_list_[i]->y_, graph.nodes_list_[i]->x_, graph.nodes_list_[i]->height_);
     }
+}
+
+/**
+ * @brief Convert the first crisp grid that contains the graph nodes labels to a heightmap
+ * with the height values of the nodes
+ *
+ * @param[in] crisp_grid  crisp grid to convert (should be the first grid used in the main loop)
+ * @param[in] graph       graph representation of the pixels of the (crisp) grid
+ *
+ * @return heightmap with the height values of the nodes
+ */
+Heightmap crispGridToHeightmap(const Heightmap& crisp_grid, const Graph& graph) {
+    Heightmap heightmap = Heightmap(crisp_grid.width_, crisp_grid.height_);
+
+    for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
+        heightmap.set(graph.nodes_list_[i]->y_, graph.nodes_list_[i]->x_, graph.nodes_list_[i]->height_);
+    }
+
+    return heightmap;
 }
 
 /**
@@ -435,7 +455,7 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
     // Main loop
 
     Heightmap low_res_crisp_grid = low_res_grid;
-    Heightmap low_res_blurry_grid = low_res_grid;
+    Heightmap low_res_blurry_grid = crispGridToHeightmap(low_res_grid, graph);
 
     Heightmap high_res_crisp_grid = low_res_crisp_grid;
     Heightmap high_res_blurry_grid = low_res_blurry_grid;

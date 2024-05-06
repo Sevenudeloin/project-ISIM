@@ -32,7 +32,7 @@ void showHelpMenu(char* argv[]) {
 
 void tmpDLADebug() {
     std::cout << "Debug mode enabled" << std::endl;
-    int width = 8;
+    int width = 1024;
     Heightmap grid = Heightmap(width, width);
     DLA::DLAGenerator generator = DLA::DLAGenerator(0.3, 5); 
 
@@ -41,46 +41,30 @@ void tmpDLADebug() {
     auto start = std::chrono::high_resolution_clock::now();
 
     // Add first pixel to the grid (also first real node of the graph) 
-    DLA::Graph graph;
+    // DLA::Graph graph;
 
-    int node_label = graph.nodes_list_.size(); // should be 1 (first actual node)
-    grid.set(4, 5, node_label);
-    graph.nodes_list_.push_back(std::make_shared<DLA::Node>(node_label, 4, 5, 1.0f));
-    graph.adjacency_list_.push_back({});
+    // int node_label = graph.nodes_list_.size(); // should be 1 (first actual node)
+    // grid.set(4, 5, node_label);
+    // graph.nodes_list_.push_back(std::make_shared<DLA::Node>(node_label, 4, 5, 1.0f));
+    // graph.adjacency_list_.push_back({});
 
-    generator.populateGrid(grid, graph);
+    // generator.populateGrid(grid, graph);
 
-    Heightmap high_res_blurry_grid = generator.upscaleBlurryGrid(grid);
+    // Heightmap high_res_blurry_grid = generator.upscaleBlurryGrid(grid);
 
-    Image2D grid_image = Image2D(grid);
-    grid_image.writePPM("../images/DLA/DLA_base.ppm", false);
+    // Image2D grid_image = Image2D(grid);
+    // grid_image.minMaxNormalize();
+    // grid_image.writePPM("../images/DLA/DLA_base.ppm", false);
 
-    Image2D high_res_grid_image = Image2D(high_res_blurry_grid);
-    high_res_grid_image.writePPM("../images/DLA/DLA_upscaled_blurry.ppm", false);
+    // Image2D high_res_grid_image = Image2D(high_res_blurry_grid);
+    // high_res_grid_image.minMaxNormalize();
+    // high_res_grid_image.writePPM("../images/DLA/DLA_upscaled_blurry.ppm", false);
 
-    // Heightmap upscaled_grid = generator.generateUpscaledHeightmap(width);
+    Heightmap upscaled_grid = generator.generateUpscaledHeightmap(width);
 
-    // Heightmap normalized_grid = Heightmap(upscaled_grid);
-    // // find max height to normalize
-    // float max_height = 0.0f;
-    // for (int y = 0; y < width; y++) {
-    //     for (int x = 0; x < width; x++) {
-    //         if (normalized_grid.at(y, x) > max_height)
-    //         {
-    //             max_height = normalized_grid.at(y, x);
-    //         }
-    //     }
-    // }
-
-    // // normalize
-    // for (int y = 0; y < width; y++) {
-    //     for (int x = 0; x < width; x++) {
-    //         normalized_grid.set(y, x, normalized_grid.at(y, x) / max_height);
-    //     }
-    // }
-
-    // Image2D normalized_grid_image = Image2D(normalized_grid);
-    // normalized_grid_image.writePPM("../images/DLA/DLA_test.ppm", false);
+    Image2D upscaled_grid_image = Image2D(upscaled_grid);
+    upscaled_grid_image.minMaxNormalize();
+    upscaled_grid_image.writePPM("../images/DLA/DLA_test.ppm", false);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end - start;
