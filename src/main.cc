@@ -34,7 +34,7 @@ void tmpDLADebug() {
     std::cout << "Debug mode enabled" << std::endl;
     int width = 256;
     Heightmap grid = Heightmap(width, width);
-    DLA::DLAGenerator generator = DLA::DLAGenerator(0.3, 5); 
+    DLA::DLAGenerator generator = DLA::DLAGenerator(0.2, 8); 
 
     // =====
 

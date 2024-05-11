@@ -353,26 +353,23 @@ void setGraphHeightValues(const Heightmap& grid, Graph& graph) {
     // Assign each pixel the maximum value of pixels that are downstream from it + 1
     for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
         float max_downstream_height = 1.0f;
-        Node& current_node = *graph.nodes_list_[i];
+        auto current_node = graph.nodes_list_[i];
 
         for (size_t j = 0; j < graph.adjacency_list_[i].size(); j++) {
             int adjacent_node_label = graph.adjacency_list_[i][j];
-            Node& adjacent_node = *graph.nodes_list_[adjacent_node_label];
+            auto adjacent_node = graph.nodes_list_[adjacent_node_label];
             
             // check if adjacent node is downstream (further away from the center of the grid)
-            float current_distance_to_center = distanceToCenter(grid.width_, grid.height_, current_node.y_, current_node.x_);
-            float adjacent_distance_to_center = distanceToCenter(grid.width_, grid.height_, adjacent_node.y_, adjacent_node.x_);
+            float current_distance_to_center = distanceToCenter(grid.width_, grid.height_, current_node->y_, current_node->x_);
+            float adjacent_distance_to_center = distanceToCenter(grid.width_, grid.height_, adjacent_node->y_, adjacent_node->x_);
             if (adjacent_distance_to_center > current_distance_to_center) {
-                float adjacent_node_height = graph.nodes_list_[adjacent_node_label]->height_;
-
-                if (adjacent_node_height > max_downstream_height) {
-                    max_downstream_height = adjacent_node_height;
+                if (adjacent_node->height_ > max_downstream_height) {
+                    max_downstream_height = adjacent_node->height_;
                 }
             }
-
         }
 
-        graph.nodes_list_[i]->height_ = max_downstream_height + 1.0f;
+        current_node->height_ = max_downstream_height + 1.0f;
     }
 
     // smooth fall-off formula: 1 - 1 / (1 + h)
@@ -393,8 +390,7 @@ void setGraphHeightValues(const Heightmap& grid, Graph& graph) {
  * their height value in the graph
  *
  * @param[in, out] blurry_grid  grid to add height values to
- * @param[in] graph             graph representa    Image2D high_res_grid_image = Image2D(high_res_blurry_grid);
-    high_res_grid_image.writePPM("../images/DLA/DLA_upscaled_blurry.ppm", false);tion of the pixels of the (crisp) grid that hold the height values
+ * @param[in] graph             graph representation of the pixels of the (crisp) grid that hold the height values
  */
 void addHeightToBlurryGrid(Heightmap& blurry_grid, const Graph& graph) {
     for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
