@@ -38,4 +38,4 @@ public:
     void generateHeightmaps(Heightmap& base_heightmap, Heightmap& upscaled_heightmap);
 };
 
-}
+} // namespace DLA

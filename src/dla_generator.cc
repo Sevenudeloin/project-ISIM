@@ -7,6 +7,7 @@
 #include <limits>
 #include <memory>
 #include <vector>
+#include <set>
 
 #include "dla_graph.hh"
 #include "heightmap.hh"
@@ -105,7 +106,7 @@ void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
 
                 int node_label = graph.nodes_list_.size();
                 grid.set(y, x, node_label);
-                graph.nodes_list_.push_back(std::make_shared<Node>(node_label, y, x, 1.0f));
+                graph.nodes_list_.push_back(std::make_shared<Node>(node_label, y, x, -1.0f));
                 graph.adjacency_list_.push_back({});
 
                 float right_pixel_to_center = std::numeric_limits<float>::max();
@@ -232,7 +233,7 @@ Heightmap DLAGenerator::upscaleCrispGrid(const Heightmap& low_res_crisp_grid, Gr
             // Add the middle node to the graph and the grid
 
             int middle_node_label = graph.nodes_list_.size();
-            graph.nodes_list_.push_back(std::make_shared<Node>(middle_node_label, middle_y, middle_x, 1.0f));
+            graph.nodes_list_.push_back(std::make_shared<Node>(middle_node_label, middle_y, middle_x, -1.0f));
             graph.adjacency_list_.push_back({});
 
             edges_to_add.push_back({ node1->label_, middle_node_label });
@@ -331,46 +332,65 @@ Heightmap DLAGenerator::upscaleBlurryGrid(const Heightmap& low_res_blurry_grid) 
 }
 
 /**
- * @brief Process graph height values to make an island / moutain shape on the blurry image:
+ * @brief Process graph height values to assign higher values to pixels the nearer to the center they are on the blurry grid:
  * 
- * Use height values (first integers, then at the end converted to floats using the smooth falloff formula)
+ * Use height values (first "integers", then at the end converted to floats using the smooth falloff formula)
  * 
  * Assign outermost pixels value 1
  * Assign each pixel the maximum value of pixels that are downstream from it + 1
  * Use smooth falloff formula: 1 - 1 / (1 + h), to assign a height value (float) from the value (int) to the pixel
  *
- * @param[in] grid        (crisp) grid used to compute the distance to the center
  * @param[in, out] graph  graph representation of the pixels of the (crisp) grid
  */
-void setGraphHeightValues(const Heightmap& grid, Graph& graph) {
+void setGraphHeightValues(Graph& graph) {
+    for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
+        graph.nodes_list_[i]->height_ = -1.0f;
+    }
+
     // Assign outermost pixels height value 1
+    std::set<int> current_level_labels = {};
+    std::set<int> next_level_labels = {};
+
     for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
         if (graph.adjacency_list_[i].size() == 1) {
             graph.nodes_list_[i]->height_ = 1.0f;
+            current_level_labels.insert(i);
         }
     }
 
-    // Assign each pixel the maximum value of pixels that are downstream from it + 1
-    for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
-        float max_downstream_height = 1.0f;
-        auto current_node = graph.nodes_list_[i];
-
-        for (size_t j = 0; j < graph.adjacency_list_[i].size(); j++) {
-            int adjacent_node_label = graph.adjacency_list_[i][j];
-            auto adjacent_node = graph.nodes_list_[adjacent_node_label];
-            
-            // check if adjacent node is downstream (further away from the center of the grid)
-            float current_distance_to_center = distanceToCenter(grid.width_, grid.height_, current_node->y_, current_node->x_);
-            float adjacent_distance_to_center = distanceToCenter(grid.width_, grid.height_, adjacent_node->y_, adjacent_node->x_);
-            if (adjacent_distance_to_center > current_distance_to_center) {
-                if (adjacent_node->height_ > max_downstream_height) {
-                    max_downstream_height = adjacent_node->height_;
+    while (current_level_labels.size() > 0) {
+        for (int label : current_level_labels) {
+            for (int adjacent_label : graph.adjacency_list_[label]) {
+                if (graph.nodes_list_[adjacent_label]->height_ == -1.0f) {
+                    next_level_labels.insert(adjacent_label);
                 }
             }
         }
 
-        current_node->height_ = max_downstream_height + 1.0f;
+        for (int label : next_level_labels) {
+            float max_downstream_height = -1.0f;
+
+            for (int adjacent_label : graph.adjacency_list_[label]) {
+                if (graph.nodes_list_[adjacent_label]->height_ > max_downstream_height
+                    && !next_level_labels.contains(adjacent_label)) {
+                    max_downstream_height = graph.nodes_list_[adjacent_label]->height_;
+                }
+            }
+
+            graph.nodes_list_[label]->height_ = max_downstream_height + 1.0f;
+        }
+
+        current_level_labels = next_level_labels;
+        next_level_labels = {};
     }
+
+    for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
+        if (graph.nodes_list_[i]->height_ == -1.0f) {
+            throw std::runtime_error("DLAGenerator: setGraphHeightValues: Some nodes have not been assigned a height value");
+        }
+    }
+
+    graph.exportNodesHeight("../images/DLA/DLA_nodes_height.txt");
 
     // smooth fall-off formula: 1 - 1 / (1 + h)
     auto smooth_falloff = [](int h) -> float {
@@ -434,7 +454,7 @@ Heightmap crispGridToHeightmap(const Heightmap& crisp_grid, const Graph& graph) 
  *      Add more detail to the crisp one
  *      Use populated crisp image to add the new detail to the blurry version
  *
- * @param width  width of the final square heightmap (FOR NOW CHOOSE A POWER OF 2 (minimum will be 2^3 anyway))
+ * @param width  width of the final square heightmap (FOR NOW CHOOSE A POWER OF 2 (minimum will be 2^4 anyway))
  *
  * @return high resolution square heightmap representing a terrain (mountains)
  */
@@ -450,7 +470,7 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
     std::array<int, 2> pixel_coords = getRandom2DPixelCoordinates(low_res_grid.width_, low_res_grid.height_);
     int node_label = graph.nodes_list_.size(); // should be 1 (first actual node)
     low_res_grid.set(pixel_coords[0], pixel_coords[1], node_label);
-    graph.nodes_list_.push_back(std::make_shared<Node>(node_label, pixel_coords[0], pixel_coords[1], 1.0f));
+    graph.nodes_list_.push_back(std::make_shared<Node>(node_label, pixel_coords[0], pixel_coords[1], -1.0f));
     graph.adjacency_list_.push_back({});
 
     populateGrid(low_res_grid, graph);
@@ -467,7 +487,7 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
 
         high_res_crisp_grid = upscaleCrispGrid(low_res_crisp_grid, graph);
         populateGrid(high_res_crisp_grid, graph);
-        setGraphHeightValues(high_res_crisp_grid, graph);
+        setGraphHeightValues(graph);
 
         // blurry grid
 
@@ -476,12 +496,12 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
 
         // TODO DELETE only for debug
         Image2D crisp_grid_image = Image2D(high_res_crisp_grid);
-        std::string filename_crisp = "../images/DLA/DLA_upscaled_crisp_" + std::to_string(power_of_two) + ".ppm";
+        std::string filename_crisp = "../images/DLA/DLA_upscaled_crisp_" + std::to_string(power_of_two + 1) + ".ppm";
         crisp_grid_image.writePPM(filename_crisp.c_str(), false);
 
         Image2D blurry_grid_image = Image2D(high_res_blurry_grid);
         blurry_grid_image.minMaxNormalize();
-        std::string filename_blurry = "../images/DLA/DLA_upscaled_blurry_" + std::to_string(power_of_two) + ".ppm";
+        std::string filename_blurry = "../images/DLA/DLA_upscaled_blurry_" + std::to_string(power_of_two + 1) + ".ppm";
         blurry_grid_image.writePPM(filename_blurry.c_str(), false);
         // TODO DELETE END
 
@@ -507,4 +527,4 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
     return high_res_blurry_grid;
 }
 
-}
+} // namespace DLA

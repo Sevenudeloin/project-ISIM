@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <string>
 
 namespace DLA {
 
@@ -72,4 +73,17 @@ void Graph::exportToDot(const std::string& filename) {
     file.close();
 }
 
+void Graph::exportNodesHeight(const std::string& filename) {
+    std::ofstream file(filename);
+    if (!file.is_open()) {
+        throw std::runtime_error("DLA Graph: exportNodesHeight: Could not open file " + filename);
+    }
+
+    for (size_t i = 1; i < nodes_list_.size(); i++) {
+        file << "Node " << i << ": " << nodes_list_[i]->height_ << std::endl;
+    }
+
+    file.close();
 }
+
+} // namespace DLA
