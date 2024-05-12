@@ -328,7 +328,16 @@ Heightmap DLAGenerator::upscaleBlurryGrid(const Heightmap& low_res_blurry_grid) 
         { 1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f }
     };
 
-    convolution(high_res_grid, gaussian_kernel_3x3);
+    std::vector<std::vector<float>> gaussian_kernel_5x5 = {
+        { 1.0f / 273.0f, 4.0f / 273.0f, 7.0f / 273.0f, 4.0f / 273.0f, 1.0f / 273.0f },
+        { 4.0f / 273.0f, 16.0f / 273.0f, 26.0f / 273.0f, 16.0f / 273.0f, 4.0f / 273.0f },
+        { 7.0f / 273.0f, 26.0f / 273.0f, 41.0f / 273.0f, 26.0f / 273.0f, 7.0f / 273.0f },
+        { 4.0f / 273.0f, 16.0f / 273.0f, 26.0f / 273.0f, 16.0f / 273.0f, 4.0f / 273.0f },
+        { 1.0f / 273.0f, 4.0f / 273.0f, 7.0f / 273.0f, 4.0f / 273.0f, 1.0f / 273.0f }
+    };
+
+    // convolution(high_res_grid, gaussian_kernel_3x3);
+    convolution(high_res_grid, gaussian_kernel_5x5);
 
     return high_res_grid;
 }
@@ -415,7 +424,7 @@ void setGraphHeightValues(Graph& graph) {
     }
 
     std::vector<std::set<int>> levels = getGraphDepthLevels(graph);
-    tmpExportLevels(levels);
+    // tmpExportLevels(levels);
 
     if (levels.size() == 0) {
         throw std::runtime_error("DLAGenerator: setGraphHeightValues: No levels found in the graph");
@@ -453,7 +462,7 @@ void setGraphHeightValues(Graph& graph) {
         }
     }
 
-    graph.exportNodesHeight("../images/DLA/DLA_nodes_height.txt");
+    // graph.exportNodesHeight("../images/DLA/DLA_nodes_height.txt");
 
     // smooth fall-off formula: 1 - 1 / (1 + h)
     auto smooth_falloff = [](int h) -> float {
@@ -464,6 +473,8 @@ void setGraphHeightValues(Graph& graph) {
     for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
         graph.nodes_list_[i]->height_ = smooth_falloff(graph.nodes_list_[i]->height_);
     }
+
+    // graph.exportNodesHeight("../images/DLA/DLA_nodes_height.txt");
 }
 
 /**
@@ -537,6 +548,7 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
     graph.adjacency_list_.push_back({});
 
     populateGrid(low_res_grid, graph);
+    setGraphHeightValues(graph);
 
     // Main loop
 

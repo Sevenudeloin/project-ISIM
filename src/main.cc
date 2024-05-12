@@ -32,10 +32,9 @@ void showHelpMenu(char* argv[]) {
 
 void tmpDLADebug() {
     std::cout << "Debug mode enabled" << std::endl;
-    // int width = 256;
-    int width = 16;
+    int width = 1024;
     Heightmap grid = Heightmap(width, width);
-    DLA::DLAGenerator generator = DLA::DLAGenerator(0.2, 10); 
+    DLA::DLAGenerator generator = DLA::DLAGenerator(0.3, 10); 
 
     // =====
 
