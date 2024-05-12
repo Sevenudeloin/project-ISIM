@@ -3,11 +3,13 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <fstream>
 #include <iostream>
 #include <limits>
+#include <queue>
 #include <memory>
-#include <vector>
 #include <set>
+#include <vector>
 
 #include "dla_graph.hh"
 #include "heightmap.hh"
@@ -332,6 +334,71 @@ Heightmap DLAGenerator::upscaleBlurryGrid(const Heightmap& low_res_blurry_grid) 
 }
 
 /**
+ * @brief Get the depth levels of the graph (BFS traversal)
+ *
+ * @param[in] graph  graph representation of the pixels of the grid
+ *
+ * @return vector of sets of node labels representing the depth levels of the graph,
+ * ordered from root to deepest level (left to right in the vector)
+ */
+std::vector<std::set<int>> getGraphDepthLevels(const Graph& graph) {
+    std::vector<std::set<int>> levels;
+
+    std::vector<bool> visited_nodes(graph.nodes_list_.size(), false);
+    std::queue<int> nodes_queue;
+
+    visited_nodes[0] = true; // dummy node
+    visited_nodes[1] = true; // first node
+
+    nodes_queue.push(1); // first node
+    nodes_queue.push(-1); // level separator
+
+    std::set<int> current_level;
+
+    while (!nodes_queue.empty()) {
+        int current_node_label = nodes_queue.front();
+        if (current_node_label == -1) {
+            nodes_queue.pop();
+            if (!nodes_queue.empty()) {
+                nodes_queue.push(-1);
+            }
+            levels.push_back(current_level);
+            current_level.clear();
+            continue;
+        }
+        nodes_queue.pop();
+
+        current_level.insert(current_node_label);
+
+        for (int adjacent_label : graph.adjacency_list_[current_node_label]) {
+            if (!visited_nodes[adjacent_label]) {
+                visited_nodes[adjacent_label] = true;
+                nodes_queue.push(adjacent_label);
+            }
+        }
+    }
+
+    return levels;
+}
+
+void tmpExportLevels(const std::vector<std::set<int>>& levels) {
+    std::ofstream file("../images/DLA/DLA_levels.txt");
+    if (!file.is_open()) {
+        throw std::runtime_error("DLAGenerator: tmpExportLevels: Could not open file ../images/DLA/DLA_levels.txt");
+    }
+
+    for (size_t i = 0; i < levels.size(); i++) {
+        file << "Level " << i << ": ";
+        for (int label : levels[i]) {
+            file << label << " ";
+        }
+        file << std::endl;
+    }
+
+    file.close();
+}
+
+/**
  * @brief Process graph height values to assign higher values to pixels the nearer to the center they are on the blurry grid:
  * 
  * Use height values (first "integers", then at the end converted to floats using the smooth falloff formula)
@@ -347,41 +414,37 @@ void setGraphHeightValues(Graph& graph) {
         graph.nodes_list_[i]->height_ = -1.0f;
     }
 
-    // Assign outermost pixels height value 1
-    std::set<int> current_level_labels = {};
-    std::set<int> next_level_labels = {};
+    std::vector<std::set<int>> levels = getGraphDepthLevels(graph);
+    tmpExportLevels(levels);
 
-    for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
-        if (graph.adjacency_list_[i].size() == 1) {
-            graph.nodes_list_[i]->height_ = 1.0f;
-            current_level_labels.insert(i);
-        }
+    if (levels.size() == 0) {
+        throw std::runtime_error("DLAGenerator: setGraphHeightValues: No levels found in the graph");
     }
 
-    while (current_level_labels.size() > 0) {
-        for (int label : current_level_labels) {
-            for (int adjacent_label : graph.adjacency_list_[label]) {
-                if (graph.nodes_list_[adjacent_label]->height_ == -1.0f) {
-                    next_level_labels.insert(adjacent_label);
+    for (int label : levels[levels.size() - 1]) {
+        graph.nodes_list_[label]->height_ = 1.0f;
+    }
+
+    for (int i = levels.size() - 2; i >= 0; i--) {
+        for (int label : levels[i]) {
+            if (graph.adjacency_list_[label].size() == 1) {
+                graph.nodes_list_[label]->height_ = 1.0f;
+            } else {
+                float max_height = -1.0f;
+
+                for (int adjacent_label : graph.adjacency_list_[label]) {
+                    if (levels[i + 1].contains(adjacent_label)) {
+                        max_height = std::max(max_height, graph.nodes_list_[adjacent_label]->height_);
+                    }
                 }
+
+                if (max_height == -1.0f) {
+                    throw std::runtime_error("DLAGenerator: setGraphHeightValues: Could not find a downstream node for node " + std::to_string(label));
+                }
+
+                graph.nodes_list_[label]->height_ = max_height + 1.0f;
             }
         }
-
-        for (int label : next_level_labels) {
-            float max_downstream_height = -1.0f;
-
-            for (int adjacent_label : graph.adjacency_list_[label]) {
-                if (graph.nodes_list_[adjacent_label]->height_ > max_downstream_height
-                    && !next_level_labels.contains(adjacent_label)) {
-                    max_downstream_height = graph.nodes_list_[adjacent_label]->height_;
-                }
-            }
-
-            graph.nodes_list_[label]->height_ = max_downstream_height + 1.0f;
-        }
-
-        current_level_labels = next_level_labels;
-        next_level_labels = {};
     }
 
     for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
