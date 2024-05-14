@@ -1,6 +1,7 @@
 #include "vector3.hh"
 
 #include <cmath>
+#include <iostream>
 
 #include "utils.hh"
 
@@ -98,6 +99,16 @@ Vector3 Vector3::cross(const Vector3 &vect1, const Vector3 &vect2)
 Vector3 Vector3::reflect(const Vector3 &v, const Vector3 &n)
 {
     return v - 2 * dot(v, n) * n;
+}
+
+Vector3 Vector3::refract(const Vector3 &u, const Vector3 &n,
+                         double etai_over_etat)
+{
+    double cos_theta = std::fmin(Vector3::dot(-u, n), 1.0);
+    Vector3 r_out_perp = etai_over_etat * (u + cos_theta * n);
+    Vector3 r_out_parallel =
+        -std::sqrt(std::fabs(1.0 - r_out_perp.length_squared())) * n;
+    return r_out_perp + r_out_parallel;
 }
 
 double Vector3::length() const

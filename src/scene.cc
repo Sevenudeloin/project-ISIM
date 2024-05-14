@@ -41,8 +41,9 @@ Scene Scene::createTestScene(int image_height, int image_width)
 
     Color ocean_color = Color::fromRGB(9, 22, 38, 0);
     auto ocean_tex = make_shared<OceanTexture>(
-        LocalTexture(ocean_color, 1.0, 0.35, 2, 0.0,
-                     make_shared<ExponentialAbsorptionVolume>(ocean_color, 20)),
+        LocalTexture(
+            ocean_color, 1.0, 0.35, 2, 0.0,
+            make_shared<ExponentialAbsorptionVolume>(ocean_color, 3, 1.5)),
         ocean_normal_map, Vector3(10.0, 3.0, 10.0));
 
     list<shared_ptr<PhysObj>> objs;
@@ -95,12 +96,15 @@ Scene Scene::createSimplexScene(int image_height, int image_width)
 
     float upscaling = 10.f;
     Heightmap base_heightmap = Heightmap(heightmap_width, heightmap_width);
-    Heightmap upscaled_heightmap = Heightmap(heightmap_width * upscaling, heightmap_width * upscaling);
+    Heightmap upscaled_heightmap =
+        Heightmap(heightmap_width * upscaling, heightmap_width * upscaling);
 
-    SimplexIslandParameters params = SimplexIslandParameters(scale, offset_x, offset_y, offset_z, 1.0f);
+    SimplexIslandParameters params =
+        SimplexIslandParameters(scale, offset_x, offset_y, offset_z, 1.0f);
 
     SimplexIslandGenerator simplexIslandGenerator = SimplexIslandGenerator();
-    simplexIslandGenerator.generateHeightmaps(base_heightmap, upscaled_heightmap, params);
+    simplexIslandGenerator.generateHeightmaps(base_heightmap,
+                                              upscaled_heightmap, params);
 
     // To preview the heightmaps
     Image2D base_img = Image2D(base_heightmap);

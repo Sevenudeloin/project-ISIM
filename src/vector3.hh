@@ -39,6 +39,8 @@ public:
                          const Vector3 &vect2); // static cross product
 
     static Vector3 reflect(const Vector3 &v, const Vector3 &n);
+    static Vector3 refract(const Vector3 &u, const Vector3 &n,
+                           double etai_over_etat);
 
     double length() const; // length of the vector
     double

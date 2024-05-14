@@ -2,8 +2,9 @@
 
 #include <cmath>
 
-AbsorptionVolume::AbsorptionVolume(Color color)
+AbsorptionVolume::AbsorptionVolume(Color color, double refraction_index)
     : color_(color)
+    , refraction_index_(refraction_index)
 {}
 
 Color AbsorptionVolume::getAbsorptionColor(double t, Color hit_color) const
@@ -15,8 +16,9 @@ Color AbsorptionVolume::getAbsorptionColor(double t, Color hit_color) const
 LinearAbsorptionVolume::LinearAbsorptionVolume(Color color,
                                                double absorption_start,
                                                double absorption_end,
-                                               double transmittance_min)
-    : AbsorptionVolume{ color }
+                                               double transmittance_min,
+                                               double refraction_index)
+    : AbsorptionVolume{ color, refraction_index }
     , absorption_start_(absorption_start)
     , absorption_end_(absorption_end)
     , transmittance_min_(transmittance_min)
@@ -41,8 +43,8 @@ double LinearAbsorptionVolume::getTransmittance(double t) const
 }
 
 ExponentialAbsorptionVolume::ExponentialAbsorptionVolume(
-    Color color, double absorption_strength)
-    : AbsorptionVolume{ color }
+    Color color, double absorption_strength, double refraction_index)
+    : AbsorptionVolume{ color, refraction_index }
     , absorption_strength_(absorption_strength)
 {}
 
