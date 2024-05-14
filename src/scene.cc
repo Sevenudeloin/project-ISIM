@@ -4,6 +4,7 @@
 
 #include "heightmap.hh"
 #include "ocean.hh"
+#include "ocean_texture.hh"
 #include "simplex_island_generator.hh"
 #include "terrain.hh"
 #include "terrain_texture.hh"
@@ -39,18 +40,18 @@ Scene Scene::createTestScene(int image_height, int image_width)
     auto terrain_tex = make_shared<TerrainTexture>(
         full_heightmap, sea_level, strength, xy_scale, terrain_tex_params, 3);
 
-    Color ocean_color = Color::fromRGB(9, 22, 38, 0);
-    auto ocean_tex = make_shared<OceanTexture>(
-        LocalTexture(
-            ocean_color, 1.0, 0.35, 2, 0.0,
-            make_shared<ExponentialAbsorptionVolume>(ocean_color, 3, 1.5)),
-        ocean_normal_map, Vector3(10.0, 3.0, 10.0));
-
     list<shared_ptr<PhysObj>> objs;
 
     auto terrain =
         Terrain::create_terrain(heightmap, xy_scale, strength, terrain_tex,
                                 Vector3(-20, -(sea_level * strength), -43));
+
+    Color ocean_color = Color::fromRGB(9, 22, 38, 0);
+    auto ocean_tex = make_shared<OceanTexture>(
+        LocalTexture(
+            ocean_color, 1.0, 0.35, 2, 0.0,
+            make_shared<ExponentialAbsorptionVolume>(ocean_color, 3, 1.5)),
+        ocean_normal_map, terrain, sea_level, Vector3(10.0, 3.0, 10.0));
 
     auto ocean = make_shared<Ocean>(0, ocean_tex);
 
@@ -124,17 +125,17 @@ Scene Scene::createSimplexScene(int image_height, int image_width)
     auto terrain_tex = make_shared<TerrainTexture>(
         full_heightmap, sea_level, strength, xy_scale, terrain_tex_params, 3);
 
-    Color ocean_color = Color::fromRGB(9, 22, 38, 0);
-    auto ocean_tex = make_shared<OceanTexture>(
-        LocalTexture(ocean_color, 1.0, 0.35, 2, 0.0,
-                     make_shared<ExponentialAbsorptionVolume>(ocean_color, 20)),
-        ocean_normal_map, Vector3(10.0, 3.0, 10.0));
-
     list<shared_ptr<PhysObj>> objs;
 
     auto terrain =
         Terrain::create_terrain(heightmap, xy_scale, strength, terrain_tex,
                                 Vector3(-20, -(sea_level * strength), -43));
+
+    Color ocean_color = Color::fromRGB(9, 22, 38, 0);
+    auto ocean_tex = make_shared<OceanTexture>(
+        LocalTexture(ocean_color, 1.0, 0.35, 2, 0.0,
+                     make_shared<ExponentialAbsorptionVolume>(ocean_color, 20)),
+        ocean_normal_map, terrain, sea_level, Vector3(10.0, 3.0, 10.0));
 
     auto ocean = make_shared<Ocean>(0, ocean_tex);
 

@@ -19,7 +19,7 @@ using Triangle2DMesh = vector<TriangleLine>;
 
 class Terrain : public PhysObj
 {
-private:
+public:
     int height_;
     int width_;
     float xy_scale_;
@@ -30,7 +30,6 @@ private:
 
     Point3 make_terrain_point_at(int y, int x, float height);
 
-public:
     Terrain();
     Terrain(int height, int width, shared_ptr<TextureMaterial> mat);
     Terrain(shared_ptr<Heightmap> Heightmap, float xy_scale, float height_scale,
