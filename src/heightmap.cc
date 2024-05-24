@@ -167,3 +167,43 @@ int Heightmap::getAmountAboveThreshold(float threshold)
 
     return count;
 }
+
+/**
+ * @brief Downsample the heightmap by a factor of 2. Heightmap must be square and its width and height must be even.
+ *
+ * @return the downsampled heightmap (half size).
+ */
+Heightmap Heightmap::squareHalfDownsample() {
+    // assert width_ == height_
+    // assert width_ % 2 == 0
+
+    Heightmap half_downsampled = Heightmap(width_ / 2, height_ / 2);
+
+    for (int y = 0; y < height_ / 2; y++) {
+        for (int x = 0; x < width_ / 2; x++) {
+            half_downsampled.set(y, x, (height_map_[2 * y][2 * x] + height_map_[2 * y][2 * x + 1] + height_map_[2 * y + 1][2 * x] + height_map_[2 * y + 1][2 * x + 1]) / 4);
+        }
+    }
+
+    return half_downsampled;
+}
+
+/**
+ * @brief Downsample the heightmap until the width is under a certain threshold. Heightmap must be square and its width and height must be even.
+ *
+ * @param width_threshold  Width threshold to stop the downsampling process
+ * 
+ * @return the downsampled heightmap (width <= width_threshold).
+ */
+Heightmap Heightmap::squareDownsample(int width_threshold) {
+    // assert width_ == height_
+    // assert width_ % 2 == 0
+
+    Heightmap downsampled = *this;
+
+    while (downsampled.width_ > width_threshold) {
+        downsampled = downsampled.squareHalfDownsample();
+    }
+
+    return downsampled;
+}
