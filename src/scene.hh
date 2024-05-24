@@ -31,4 +31,5 @@ public:
 
     static Scene createTestScene(int image_height, int image_width);
     static Scene createSimplexScene(int image_height, int image_width);
+    static Scene createDLAScene(int image_height, int image_width);
 };

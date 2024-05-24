@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "dla_generator.hh"
 #include "heightmap.hh"
 #include "ocean.hh"
 #include "simplex_island_generator.hh"
@@ -148,6 +149,96 @@ Scene Scene::createSimplexScene(int image_height, int image_width)
         static_cast<double>(image_width) / static_cast<double>(image_height);
 
     auto cam = Camera(Point3(-3, 4.5, -3), Point3(0, 1, -10), Vector3(0, 1, 0),
+                      85.0, 1.0, aspect_ratio, image_width);
+
+    auto skybox = make_shared<SkyBoxImage>("../images/skyboxes/skybox_1.ppm");
+
+    auto ambient_light =
+        make_shared<AmbientLight>(0.05, Color::fromRGB(100, 100, 180));
+
+    auto fog = make_shared<LinearAbsorptionVolume>(Color(0.6, 0.6, 0.6), 1.5,
+                                                   5.0, 0.25);
+
+    return Scene(cam, objs, lights, skybox, ambient_light, fog);
+}
+
+Scene Scene::createDLAScene(int image_height, int image_width)
+{
+    double sea_level = 0.5;
+    double xy_scale = 1.5;
+    double strength = 10;
+
+    DLA::DLAGenerator generator = DLA::DLAGenerator(0.5, 10); 
+
+    int upscaled_width = 256; // 1024
+    // int upscaled_width = 1024;
+    Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
+    int base_width = 32; // 64
+    // int base_width = 64;
+    Heightmap base_heightmap(base_width, base_width);
+
+    generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
+
+    // multiply by 3 both heightmaps to make more mountains
+    // for (int i = 0; i < base_heightmap.height_; i++) {
+    //     for (int j = 0; j < base_heightmap.width_; j++) {
+    //         base_heightmap.set(i, j, base_heightmap.at(i, j) * 3);
+    //     }
+    // }
+
+    // for (int i = 0; i < upscaled_heightmap.height_; i++) {
+    //     for (int j = 0; j < upscaled_heightmap.width_; j++) {
+    //         upscaled_heightmap.set(i, j, upscaled_heightmap.at(i, j) * 3);
+    //     }
+    // }
+
+    // To preview the heightmaps
+    Image2D base_img = Image2D(base_heightmap);
+    base_img.minMaxNormalize();
+    base_img.writePPM("../images/heightmaps/base_flattened.ppm");
+
+    Image2D upscaled_img = Image2D(upscaled_heightmap);
+    upscaled_img.minMaxNormalize();
+    upscaled_img.writePPM("../images/heightmaps/upscaled_flattened.ppm");
+
+    auto full_heightmap = std::make_shared<Heightmap>(upscaled_heightmap);
+    auto heightmap = std::make_shared<Heightmap>(base_heightmap);
+
+    auto ocean_normal_map =
+        make_shared<Image2D>("../images/normalmaps/water_normal.ppm");
+
+    auto terrain_tex_params = TerrainTextureParameters();
+    auto terrain_tex = make_shared<TerrainTexture>(
+        full_heightmap, sea_level, strength, xy_scale, terrain_tex_params, 3);
+
+    Color ocean_color = Color::fromRGB(9, 22, 38, 0);
+    auto ocean_tex = make_shared<OceanTexture>(
+        LocalTexture(ocean_color, 1.0, 0.35, 2, 0.0,
+                     make_shared<ExponentialAbsorptionVolume>(ocean_color, 20)),
+        ocean_normal_map, Vector3(10.0, 3.0, 10.0));
+
+    list<shared_ptr<PhysObj>> objs;
+
+    auto terrain =
+        Terrain::create_terrain(heightmap, xy_scale, strength, terrain_tex,
+                                Vector3(-20, -(sea_level * strength), -43));
+
+    auto ocean = make_shared<Ocean>(0, ocean_tex);
+
+    objs.push_back(terrain);
+    objs.push_back(ocean);
+
+    auto cloud_mask = make_shared<Image2D>("../images/cloudmaps/clouds_1.ppm");
+    auto clouds_plan = make_shared<CloudsPlan>(cloud_mask, 20.0, 30.0, 1.0);
+
+    list<shared_ptr<Light>> lights;
+    auto sunlight = make_shared<SunLight>(2.0, 25.0, 0.0, clouds_plan);
+    lights.push_back(sunlight);
+
+    double aspect_ratio =
+        static_cast<double>(image_width) / static_cast<double>(image_height);
+
+    auto cam = Camera(Point3(-3, 6, -3), Point3(0, 1, -6), Vector3(0, 1, 0),
                       85.0, 1.0, aspect_ratio, image_width);
 
     auto skybox = make_shared<SkyBoxImage>("../images/skyboxes/skybox_1.ppm");

@@ -25,7 +25,7 @@ void showHelpMenu(char* argv[]) {
     std::cout << "Options:" << std::endl;
     std::cout << "  -o <output_filename>  Specify the path to the output file (default is images/output.ppm)" << std::endl;
     std::cout << "  -d <width>x<height>   Specify the dimensions of the output image (default is 720x480)" << std::endl;
-    std::cout << "  -s <scene_type>       Specify the scene (available: test, simplex), (default is test)" << std::endl;
+    std::cout << "  -s <scene_type>       Specify the scene (available: test, simplex, DLA), (default is test)" << std::endl;
     std::cout << "  -p                    Preview terrain heightmap only (available at images/heightmaps/heightmap_output.ppm)" << std::endl;
     std::cout << "  -h                    Show this help menu" << std::endl;
 }
@@ -165,6 +165,11 @@ int main(int argc, char *argv[])
     if (scene_type == "simplex")
     {
         scene = Scene::createSimplexScene(image_height, image_width);
+    }
+
+    if (scene_type == "DLA")
+    {
+        scene = Scene::createDLAScene(image_height, image_width);
     }
 
     // FIXME(not important): when invalid name is given, default to test scene but still prints 'invalid scene' message
