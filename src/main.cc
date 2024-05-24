@@ -32,13 +32,31 @@ void showHelpMenu(char* argv[]) {
 
 void tmpDLADebug() {
     std::cout << "Debug mode enabled" << std::endl;
-    int width = 1024;
-    Heightmap grid = Heightmap(width, width);
-    DLA::DLAGenerator generator = DLA::DLAGenerator(0.3, 10); 
+    // int width = 1024;
+    // Heightmap grid = Heightmap(width, width);
 
     // =====
 
     auto start = std::chrono::high_resolution_clock::now();
+
+    DLA::DLAGenerator generator = DLA::DLAGenerator(0.3, 10); 
+
+    int upscaled_width = 1024;
+    Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
+    int base_width = 64;
+    Heightmap base_heightmap(base_width, base_width);
+
+    generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
+
+    Image2D base_heightmap_image = Image2D(base_heightmap);
+    base_heightmap_image.minMaxNormalize();
+    base_heightmap_image.writePPM("../images/DLA/DLA_base_heightmap.ppm", false);
+
+    Image2D upscaled_heightmap_image = Image2D(upscaled_heightmap);
+    upscaled_heightmap_image.minMaxNormalize();
+    upscaled_heightmap_image.writePPM("../images/DLA/DLA_upscaled_heightmap.ppm", false);
+
+    // Heightmap downsampled_heightmap = upscaled_grid.squareDownsample(64);
 
     // Add first pixel to the grid (also first real node of the graph) 
     // DLA::Graph graph;
@@ -60,11 +78,6 @@ void tmpDLADebug() {
     // high_res_grid_image.minMaxNormalize();
     // high_res_grid_image.writePPM("../images/DLA/DLA_upscaled_blurry.ppm", false);
 
-    Heightmap upscaled_grid = generator.generateUpscaledHeightmap(width);
-
-    // Image2D upscaled_grid_image = Image2D(upscaled_grid);
-    // upscaled_grid_image.minMaxNormalize();
-    // upscaled_grid_image.writePPM("../images/DLA/DLA_test.ppm", false);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end - start;

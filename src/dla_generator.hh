@@ -34,7 +34,7 @@ public:
     // Generate high resolution (square) heightmap using DLA algorithm
     Heightmap generateUpscaledHeightmap(int width);
 
-    // Here we will have to generate the upscaled one only, and downsample it to get the base_heightmap
+    // We only have to generate the upscaled_heightmap and downsample it to get the base_heightmap
     void generateHeightmaps(Heightmap& base_heightmap, Heightmap& upscaled_heightmap);
 };
 
