@@ -29,4 +29,9 @@ public:
     Heightmap multiplyByGaussian(float base_sigma);
     bool areSidesFlat(float threshold = std::numeric_limits<float>::epsilon());
     Heightmap flattenSides(float threshold = std::numeric_limits<float>::epsilon());
+
+    int getAmountAboveThreshold(float threshold);
+
+    Heightmap squareHalfDownsample();
+    Heightmap squareDownsample(int width_threshold);
 };

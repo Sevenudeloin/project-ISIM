@@ -4,6 +4,7 @@
 #include <sstream>
 #include <unistd.h>
 
+#include "dla_generator.hh"
 #include "heightmap.hh"
 #include "image2d.hh"
 #include "rendering.hh"
@@ -19,6 +20,70 @@ std::string capFirstLetter(std::string text)
     return text;
 }
 
+void showHelpMenu(char* argv[]) {
+    std::cout << "Usage: " << argv[0] << " [-o <output_filename>] [-d <width>x<height>] [-s <scene_type>] [-p] [-h]" << std::endl;
+    std::cout << "Options:" << std::endl;
+    std::cout << "  -o <output_filename>  Specify the path to the output file (default is images/output.ppm)" << std::endl;
+    std::cout << "  -d <width>x<height>   Specify the dimensions of the output image (default is 720x480)" << std::endl;
+    std::cout << "  -s <scene_type>       Specify the scene (available: test, simplex), (default is test)" << std::endl;
+    std::cout << "  -p                    Preview terrain heightmap only (available at images/heightmaps/heightmap_output.ppm)" << std::endl;
+    std::cout << "  -h                    Show this help menu" << std::endl;
+}
+
+void tmpDLADebug() {
+    std::cout << "Debug mode enabled" << std::endl;
+    // int width = 1024;
+    // Heightmap grid = Heightmap(width, width);
+
+    // =====
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    DLA::DLAGenerator generator = DLA::DLAGenerator(0.3, 10); 
+
+    int upscaled_width = 1024;
+    Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
+    int base_width = 64;
+    Heightmap base_heightmap(base_width, base_width);
+
+    generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
+
+    Image2D base_heightmap_image = Image2D(base_heightmap);
+    base_heightmap_image.minMaxNormalize();
+    base_heightmap_image.writePPM("../images/DLA/DLA_base_heightmap.ppm", false);
+
+    Image2D upscaled_heightmap_image = Image2D(upscaled_heightmap);
+    upscaled_heightmap_image.minMaxNormalize();
+    upscaled_heightmap_image.writePPM("../images/DLA/DLA_upscaled_heightmap.ppm", false);
+
+    // Heightmap downsampled_heightmap = upscaled_grid.squareDownsample(64);
+
+    // Add first pixel to the grid (also first real node of the graph) 
+    // DLA::Graph graph;
+
+    // int node_label = graph.nodes_list_.size(); // should be 1 (first actual node)
+    // grid.set(4, 5, node_label);
+    // graph.nodes_list_.push_back(std::make_shared<DLA::Node>(node_label, 4, 5, 1.0f));
+    // graph.adjacency_list_.push_back({});
+
+    // generator.populateGrid(grid, graph);
+
+    // Heightmap high_res_blurry_grid = generator.upscaleBlurryGrid(grid);
+
+    // Image2D grid_image = Image2D(grid);
+    // grid_image.minMaxNormalize();
+    // grid_image.writePPM("../images/DLA/DLA_base.ppm", false);
+
+    // Image2D high_res_grid_image = Image2D(high_res_blurry_grid);
+    // high_res_grid_image.minMaxNormalize();
+    // high_res_grid_image.writePPM("../images/DLA/DLA_upscaled_blurry.ppm", false);
+
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    std::cout << "full DLA runtime : " << elapsed.count() << " seconds" << std::endl;
+}
+
 int main(int argc, char *argv[])
 {
     char opt;
@@ -30,8 +95,9 @@ int main(int argc, char *argv[])
     std::string scene_type = "test";
     bool only_preview = false;
     bool show_help = false;
+    bool x_debug = false;
 
-    while ((opt = getopt(argc, argv, "o:d:s:ph")) != -1) {
+    while ((opt = getopt(argc, argv, "o:d:s:pxh")) != -1) {
         switch (opt) {
             case 'o':
                 output_filename = optarg;
@@ -45,6 +111,9 @@ int main(int argc, char *argv[])
             case 'p':
                 only_preview = true;
                 break;
+            case 'x':
+                x_debug = true;
+                break;
             case 'h':
                 show_help = true;
                 break;
@@ -54,14 +123,14 @@ int main(int argc, char *argv[])
         }
     }
 
+    if (x_debug)
+    {
+        tmpDLADebug();
+        return 0;
+    }
+
     if (show_help) {
-        std::cout << "Usage: " << argv[0] << " [-o <output_filename>] [-d <width>x<height>] [-s <scene_type>] [-p] [-h]" << std::endl;
-        std::cout << "Options:" << std::endl;
-        std::cout << "  -o <output_filename>  Specify the path to the output file (default is images/output.ppm)" << std::endl;
-        std::cout << "  -d <width>x<height>   Specify the dimensions of the output image (default is 720x480)" << std::endl;
-        std::cout << "  -s <scene_type>       Specify the scene (available: test, simplex), (default is test)" << std::endl;
-        std::cout << "  -p                    Preview terrain heightmap only (available at images/heightmaps/heightmap_output.ppm)" << std::endl;
-        std::cout << "  -h                    Show this help menu" << std::endl;
+        showHelpMenu(argv);
         return 0;
     }
 
