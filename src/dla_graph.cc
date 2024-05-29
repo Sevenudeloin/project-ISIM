@@ -1,6 +1,7 @@
 #include "dla_graph.hh"
 
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <string>
 
@@ -15,6 +16,34 @@ Graph::Graph() {
 
     adjacency_list_.push_back(std::vector<int>());
     nodes_list_.push_back(nullptr);
+}
+
+float euclidianDistance(float y1, float x1, float y2, float x2) {
+    return std::sqrt(std::pow(y1 - y2, 2) + std::pow(x1 - x2, 2));
+}
+
+/**
+ * @brief Check if there are graph nodes in a certain radius around given coordinates
+ *
+ * @param[in] y       y given coordinate
+ * @param[in] x       x given coordinate
+ * @param[in] radius  radius around the given coordinates
+ *
+ * @return vector of node labels around the given coordinates, empty if none
+ */
+std::vector<int> Graph::getNodesAround(float y, float x, float radius) {
+    std::vector<int> labels_around = {};
+
+    for (size_t i = 1; i < nodes_list_.size(); i++) {
+        float node_y = nodes_list_[i]->y_;
+        float node_x = nodes_list_[i]->x_;
+
+        if (euclidianDistance(y, x, node_y, node_x) <= radius) {
+            labels_around.push_back(i);
+        }
+    }
+
+    return labels_around;
 }
 
 /**

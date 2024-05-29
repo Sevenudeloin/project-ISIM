@@ -9,8 +9,8 @@ namespace DLA {
 struct Node
 {
     int label_; // identifier starting from 1
-    int y_;
-    int x_;
+    float y_;
+    float x_;
     float height_;
 
 };
@@ -30,6 +30,8 @@ struct Graph
     NodesList nodes_list_;
 
     Graph();
+
+    std::vector<int> getNodesAround(float y, float x, float radius);
 
     void addEdges(const std::vector<std::array<int, 2>>& edges_to_add);
     void removeEdges(const std::vector<std::array<int, 2>>& edges_to_remove);
