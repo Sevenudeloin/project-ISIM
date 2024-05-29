@@ -95,16 +95,15 @@ float euclidianDistance(float y1, float x1, float y2, float x2) {
  * If there are multiple pixels next to it, the edge is created with the node of the pixel closest to the center
  * of the grid.
  *
- * @param[in, out] grid   grid to populate
+ * @param[in, out] grid   grid to populate TODO NOT OUT ANYMORE
  * @param[in, out] graph  DLA graph
  */
-void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
-    int pixels_count = grid.getAmountAboveThreshold(0);
-    if (pixels_count == 0) {
-        throw std::runtime_error("DLAGenerator: populateGrid: Need at least one pixel on the grid to populate it");
+void DLAGenerator::populateGraph(Heightmap& grid, Graph& graph) {
+    if (graph.nodes_list_.size() <= 1) { // dummy node
+        throw std::runtime_error("DLAGenerator: populateGrid: Need at least one node on the graph to populate it");
     }
 
-    float density = static_cast<float>(pixels_count) / (grid.height_ * grid.width_);
+    float density = static_cast<float>(graph.nodes_list_.size() - 1) / (grid.height_ * grid.width_);
 
     while (density < this->density_threshold_) {
         std::array<float, 2> pixel_coords = getRandom2DPixelCoordinates(grid.width_, grid.height_);
@@ -165,8 +164,7 @@ void DLAGenerator::populateGrid(Heightmap& grid, Graph& graph) {
             x = new_x;
         }
 
-        pixels_count++;
-        density = static_cast<float>(pixels_count) / (grid.height_ * grid.width_);
+        density = static_cast<float>(graph.nodes_list_.size() - 1) / (grid.height_ * grid.width_);
     }
 }
 
