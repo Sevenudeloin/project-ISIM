@@ -37,7 +37,7 @@ void tmpDLADebug() {
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    DLA::DLAGenerator generator = DLA::DLAGenerator(0.5, 10); 
+    DLA::DLAGenerator generator = DLA::DLAGenerator(0.7, 10); 
 
     // int upscaled_width = 1024;
     // Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
@@ -58,7 +58,7 @@ void tmpDLADebug() {
 
     // =====
 
-    int upscaled_width = 1024;
+    int upscaled_width = 512;
     Heightmap upscaled_heightmap = generator.generateUpscaledHeightmap(upscaled_width);
 
     Image2D upscaled_heightmap_image = Image2D(upscaled_heightmap);
