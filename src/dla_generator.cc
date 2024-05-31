@@ -482,6 +482,7 @@ void addHeightToBlurryGrid(Heightmap& blurry_grid, const Graph& graph) {
 
 /**
  * @brief Convert the graph to a square heightmap using the height values of the nodes using linear interpolation.
+ * TODO Later pls clean this function for my sanity.
  *
  * @param[in] width  width of the resulting heightmap
  * @param[in] graph  DLA graph
@@ -504,26 +505,46 @@ Heightmap DLAGenerator::graphToHeightmap(int width, const Graph& graph) {
         float yx_weight = y_weight * x_weight;
 
         if (y_decimal < 0.5f) { // up
-            heightmap.set(y_int - 1, x_int, heightmap.at(y_int - 1, x_int) + height * (y_weight - yx_weight)); // up
+            if (y_int - 1 >= 0) {
+                heightmap.set(y_int - 1, x_int, heightmap.at(y_int - 1, x_int) + height * (y_weight - yx_weight)); // up
+            }
             heightmap.set(y_int, x_int, heightmap.at(y_int, x_int) + height * (1.0f - y_weight - x_weight + yx_weight)); // center
 
             if (x_decimal < 0.5f) { // left
-                heightmap.set(y_int - 1, x_int - 1, heightmap.at(y_int - 1, x_int - 1) + height * yx_weight); // up left
-                heightmap.set(y_int, x_int - 1, heightmap.at(y_int, x_int - 1) + height * (x_weight - yx_weight)); // left
+                if (y_int - 1 >= 0 && x_int - 1 >= 0) {
+                    heightmap.set(y_int - 1, x_int - 1, heightmap.at(y_int - 1, x_int - 1) + height * yx_weight); // up left
+                }
+                if (x_int - 1 >= 0) {
+                    heightmap.set(y_int, x_int - 1, heightmap.at(y_int, x_int - 1) + height * (x_weight - yx_weight)); // left
+                }
             } else { // right
-                heightmap.set(y_int - 1, x_int + 1, heightmap.at(y_int - 1, x_int + 1) + height * yx_weight); // up right
-                heightmap.set(y_int, x_int + 1, heightmap.at(y_int, x_int + 1) + height * (x_weight - yx_weight)); // right
+                if (y_int - 1 >= 0 && x_int + 1 < width) {
+                    heightmap.set(y_int - 1, x_int + 1, heightmap.at(y_int - 1, x_int + 1) + height * yx_weight); // up right
+                }
+                if (x_int + 1 < width) {
+                    heightmap.set(y_int, x_int + 1, heightmap.at(y_int, x_int + 1) + height * (x_weight - yx_weight)); // right
+                }
             }
         } else { // down
-            heightmap.set(y_int + 1, x_int, heightmap.at(y_int + 1, x_int) + height * (y_weight - yx_weight)); // down
+            if (y_int + 1 < width) {
+                heightmap.set(y_int + 1, x_int, heightmap.at(y_int + 1, x_int) + height * (y_weight - yx_weight)); // down
+            }
             heightmap.set(y_int, x_int, heightmap.at(y_int, x_int) + height * (1.0f - y_weight - x_weight + yx_weight)); // center
 
             if (x_decimal < 0.5f) { // left
-                heightmap.set(y_int + 1, x_int - 1, heightmap.at(y_int + 1, x_int - 1) + height * yx_weight); // down left
-                heightmap.set(y_int, x_int - 1, heightmap.at(y_int, x_int - 1) + height * (x_weight - yx_weight)); // left
+                if (y_int + 1 < width && x_int - 1 >= 0) {
+                    heightmap.set(y_int + 1, x_int - 1, heightmap.at(y_int + 1, x_int - 1) + height * yx_weight); // down left
+                }
+                if (x_int - 1 >= 0) {
+                    heightmap.set(y_int, x_int - 1, heightmap.at(y_int, x_int - 1) + height * (x_weight - yx_weight)); // left
+                }
             } else { // right
-                heightmap.set(y_int + 1, x_int + 1, heightmap.at(y_int + 1, x_int + 1) + height * yx_weight); // down right
-                heightmap.set(y_int, x_int + 1, heightmap.at(y_int, x_int + 1) + height * (x_weight - yx_weight)); // right
+                if (y_int + 1 < width && x_int + 1 < width) {
+                    heightmap.set(y_int + 1, x_int + 1, heightmap.at(y_int + 1, x_int + 1) + height * yx_weight); // down right
+                }
+                if (x_int + 1 < width) {
+                    heightmap.set(y_int, x_int + 1, heightmap.at(y_int, x_int + 1) + height * (x_weight - yx_weight)); // right
+                }
             }
         }
     }
@@ -575,11 +596,13 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
         Heightmap graph_heightmap = graphToHeightmap(std::pow(2, power_of_two + 1), graph); // useful for visualization
         populateGraph(std::pow(2, power_of_two + 1), graph);
         setGraphHeightValues(graph);
+        std::cout << "Graph at level " << power_of_two + 1 << " done" << std::endl;
 
         // blurry grid
 
         high_res_blurry_grid = upscaleBlurryGrid(low_res_blurry_grid);
         addHeightToBlurryGrid(high_res_blurry_grid, graph);
+        std::cout << "Blurry grid at level " << power_of_two + 1 << " done" << std::endl;
 
         // TODO DELETE only for debug
         Image2D graph_heightmap_image = Image2D(graph_heightmap);
