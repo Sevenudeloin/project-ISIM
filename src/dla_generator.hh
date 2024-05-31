@@ -14,7 +14,7 @@ private:
     std::random_device rd_;
     std::mt19937 rng_;
 
-    static std::uniform_int_distribution<std::mt19937::result_type> dist4_;
+    // static std::uniform_int_distribution<std::mt19937::result_type> dist4_;
     static std::uniform_real_distribution<float> real_dist1_zero_centered_;
 
 public:
@@ -28,9 +28,9 @@ public:
     DLAGenerator(float density_threshold, float first_node_y, float first_node_x, int seed);
 
     std::array<float, 2> getRandom2DPixelCoordinates(int width, int height); // no real need to put it here but needs random engine class attribute
-    void populateGraph(Heightmap& grid, Graph& graph); // FIXME: maybe give the graph as shared_ptr
+    void populateGraph(int width, Graph& graph);
 
-    Heightmap upscaleCrispGrid(const Heightmap& low_res_crisp_grid, Graph& graph);
+    void upscaleGraph(Graph& graph);
     Heightmap upscaleBlurryGrid(const Heightmap& low_res_blurry_grid);
 
     // TODO REMOVE

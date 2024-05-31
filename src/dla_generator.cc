@@ -22,7 +22,7 @@
 
 namespace DLA {
 
-std::uniform_int_distribution<std::mt19937::result_type> DLAGenerator::dist4_(1, 4);
+// std::uniform_int_distribution<std::mt19937::result_type> DLAGenerator::dist4_(1, 4);
 std::uniform_real_distribution<float> DLAGenerator::real_dist1_zero_centered_(-1.0f, 1.0f);
 
 DLAGenerator::DLAGenerator()
@@ -91,24 +91,24 @@ std::array<float, 2> DLAGenerator::getRandom2DPixelCoordinates(int width, int he
  * An edge is created between this node and the node that it stuck to. If there are multiple pixels next to it,
  * the edge is created with the node closest to the center of the graph.
  *
- * @param[in] grid        grid (used for dimensions)
+ * @param[in] width       square grid width
  * @param[in, out] graph  DLA graph
  */
-void DLAGenerator::populateGraph(Heightmap& grid, Graph& graph) {
+void DLAGenerator::populateGraph(int width, Graph& graph) {
     if (graph.nodes_list_.size() <= 1) { // dummy node
         throw std::runtime_error("DLAGenerator: populateGrid: Need at least one node on the graph to populate it");
     }
 
-    float density = static_cast<float>(graph.nodes_list_.size() - 1) / (grid.height_ * grid.width_);
+    float density = static_cast<float>(graph.nodes_list_.size() - 1) / (width * width);
 
     while (density < this->density_threshold_) {
-        std::array<float, 2> pixel_coords = getRandom2DPixelCoordinates(grid.width_, grid.height_);
+        std::array<float, 2> pixel_coords = getRandom2DPixelCoordinates(width, width);
         float y = pixel_coords[0];
         float x = pixel_coords[1];
 
         // check if there is already a graph node too close to this position (small radius, here 0.1)
         while (graph.getNodesAround(y, x, 0.1).size() > 0) {
-            pixel_coords = getRandom2DPixelCoordinates(grid.width_, grid.height_);
+            pixel_coords = getRandom2DPixelCoordinates(width, width);
             y = pixel_coords[0];
             x = pixel_coords[1];
         }
@@ -134,7 +134,7 @@ void DLAGenerator::populateGraph(Heightmap& grid, Graph& graph) {
                     float node_y = graph.nodes_list_[label]->y_;
                     float node_x = graph.nodes_list_[label]->x_;
                     
-                    float distance_to_center = utils::euclidianDistance(node_y, node_x, graph_center_y_ * grid.height_, graph_center_x_ * grid.width_);
+                    float distance_to_center = utils::euclidianDistance(node_y, node_x, graph_center_y_ * width, graph_center_x_ * width);
 
                     if (distance_to_center < min_distance_to_center) {
                         label_closest_to_center = label;
@@ -153,7 +153,7 @@ void DLAGenerator::populateGraph(Heightmap& grid, Graph& graph) {
             float new_y = y + real_dist1_zero_centered_(rng_); // [-1, 1)
             float new_x = x + real_dist1_zero_centered_(rng_); // [-1, 1)
 
-            while (new_y < 0 || new_y >= grid.height_ || new_x < 0 || new_x >= grid.width_ || graph.getNodesAround(new_y, new_x, 0.1).size() > 0) {
+            while (new_y < 0 || new_y >= width || new_x < 0 || new_x >= width || graph.getNodesAround(new_y, new_x, 0.1).size() > 0) {
                 new_y = y + real_dist1_zero_centered_(rng_);
                 new_x = x + real_dist1_zero_centered_(rng_);
             }
@@ -162,7 +162,7 @@ void DLAGenerator::populateGraph(Heightmap& grid, Graph& graph) {
             x = new_x;
         }
 
-        density = static_cast<float>(graph.nodes_list_.size() - 1) / (grid.height_ * grid.width_);
+        density = static_cast<float>(graph.nodes_list_.size() - 1) / (width * width);
     }
 }
 
@@ -177,28 +177,20 @@ bool edgeAlreadyProcessed(const std::vector<std::array<int, 2>>& processed_edges
 }
 
 /**
- * @brief Upscaling crisp grid:
+ * @brief Upscaling graph:
  * 
- * Use graph representation of the grid (which pixels stuck to which one during population of the grid)
- * to draw the graph edges on a higher resolution grid
- * => first subdivide the edges in 2 smaller edges (if we 2x the resolution each time)
- * => TODO add random offset to intermediate points to ensure the result doesnt contain lots of straight lines) => FIXME (UNCLEAR)
+ * Compute the new vertices and edges for a 2x higher resolution
+ * Then, subdivide the edges in 2 smaller edges. Also add random offset to the intermediate vertex
+ * to ensure the result doesnt contain lots of straight lines
  *
- * @param[in] grid        low resolution grid (crisp)
- * @param[in, out] graph  graph representation of the pixels of the grid
- *
- * @return higher resolution (2x) version of the grid passed as argument (crisp)
+ * @param[in, out] graph  DLA graph
  */
-Heightmap DLAGenerator::upscaleCrispGrid(const Heightmap& low_res_crisp_grid, Graph& graph) {
-    Heightmap high_res_grid = Heightmap(low_res_crisp_grid.width_ * 2, low_res_crisp_grid.height_ * 2);
+void DLAGenerator::upscaleGraph(Graph& graph) {
+    // Update position of graph nodes to match the new resolution (y and x coordinates of the nodes)
 
-    // update graph representation to match the new grid (y and x coordinates of the nodes)
-    // and set grid values at the new coordinates to the label of the node
     for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
         graph.nodes_list_[i]->y_ *= 2;
         graph.nodes_list_[i]->x_ *= 2;
-
-        high_res_grid.set(graph.nodes_list_[i]->y_, graph.nodes_list_[i]->x_, graph.nodes_list_[i]->label_);
     }
 
     std::vector<std::array<int, 2>> processed_edges = {};
@@ -219,14 +211,15 @@ Heightmap DLAGenerator::upscaleCrispGrid(const Heightmap& low_res_crisp_grid, Gr
 
             // Create a new node in the middle of the edge
 
-            int middle_y = std::round((node1->y_ + node2->y_) / 2);
-            int middle_x = std::round((node1->x_ + node2->x_) / 2);
+            float middle_y = (node1->y_ + node2->y_) / 2;
+            float middle_x = (node1->x_ + node2->x_) / 2;
 
-            // TODO: add random offset to intermediate points and round coordinates
-            // int offset_y = dist4_(rng_) - 3; // -1, 0, 1
-            // int offset_x = dist4_(rng_) - 3; // -1, 0, 1
-            // middle_y += offset_y;
-            // middle_x += offset_x;
+            // Add random offset to intermediate points and round coordinates [-0.25, 0.25)
+
+            float offset_y = real_dist1_zero_centered_(rng_) / 4;
+            float offset_x = real_dist1_zero_centered_(rng_) / 4;
+            middle_y += offset_y;
+            middle_x += offset_x;
 
             // Add the middle node to the graph and the grid
 
@@ -237,8 +230,6 @@ Heightmap DLAGenerator::upscaleCrispGrid(const Heightmap& low_res_crisp_grid, Gr
             edges_to_add.push_back({ node1->label_, middle_node_label });
             edges_to_add.push_back({ middle_node_label, node2->label_ });
 
-            high_res_grid.set(middle_y, middle_x, middle_node_label);
-
             // Store the processed edge to avoid processing it again (undirected graph)
 
             processed_edges.push_back({ node1->label_, node2->label_ });
@@ -247,8 +238,6 @@ Heightmap DLAGenerator::upscaleCrispGrid(const Heightmap& low_res_crisp_grid, Gr
 
     graph.removeEdges(processed_edges);
     graph.addEdges(edges_to_add);
-
-    return high_res_grid;
 }
 
 /**
@@ -487,9 +476,7 @@ void addHeightToBlurryGrid(Heightmap& blurry_grid, const Graph& graph) {
         float graph_height = graph.nodes_list_[i]->height_;
         float blurry_grid_height = blurry_grid.at(graph.nodes_list_[i]->y_, graph.nodes_list_[i]->x_);
 
-        if (graph_height > blurry_grid_height) { // TODO maybe now we just need to add the height values to the current ones (we will do interpolation probably)
-            blurry_grid.set(graph.nodes_list_[i]->y_, graph.nodes_list_[i]->x_, graph_height);
-        }
+        blurry_grid.set(graph.nodes_list_[i]->y_, graph.nodes_list_[i]->x_, blurry_grid_height + graph_height); // FIXME check if it is correct to add
     }
 }
 
@@ -564,33 +551,29 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
     int power_of_two = 3;
     int base_width = 8; // 2^3
 
-    Heightmap low_res_grid = Heightmap(base_width, base_width);
     Graph graph;
 
-    // Add first pixel to the grid (also first real node of the graph) 
+    // Add first real node to the graph 
 
-    std::array<float, 2> pixel_coords = { graph_center_y_ * low_res_grid.height_, graph_center_x_ * low_res_grid.width_ };
-    // FIXME update with new logic
+    std::array<float, 2> pixel_coords = { graph_center_y_ * base_width, graph_center_x_ * base_width };
     int node_label = graph.nodes_list_.size(); // should be 1 (first actual node)
-    low_res_grid.set(pixel_coords[0], pixel_coords[1], node_label);
     graph.nodes_list_.push_back(std::make_shared<Node>(node_label, pixel_coords[0], pixel_coords[1], -1.0f));
     graph.adjacency_list_.push_back({});
 
-    populateGraph(low_res_grid, graph);
+    populateGraph(base_width, graph);
     setGraphHeightValues(graph);
 
     // Main loop
 
-    Heightmap low_res_crisp_grid = low_res_grid;
-    Heightmap low_res_blurry_grid = graphToHeightmap(low_res_grid.width_, graph);
-
-    Heightmap high_res_crisp_grid = low_res_crisp_grid;
+    Heightmap low_res_blurry_grid = graphToHeightmap(base_width, graph);
     Heightmap high_res_blurry_grid = low_res_blurry_grid;
-    while (std::pow(2, power_of_two) < width) {
-        // crisp grid
 
-        high_res_crisp_grid = upscaleCrispGrid(low_res_crisp_grid, graph);
-        populateGraph(high_res_crisp_grid, graph);
+    while (std::pow(2, power_of_two) < width) {
+        // graph
+
+        upscaleGraph(graph);
+        Heightmap graph_heightmap = graphToHeightmap(std::pow(2, power_of_two + 1), graph); // useful for visualization
+        populateGraph(std::pow(2, power_of_two + 1), graph);
         setGraphHeightValues(graph);
 
         // blurry grid
@@ -599,9 +582,9 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
         addHeightToBlurryGrid(high_res_blurry_grid, graph);
 
         // TODO DELETE only for debug
-        Image2D crisp_grid_image = Image2D(high_res_crisp_grid);
-        std::string filename_crisp = "../images/DLA/DLA_upscaled_crisp_" + std::to_string(power_of_two + 1) + ".ppm";
-        crisp_grid_image.writePPM(filename_crisp.c_str(), false);
+        Image2D graph_heightmap_image = Image2D(graph_heightmap);
+        std::string filename_graph_heightmap = "../images/DLA/DLA_graph_heightmap_" + std::to_string(power_of_two + 1) + ".ppm";
+        graph_heightmap_image.writePPM(filename_graph_heightmap.c_str(), false);
 
         Image2D blurry_grid_image = Image2D(high_res_blurry_grid);
         blurry_grid_image.minMaxNormalize();
@@ -611,20 +594,15 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
 
         // loop management
 
-        low_res_crisp_grid = high_res_crisp_grid;
         low_res_blurry_grid = high_res_blurry_grid;
         power_of_two++;
     }
     
     // TODO DELETE only for debug
-    int high_res_crisp_grid_amount = high_res_crisp_grid.getAmountAboveThreshold(0);
-    std::cout << "Number of pixels in upscaled grid: " << high_res_crisp_grid_amount << std::endl;
-    float high_res_crisp_grid_density = static_cast<float>(high_res_crisp_grid_amount) / (high_res_crisp_grid.height_ * high_res_crisp_grid.width_);
-    std::cout << "Upscaled grid density: " << high_res_crisp_grid_density << std::endl;
-
     std::cout << graph.nodes_list_.size() << " nodes in the graph" << std::endl; // + 1 because of the dummy node
     std::cout << graph.adjacency_list_.size() << " adjacency lists" << std::endl; // + 1 because of the dummy node
-
+    float density = static_cast<float>(graph.nodes_list_.size() - 1) / (std::pow(2, power_of_two) * std::pow(2, power_of_two));
+    std::cout << "Density: " << density << std::endl;
     graph.exportToDot("../images/DLA/DLA_upscaled_graph.dot");
     // TODO DELETE END
 
