@@ -5,6 +5,8 @@
 #include <fstream>
 #include <string>
 
+#include "utils.hh"
+
 namespace DLA {
 
 /**
@@ -18,9 +20,9 @@ Graph::Graph() {
     nodes_list_.push_back(nullptr);
 }
 
-float euclidianDistance(float y1, float x1, float y2, float x2) {
-    return std::sqrt(std::pow(y1 - y2, 2) + std::pow(x1 - x2, 2));
-}
+// float euclidianDistance(float y1, float x1, float y2, float x2) {
+//     return std::sqrt(std::pow(y1 - y2, 2) + std::pow(x1 - x2, 2));
+// }
 
 /**
  * @brief Check if there are graph nodes in a certain radius around given coordinates
@@ -38,7 +40,7 @@ std::vector<int> Graph::getNodesAround(float y, float x, float radius) {
         float node_y = nodes_list_[i]->y_;
         float node_x = nodes_list_[i]->x_;
 
-        if (euclidianDistance(y, x, node_y, node_x) <= radius) {
+        if (utils::euclidianDistance(y, x, node_y, node_x) <= radius) {
             labels_around.push_back(i);
         }
     }

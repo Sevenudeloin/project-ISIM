@@ -25,13 +25,17 @@ public:
     DLAGenerator();
     DLAGenerator(float density_threshold);
     DLAGenerator(float density_threshold, int seed); // use fixed seed if need to get reproducible results
-    DLAGenerator(float density_threshold, int seed, float first_node_y, float first_node_x);
+    DLAGenerator(float density_threshold, float first_node_y, float first_node_x, int seed);
 
     std::array<float, 2> getRandom2DPixelCoordinates(int width, int height); // no real need to put it here but needs random engine class attribute
-    void populateGrid(Heightmap& grid, Graph& graph); // FIXME: maybe give the graph as shared_ptr
+    void populateGraph(Heightmap& grid, Graph& graph); // FIXME: maybe give the graph as shared_ptr
 
     Heightmap upscaleCrispGrid(const Heightmap& low_res_crisp_grid, Graph& graph);
     Heightmap upscaleBlurryGrid(const Heightmap& low_res_blurry_grid);
+
+    // TODO REMOVE
+    void setGraphHeightValues(Graph& graph);
+    Heightmap graphToHeightmap(int width, const Graph& graph);
 
     // Generate high resolution (square) heightmap using DLA algorithm
     Heightmap generateUpscaledHeightmap(int width);

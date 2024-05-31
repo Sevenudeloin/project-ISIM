@@ -13,6 +13,7 @@
 
 #include "dla_graph.hh"
 #include "heightmap.hh"
+#include "utils.hh"
 
 #include "image2d.hh"
 
@@ -45,7 +46,7 @@ DLAGenerator::DLAGenerator(float density_threshold, int seed)
     , graph_center_x_(0.5f)
 {}
 
-DLAGenerator::DLAGenerator(float density_threshold, int seed, float graph_center_y, float graph_center_x)
+DLAGenerator::DLAGenerator(float density_threshold, float graph_center_y, float graph_center_x, int seed)
     : rng_(seed)
     , density_threshold_(density_threshold)
 {
@@ -80,22 +81,17 @@ std::array<float, 2> DLAGenerator::getRandom2DPixelCoordinates(int width, int he
     return { height_pos, width_pos };
 }
 
-float euclidianDistance(float y1, float x1, float y2, float x2) {
-    return std::sqrt(std::pow(y1 - y2, 2) + std::pow(x1 - x2, 2));
-}
+// float euclidianDistance(float y1, float x1, float y2, float x2) {
+//     return std::sqrt(std::pow(y1 - y2, 2) + std::pow(x1 - x2, 2));
+// }
 
 /**
- * @brief TODO CHANGE ACCORDINGLY TO NEW CHANGES WITH CONTINUOUS SPACE
- * Add pixels to the grid until a certain density threshold is reached. Pixels are spawned randomly and
- * move in a random cardinal direction until they are next to another pixel.
- * A node is then added to the graph with the pixel coordinates and a height value. The value of the pixel in
- * the grid is set to the node label (which is also the position in the nodes_list_ and adjacency_list_ of the
- * graph).
- * An edge is created between this node and the node corresponding to the pixel that it stuck to in the grid.
- * If there are multiple pixels next to it, the edge is created with the node of the pixel closest to the center
- * of the grid.
+ * @brief Add nodes to the graph until a certain density threshold is reached. Nodes are spawned randomly and
+ * move in a random direction continously on the grid until they are close enough to another node.
+ * An edge is created between this node and the node that it stuck to. If there are multiple pixels next to it,
+ * the edge is created with the node closest to the center of the graph.
  *
- * @param[in, out] grid   grid to populate TODO NOT OUT ANYMORE
+ * @param[in] grid        grid (used for dimensions)
  * @param[in, out] graph  DLA graph
  */
 void DLAGenerator::populateGraph(Heightmap& grid, Graph& graph) {
@@ -129,6 +125,8 @@ void DLAGenerator::populateGraph(Heightmap& grid, Graph& graph) {
                 graph.nodes_list_.push_back(std::make_shared<Node>(node_label, y, x, -1.0f));
                 graph.adjacency_list_.push_back({});
 
+                // std::cout << "Node: " << node_label << " at (" << y << ", " << x << ")" << std::endl;
+
                 int label_closest_to_center = -1;
                 float min_distance_to_center = std::numeric_limits<float>::max();
 
@@ -136,7 +134,7 @@ void DLAGenerator::populateGraph(Heightmap& grid, Graph& graph) {
                     float node_y = graph.nodes_list_[label]->y_;
                     float node_x = graph.nodes_list_[label]->x_;
                     
-                    float distance_to_center = euclidianDistance(node_y, node_x, graph_center_y_ * grid.height_, graph_center_x_ * grid.width_);
+                    float distance_to_center = utils::euclidianDistance(node_y, node_x, graph_center_y_ * grid.height_, graph_center_x_ * grid.width_);
 
                     if (distance_to_center < min_distance_to_center) {
                         label_closest_to_center = label;
@@ -416,7 +414,7 @@ void tmpExportLevels(const std::vector<std::set<int>>& levels) {
  *
  * @param[in, out] graph  graph representation of the pixels of the (crisp) grid
  */
-void setGraphHeightValues(Graph& graph) {
+void DLAGenerator::setGraphHeightValues(Graph& graph) {
     for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
         graph.nodes_list_[i]->height_ = -1.0f;
     }
@@ -489,26 +487,58 @@ void addHeightToBlurryGrid(Heightmap& blurry_grid, const Graph& graph) {
         float graph_height = graph.nodes_list_[i]->height_;
         float blurry_grid_height = blurry_grid.at(graph.nodes_list_[i]->y_, graph.nodes_list_[i]->x_);
 
-        if (graph_height > blurry_grid_height) {
+        if (graph_height > blurry_grid_height) { // TODO maybe now we just need to add the height values to the current ones (we will do interpolation probably)
             blurry_grid.set(graph.nodes_list_[i]->y_, graph.nodes_list_[i]->x_, graph_height);
         }
     }
 }
 
 /**
- * @brief Convert the first crisp grid that contains the graph nodes labels to a heightmap
- * with the height values of the nodes
+ * @brief Convert the graph to a square heightmap using the height values of the nodes using linear interpolation.
  *
- * @param[in] crisp_grid  crisp grid to convert (should be the first grid used in the main loop)
- * @param[in] graph       graph representation of the pixels of the (crisp) grid
+ * @param[in] width  width of the resulting heightmap
+ * @param[in] graph  DLA graph
  *
- * @return heightmap with the height values of the nodes
+ * @return square heightmap representing the height values of the nodes of the graph
  */
-Heightmap crispGridToHeightmap(const Heightmap& crisp_grid, const Graph& graph) {
-    Heightmap heightmap = Heightmap(crisp_grid.width_, crisp_grid.height_);
+Heightmap DLAGenerator::graphToHeightmap(int width, const Graph& graph) {
+    Heightmap heightmap = Heightmap(width, width);
 
     for (size_t i = 1; i < graph.nodes_list_.size(); i++) {
-        heightmap.set(graph.nodes_list_[i]->y_, graph.nodes_list_[i]->x_, graph.nodes_list_[i]->height_);
+        float height = graph.nodes_list_[i]->height_;
+
+        int y_int = static_cast<int>(graph.nodes_list_[i]->y_);
+        float y_decimal = graph.nodes_list_[i]->y_ - y_int;
+        int x_int = static_cast<int>(graph.nodes_list_[i]->x_);
+        float x_decimal = graph.nodes_list_[i]->x_ - x_int;
+
+        float y_weight = 0.5f - ((y_decimal < 0.5f) ? y_decimal : 1.0f - y_decimal);
+        float x_weight = 0.5f - ((x_decimal < 0.5f) ? x_decimal : 1.0f - x_decimal);
+        float yx_weight = y_weight * x_weight;
+
+        if (y_decimal < 0.5f) { // up
+            heightmap.set(y_int - 1, x_int, heightmap.at(y_int - 1, x_int) + height * (y_weight - yx_weight)); // up
+            heightmap.set(y_int, x_int, heightmap.at(y_int, x_int) + height * (1.0f - y_weight - x_weight + yx_weight)); // center
+
+            if (x_decimal < 0.5f) { // left
+                heightmap.set(y_int - 1, x_int - 1, heightmap.at(y_int - 1, x_int - 1) + height * yx_weight); // up left
+                heightmap.set(y_int, x_int - 1, heightmap.at(y_int, x_int - 1) + height * (x_weight - yx_weight)); // left
+            } else { // right
+                heightmap.set(y_int - 1, x_int + 1, heightmap.at(y_int - 1, x_int + 1) + height * yx_weight); // up right
+                heightmap.set(y_int, x_int + 1, heightmap.at(y_int, x_int + 1) + height * (x_weight - yx_weight)); // right
+            }
+        } else { // down
+            heightmap.set(y_int + 1, x_int, heightmap.at(y_int + 1, x_int) + height * (y_weight - yx_weight)); // down
+            heightmap.set(y_int, x_int, heightmap.at(y_int, x_int) + height * (1.0f - y_weight - x_weight + yx_weight)); // center
+
+            if (x_decimal < 0.5f) { // left
+                heightmap.set(y_int + 1, x_int - 1, heightmap.at(y_int + 1, x_int - 1) + height * yx_weight); // down left
+                heightmap.set(y_int, x_int - 1, heightmap.at(y_int, x_int - 1) + height * (x_weight - yx_weight)); // left
+            } else { // right
+                heightmap.set(y_int + 1, x_int + 1, heightmap.at(y_int + 1, x_int + 1) + height * yx_weight); // down right
+                heightmap.set(y_int, x_int + 1, heightmap.at(y_int, x_int + 1) + height * (x_weight - yx_weight)); // right
+            }
+        }
     }
 
     return heightmap;
@@ -546,13 +576,13 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
     graph.nodes_list_.push_back(std::make_shared<Node>(node_label, pixel_coords[0], pixel_coords[1], -1.0f));
     graph.adjacency_list_.push_back({});
 
-    populateGrid(low_res_grid, graph);
+    populateGraph(low_res_grid, graph);
     setGraphHeightValues(graph);
 
     // Main loop
 
     Heightmap low_res_crisp_grid = low_res_grid;
-    Heightmap low_res_blurry_grid = crispGridToHeightmap(low_res_grid, graph);
+    Heightmap low_res_blurry_grid = graphToHeightmap(low_res_grid.width_, graph);
 
     Heightmap high_res_crisp_grid = low_res_crisp_grid;
     Heightmap high_res_blurry_grid = low_res_blurry_grid;
@@ -560,7 +590,7 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
         // crisp grid
 
         high_res_crisp_grid = upscaleCrispGrid(low_res_crisp_grid, graph);
-        populateGrid(high_res_crisp_grid, graph);
+        populateGraph(high_res_crisp_grid, graph);
         setGraphHeightValues(graph);
 
         // blurry grid
