@@ -34,8 +34,6 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter,
     if (iter > max_iter)
         return Color(0.0, 0.0, 0.0);
 
-    // std::cout << ray.direction_ << std::endl;
-
     HitRecord closest_hit_record;
     bool has_hit = getClosestObj(ray, scene.objects_, closest_hit_record);
 
@@ -90,8 +88,24 @@ Color Rendering::castRay(const Ray &ray, const Scene &scene, int iter,
         // Refraction componant
         if (loc_tex.color_.a_ < 1)
         {
+            auto etai = 1.0;
+            auto etat = 1.0;
+            if (absorption_volume)
+            {
+                etai = absorption_volume->refraction_index_;
+            }
+            if (loc_tex.absorption_)
+            {
+                etat = loc_tex.absorption_->refraction_index_;
+            }
+            auto etai_over_etat = etai / etat;
+
+            Vector3 refracted_dir = Vector3::refract(
+                Vector3::unit_vector(ray.direction_), n, etai_over_etat);
+            refracted_dir = Vector3::unit_vector(refracted_dir);
+
             Ray refracted_ray =
-                Ray(p + (utils::kEpsilon * ray.direction_), ray.direction_);
+                Ray(p + (utils::kEpsilon * refracted_dir), refracted_dir);
             color += (1 - loc_tex.color_.a_)
                 * castRay(refracted_ray, scene, iter + 1, loc_tex.absorption_);
         }

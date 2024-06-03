@@ -150,6 +150,7 @@ Image2D WaveMapGenerator::distanceMapToWaveMap(const Heightmap &distances,
         {
             double distance = distances.at(i, j);
             Color wave_color = params.getShoreWaveColor(distance);
+            wave_color.r_ = wave_color.a_;
             wave_map.setPixel(i, j, wave_color);
         }
     }

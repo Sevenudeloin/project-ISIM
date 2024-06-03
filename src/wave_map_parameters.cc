@@ -24,10 +24,10 @@ WaveMapParameters::WaveMapParameters(Color foam_color, double wave_freq,
 
 WaveMapParameters::WaveMapParameters()
     : foam_color_(Color(1.0, 1.0, 1.0, 1.0))
-    , wave_freq_(1.0)
-    , wave_max_dist_(15.0)
-    , wave_min_dist_(55.0)
-    , wave_offset_(10.0)
+    , wave_freq_(2.5)
+    , wave_max_dist_(5.0)
+    , wave_min_dist_(20.0)
+    , wave_offset_(5.0)
     , foam_threshold_(0.2)
 {
     foam_normal_min_threshold_ = std::sin(utils::degrees_to_radians(75));

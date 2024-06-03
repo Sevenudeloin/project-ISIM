@@ -77,20 +77,3 @@ public:
     const static TerrainLayerTexture beach_texture;
     const static TerrainLayerTexture snow_texture;
 };
-
-class OceanTexture : public TextureMaterial
-{
-public:
-    LocalTexture tex_;
-    std::shared_ptr<Image2D> normal_map_;
-    Vector3 normal_scale_;
-    std::shared_ptr<Image2D> wave_map_;
-
-    OceanTexture(LocalTexture tex, std::shared_ptr<Image2D> normal_map,
-                 Vector3 normal_scale = Vector3(1.0, 1.0, 1.0));
-
-    Point3 get_uv(const Point3 &p) const;
-
-    LocalTexture get_texture_at(const Point3 &p) const override;
-    Vector3 get_normal_at(const Point3 &p) const override;
-};
