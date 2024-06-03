@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdlib>
+#include <cmath>
 #include <limits>
 
 namespace utils
@@ -44,5 +45,9 @@ namespace utils
         float range = (max - min) / 2;
         float normalized = (input - average) / range;
         return normalized;
+    }
+
+    inline float euclidianDistance(float y1, float x1, float y2, float x2) {
+        return std::sqrt(std::pow(y1 - y2, 2) + std::pow(x1 - x2, 2));
     }
 } // namespace utils

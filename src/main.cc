@@ -32,52 +32,76 @@ void showHelpMenu(char* argv[]) {
 
 void tmpDLADebug() {
     std::cout << "Debug mode enabled" << std::endl;
-    // int width = 1024;
-    // Heightmap grid = Heightmap(width, width);
 
     // =====
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    DLA::DLAGenerator generator = DLA::DLAGenerator(0.3, 10); 
+    DLA::DLAGenerator generator = DLA::DLAGenerator(0.7, 10); 
 
-    int upscaled_width = 1024;
-    Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
-    int base_width = 64;
-    Heightmap base_heightmap(base_width, base_width);
+    // int upscaled_width = 1024;
+    // Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
+    // int base_width = 32;
+    // Heightmap base_heightmap(base_width, base_width);
 
-    generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
+    // generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
 
-    Image2D base_heightmap_image = Image2D(base_heightmap);
-    base_heightmap_image.minMaxNormalize();
-    base_heightmap_image.writePPM("../images/DLA/DLA_base_heightmap.ppm", false);
+    // Image2D base_heightmap_image = Image2D(base_heightmap);
+    // base_heightmap_image.minMaxNormalize();
+    // base_heightmap_image.writePPM("../images/DLA/DLA_base_heightmap.ppm", false);
+
+    // Image2D upscaled_heightmap_image = Image2D(upscaled_heightmap);
+    // upscaled_heightmap_image.minMaxNormalize();
+    // upscaled_heightmap_image.writePPM("../images/DLA/DLA_upscaled_heightmap.ppm", false);
+
+    // Heightmap downsampled_heightmap = upscaled_grid.squareDownsample(64);
+
+    // =====
+
+    int upscaled_width = 512;
+    Heightmap upscaled_heightmap = generator.generateUpscaledHeightmap(upscaled_width);
 
     Image2D upscaled_heightmap_image = Image2D(upscaled_heightmap);
     upscaled_heightmap_image.minMaxNormalize();
     upscaled_heightmap_image.writePPM("../images/DLA/DLA_upscaled_heightmap.ppm", false);
 
-    // Heightmap downsampled_heightmap = upscaled_grid.squareDownsample(64);
-
-    // Add first pixel to the grid (also first real node of the graph) 
     // DLA::Graph graph;
 
+    // int width = 8;
+    // Heightmap grid = Heightmap(width, width);
+
+    // // Add first pixel to the grid (also first real node of the graph) 
+
     // int node_label = graph.nodes_list_.size(); // should be 1 (first actual node)
-    // grid.set(4, 5, node_label);
-    // graph.nodes_list_.push_back(std::make_shared<DLA::Node>(node_label, 4, 5, 1.0f));
+    // graph.nodes_list_.push_back(std::make_shared<DLA::Node>(node_label, 4, 4, -1.0f));
     // graph.adjacency_list_.push_back({});
 
-    // generator.populateGrid(grid, graph);
+    // generator.populateGraph(width, graph);
+    // generator.setGraphHeightValues(graph);
 
-    // Heightmap high_res_blurry_grid = generator.upscaleBlurryGrid(grid);
+    // float density = static_cast<float>(graph.nodes_list_.size() - 1) / (grid.height_ * grid.width_);
+    // std::cout << "Density: " << density << std::endl;
+    // std::cout << graph.nodes_list_.size() << " nodes in the graph" << std::endl; // + 1 because of the dummy node
+    // std::cout << graph.adjacency_list_.size() << " adjacency lists" << std::endl; // + 1 because of the dummy node
 
-    // Image2D grid_image = Image2D(grid);
-    // grid_image.minMaxNormalize();
-    // grid_image.writePPM("../images/DLA/DLA_base.ppm", false);
+    // graph.exportToDot("../images/DLA/DLA_graph.dot");
 
-    // Image2D high_res_grid_image = Image2D(high_res_blurry_grid);
-    // high_res_grid_image.minMaxNormalize();
-    // high_res_grid_image.writePPM("../images/DLA/DLA_upscaled_blurry.ppm", false);
+    // Heightmap graph_heightmap = generator.graphToHeightmap(width, graph);
 
+    // for (int i = 0; i < graph_heightmap.height_; i++)
+    // {
+    //     for (int j = 0; j < graph_heightmap.width_; j++)
+    //     {
+    //         if (graph_heightmap.at(i, j) > 0.f)
+    //         {
+    //             std::cout << "Value " << graph_heightmap.at(i, j) << " at (" << i << ", " << j << ")" << std::endl;
+    //         }
+    //     }
+    // }
+
+    // Image2D graph_heightmap_image = Image2D(graph_heightmap);
+    // graph_heightmap_image.minMaxNormalize();
+    // graph_heightmap_image.writePPM("../images/DLA/DLA_graph_heightmap.ppm", false);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end - start;
