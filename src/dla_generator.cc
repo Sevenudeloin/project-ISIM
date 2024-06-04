@@ -23,8 +23,9 @@
 
 namespace DLA {
 
-// std::uniform_int_distribution<std::mt19937::result_type> DLAGenerator::dist4_(1, 4);
-std::uniform_real_distribution<float> DLAGenerator::real_dist1_zero_centered_(-1.0f, 1.0f);
+std::uniform_real_distribution<float> DLAGenerator::real_dist_1_(0.5f, 1.0f);
+std::uniform_real_distribution<float> DLAGenerator::real_dist_1_zero_centered_(-1.0f, 1.0f);
+std::uniform_real_distribution<float> DLAGenerator::real_dist_2pi_(0.0f, 2 * utils::pi);
 
 DLAGenerator::DLAGenerator()
     : rng_(rd_())
@@ -84,6 +85,18 @@ std::array<float, 2> DLAGenerator::getRandom2DPixelCoordinates(int width, int he
 
 // float euclidianDistance(float y1, float x1, float y2, float x2) {
 //     return std::sqrt(std::pow(y1 - y2, 2) + std::pow(x1 - x2, 2));
+// }
+
+// /**
+//  * @brief Convert polar coordinates to cartesian coordinates
+//  *
+//  * @param[in] r      radius
+//  * @param[in] theta  angle in radians
+//  *
+//  * @return cartesian coordinates { y, x }
+//  */
+// std::array<float, 2> polarToCartesian(float r, float theta) {
+//     return { r * std::sin(theta), r * std::cos(theta) };
 // }
 
 /**
@@ -149,14 +162,23 @@ void DLAGenerator::populateGraph(int width, Graph& graph) {
                 break;
             }
 
-            // move the pixel randomly on the continuous grid
+            // move the pixel randomly on the continuous grid (using polar coordinates)
             
-            float new_y = y + real_dist1_zero_centered_(rng_); // [-1, 1)
-            float new_x = x + real_dist1_zero_centered_(rng_); // [-1, 1)
+            float theta = real_dist_2pi_(rng_);
+            // float r = real_dist_1_(rng_);
+            float r = 1.0f;
+
+            // convert polar coordinates to cartesian coordinates
+            float new_y = y + r * std::sin(theta);
+            float new_x = x + r * std::cos(theta);
 
             while (new_y < 0 || new_y >= width || new_x < 0 || new_x >= width || graph.getNodesAround(new_y, new_x, 0.1).size() > 0) {
-                new_y = y + real_dist1_zero_centered_(rng_);
-                new_x = x + real_dist1_zero_centered_(rng_);
+                theta = real_dist_2pi_(rng_);
+                // r = real_dist_1_(rng_);
+
+                // convert polar coordinates to cartesian coordinates
+                new_y = y + r * std::sin(theta);
+                new_x = x + r * std::cos(theta);
             }
 
             y = new_y;
@@ -217,8 +239,8 @@ void DLAGenerator::upscaleGraph(Graph& graph) {
 
             // Add random offset to intermediate points and round coordinates [-0.25, 0.25)
 
-            float offset_y = real_dist1_zero_centered_(rng_) / 4;
-            float offset_x = real_dist1_zero_centered_(rng_) / 4;
+            float offset_y = real_dist_1_zero_centered_(rng_) / 4;
+            float offset_x = real_dist_1_zero_centered_(rng_) / 4;
             middle_y += offset_y;
             middle_x += offset_x;
 
