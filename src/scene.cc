@@ -176,7 +176,7 @@ Scene Scene::createDLAScene(int image_height, int image_width)
 
     DLA::DLAGenerator generator = DLA::DLAGenerator(0.8, 10); 
 
-    int upscaled_width = 2048; // 256
+    int upscaled_width = 256; // 256
     Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
     int base_width = 64; // 64
     Heightmap base_heightmap(base_width, base_width);

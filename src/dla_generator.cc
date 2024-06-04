@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -590,6 +591,8 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
     Heightmap high_res_blurry_grid = low_res_blurry_grid;
 
     while (std::pow(2, power_of_two) < width) {
+        auto start = std::chrono::high_resolution_clock::now();
+
         // graph
 
         upscaleGraph(graph);
@@ -619,6 +622,10 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
 
         low_res_blurry_grid = high_res_blurry_grid;
         power_of_two++;
+
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = end - start;
+        std::cout << "Upscaled heightmap for size " << std::pow(2, power_of_two + 1) << ": " << elapsed.count() << " seconds" << std::endl;
     }
     
     // TODO DELETE only for debug
