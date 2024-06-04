@@ -647,7 +647,7 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
 
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = end - start;
-        std::cout << "Upscaled heightmap for size " << std::pow(2, power_of_two + 1) << ": " << elapsed.count() << " seconds" << std::endl;
+        std::cout << "Upscaled heightmap for size " << std::pow(2, power_of_two) << ": " << elapsed.count() << " seconds" << std::endl;
     }
     
     // TODO DELETE only for debug

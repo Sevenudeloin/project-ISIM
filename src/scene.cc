@@ -171,23 +171,27 @@ Scene Scene::createSimplexScene(int image_height, int image_width)
 Scene Scene::createDLAScene(int image_height, int image_width)
 {
     double sea_level = 0.2;
-    double xy_scale = 0.6;
+    double xy_scale = 2.0;
     double strength = 3.5;
 
-    DLA::DLAGenerator generator = DLA::DLAGenerator(0.8, 10); 
+    DLA::DLAGenerator generator = DLA::DLAGenerator(0.8, 0.75, 0.75, 10); // center of the graph is at 0.75, 0.75
 
-    int upscaled_width = 256; // 256
-    Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
-    int base_width = 64; // 64
-    Heightmap base_heightmap(base_width, base_width);
+    // int upscaled_width = 512; // 256
+    // Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
+    // int base_width = 64; // 64
+    // Heightmap base_heightmap(base_width, base_width);
 
-    generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
+    // generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
 
     // FIXME remove this if need demo load already computed DLA heightmap
-    // Heightmap upscaled_heightmap("../images/DLA/DLA_upscaled_blurry_8.ppm");
-    upscaled_heightmap = upscaled_heightmap.flattenSides(0.5);
-    // Heightmap base_heightmap = upscaled_heightmap.squareDownsample(64);
-    base_heightmap = base_heightmap.flattenSides(0.5);
+    Heightmap upscaled_heightmap("../images/heightmaps/DLA_heightmap_2.ppm");
+
+    upscaled_heightmap = generator.upscaleBlurryGrid(upscaled_heightmap);
+    // upscaled_heightmap = generator.upscaleBlurryGrid(upscaled_heightmap);
+
+    upscaled_heightmap = upscaled_heightmap.flattenSides(0.05);
+    Heightmap base_heightmap = upscaled_heightmap.squareDownsample(64);
+    // base_heightmap = base_heightmap.flattenSides(0.01);
 
     // multiply by 3 both heightmaps to make more mountains
     // for (int i = 0; i < base_heightmap.height_; i++) {
@@ -204,11 +208,11 @@ Scene Scene::createDLAScene(int image_height, int image_width)
 
     // To preview the heightmaps
     Image2D base_img = Image2D(base_heightmap);
-    base_img.minMaxNormalize();
+    // base_img.minMaxNormalize();
     base_img.writePPM("../images/heightmaps/base_flattened.ppm");
 
     Image2D upscaled_img = Image2D(upscaled_heightmap);
-    upscaled_img.minMaxNormalize();
+    // upscaled_img.minMaxNormalize();
     upscaled_img.writePPM("../images/heightmaps/upscaled_flattened.ppm");
 
     auto full_heightmap = std::make_shared<Heightmap>(upscaled_heightmap);
