@@ -39,31 +39,29 @@ void tmpDLADebug() {
 
     DLA::DLAGenerator generator = DLA::DLAGenerator(0.7, 10); 
 
-    // int upscaled_width = 1024;
-    // Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
-    // int base_width = 32;
-    // Heightmap base_heightmap(base_width, base_width);
+    int upscaled_width = 128;
+    Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
+    int base_width = 32;
+    Heightmap base_heightmap(base_width, base_width);
 
-    // generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
+    generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
 
-    // Image2D base_heightmap_image = Image2D(base_heightmap);
-    // base_heightmap_image.minMaxNormalize();
-    // base_heightmap_image.writePPM("../images/DLA/DLA_base_heightmap.ppm", false);
-
-    // Image2D upscaled_heightmap_image = Image2D(upscaled_heightmap);
-    // upscaled_heightmap_image.minMaxNormalize();
-    // upscaled_heightmap_image.writePPM("../images/DLA/DLA_upscaled_heightmap.ppm", false);
-
-    // Heightmap downsampled_heightmap = upscaled_grid.squareDownsample(64);
-
-    // =====
-
-    int upscaled_width = 512;
-    Heightmap upscaled_heightmap = generator.generateUpscaledHeightmap(upscaled_width);
+    Image2D base_heightmap_image = Image2D(base_heightmap);
+    base_heightmap_image.minMaxNormalize();
+    base_heightmap_image.writePPM("../images/DLA/DLA_base_heightmap.ppm", false);
 
     Image2D upscaled_heightmap_image = Image2D(upscaled_heightmap);
     upscaled_heightmap_image.minMaxNormalize();
     upscaled_heightmap_image.writePPM("../images/DLA/DLA_upscaled_heightmap.ppm", false);
+
+    // =====
+
+    // int upscaled_width = 512;
+    // Heightmap upscaled_heightmap = generator.generateUpscaledHeightmap(upscaled_width);
+
+    // Image2D upscaled_heightmap_image = Image2D(upscaled_heightmap);
+    // upscaled_heightmap_image.minMaxNormalize();
+    // upscaled_heightmap_image.writePPM("../images/DLA/DLA_upscaled_heightmap.ppm", false);
 
     // DLA::Graph graph;
 
@@ -193,7 +191,12 @@ int main(int argc, char *argv[])
 
     if (scene_type == "DLA")
     {
+        auto start_DLA_scene = std::chrono::high_resolution_clock::now();
         scene = Scene::createDLAScene(image_height, image_width);
+
+        auto end_DLA_scene = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed_DLA_scene = end_DLA_scene - start_DLA_scene;
+        std::cout << "DLA Runtime: " << elapsed_DLA_scene.count() << " seconds" << std::endl;
     }
 
     // FIXME(not important): when invalid name is given, default to test scene but still prints 'invalid scene' message
@@ -208,7 +211,7 @@ int main(int argc, char *argv[])
 
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = end - start;
-        std::cout << "Runtime : " << elapsed.count() << " seconds" << std::endl;
+        std::cout << "Rendering runtime: " << elapsed.count() << " seconds" << std::endl;
 
         image.writePPM(output_filename.c_str(), true);
     }
