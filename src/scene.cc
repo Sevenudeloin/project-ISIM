@@ -170,11 +170,11 @@ Scene Scene::createSimplexScene(int image_height, int image_width)
 
 Scene Scene::createDLAScene(int image_height, int image_width)
 {
-    double sea_level = 0.4;
-    double xy_scale = 2.0;
-    double strength = 3.5;
+    double sea_level = 0.2;
+    double xy_scale = 1.0;
+    double strength = 1.5;
 
-    DLA::DLAGenerator generator = DLA::DLAGenerator(0.6, 0.5, 0.5, 10); // center of the graph is at 0.75, 0.75
+    // DLA::DLAGenerator generator = DLA::DLAGenerator(0.6, 0.5, 0.5, 10); // center of the graph is at 0.75, 0.75
 
     // int upscaled_width = 1024;
     // Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
@@ -184,15 +184,18 @@ Scene Scene::createDLAScene(int image_height, int image_width)
     // generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
 
     // FIXME remove this if need demo load already computed DLA heightmap
-    Heightmap upscaled_heightmap("../images/heightmaps/upscaled_flattened_512_1.ppm");
+    Heightmap upscaled_heightmap = Heightmap::load("../images/heightmaps/DLA_upscaled_flattened_2048_test.hmap");
 
     // upscaled_heightmap = generator.upscaleBlurryGrid(upscaled_heightmap);
-    // upscaled_heightmap = generator.upscaleBlurryGrid(upscaled_heightmap);
-
     // upscaled_heightmap = upscaled_heightmap.flattenSides(0.01);
-    Heightmap base_heightmap("../images/heightmaps/base_flattened_64_1.ppm");
+    // upscaled_heightmap.save("../images/heightmaps/DLA_upscaled_flattened_2048_test.hmap");
+    // upscaled_heightmap = generator.upscaleBlurryGrid(upscaled_heightmap);
+
+    // upscaled_heightmap = Heightmap::load("../images/heightmaps/DLA_upscaled_heightmap_1024_test.hmap");
+
+    Heightmap base_heightmap = Heightmap::load("../images/heightmaps/DLA_base_flattened_64_test.ppm");
     // Heightmap base_heightmap = upscaled_heightmap.squareDownsample(64);
-    // base_heightmap = base_heightmap.flattenSides(0.01);
+    // base_heightmap.save("../images/heightmaps/DLA_base_flattened_64_test.hmap");
 
     // To preview the heightmaps
     Image2D base_img = Image2D(base_heightmap);

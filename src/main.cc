@@ -56,19 +56,9 @@ void tmpDLADebug() {
 
     // =====
 
-    int upscaled_width = 128;
+    int upscaled_width = 512;
     Heightmap test_1 = generator.generateUpscaledHeightmap(upscaled_width);
-
-    Image2D test_1_image = Image2D(test_1);
-    test_1_image.minMaxNormalize();
-    test_1_image.writePPM("../images/DLA/DLA_test_1.ppm", false);
-
-    test_1.save("../images/DLA/upscaled_128_1.hmap");
-    Heightmap test_2 = Heightmap::load("../images/DLA/upscaled_128_1.hmap");
-
-    Image2D test_2_image = Image2D(test_2);
-    test_2_image.minMaxNormalize();
-    test_2_image.writePPM("../images/DLA/DLA_test_2.ppm", false);
+    test_1.save("../images/heightmaps/upscaled_heightmap_512_1.hmap");
 
     // DLA::Graph graph;
 
