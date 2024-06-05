@@ -37,31 +37,38 @@ void tmpDLADebug() {
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    DLA::DLAGenerator generator = DLA::DLAGenerator(0.7, 10); 
+    DLA::DLAGenerator generator = DLA::DLAGenerator(0.6, 0.5, 0.5, 10); 
 
-    int upscaled_width = 128;
-    Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
-    int base_width = 32;
-    Heightmap base_heightmap(base_width, base_width);
+    // int upscaled_width = 128;
+    // Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
+    // int base_width = 32;
+    // Heightmap base_heightmap(base_width, base_width);
 
-    generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
+    // generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
 
-    Image2D base_heightmap_image = Image2D(base_heightmap);
-    base_heightmap_image.minMaxNormalize();
-    base_heightmap_image.writePPM("../images/DLA/DLA_base_heightmap.ppm", false);
-
-    Image2D upscaled_heightmap_image = Image2D(upscaled_heightmap);
-    upscaled_heightmap_image.minMaxNormalize();
-    upscaled_heightmap_image.writePPM("../images/DLA/DLA_upscaled_heightmap.ppm", false);
-
-    // =====
-
-    // int upscaled_width = 512;
-    // Heightmap upscaled_heightmap = generator.generateUpscaledHeightmap(upscaled_width);
+    // Image2D base_heightmap_image = Image2D(base_heightmap);
+    // base_heightmap_image.minMaxNormalize();
+    // base_heightmap_image.writePPM("../images/DLA/DLA_base_heightmap.ppm", false);
 
     // Image2D upscaled_heightmap_image = Image2D(upscaled_heightmap);
     // upscaled_heightmap_image.minMaxNormalize();
     // upscaled_heightmap_image.writePPM("../images/DLA/DLA_upscaled_heightmap.ppm", false);
+
+    // =====
+
+    int upscaled_width = 128;
+    Heightmap test_1 = generator.generateUpscaledHeightmap(upscaled_width);
+
+    Image2D test_1_image = Image2D(test_1);
+    test_1_image.minMaxNormalize();
+    test_1_image.writePPM("../images/DLA/DLA_test_1.ppm", false);
+
+    test_1.save("../images/DLA/upscaled_128_1.hmap");
+    Heightmap test_2 = Heightmap::load("../images/DLA/upscaled_128_1.hmap");
+
+    Image2D test_2_image = Image2D(test_2);
+    test_2_image.minMaxNormalize();
+    test_2_image.writePPM("../images/DLA/DLA_test_2.ppm", false);
 
     // DLA::Graph graph;
 

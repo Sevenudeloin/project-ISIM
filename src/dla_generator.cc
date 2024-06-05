@@ -621,23 +621,14 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
         Heightmap graph_heightmap = graphToHeightmap(std::pow(2, power_of_two + 1), graph); // useful for visualization
         populateGraph(std::pow(2, power_of_two + 1), graph);
         setGraphHeightValues(graph);
-        std::cout << "Graph at level " << power_of_two + 1 << " done" << std::endl;
 
         // blurry grid
 
         high_res_blurry_grid = upscaleBlurryGrid(low_res_blurry_grid);
         addHeightToBlurryGrid(high_res_blurry_grid, graph);
-        std::cout << "Blurry grid at level " << power_of_two + 1 << " done" << std::endl;
 
         // TODO DELETE only for debug
-        Image2D graph_heightmap_image = Image2D(graph_heightmap);
-        std::string filename_graph_heightmap = "../images/DLA/DLA_graph_heightmap_" + std::to_string(power_of_two + 1) + ".ppm";
-        graph_heightmap_image.writePPM(filename_graph_heightmap.c_str(), false);
-
-        Image2D blurry_grid_image = Image2D(high_res_blurry_grid);
-        blurry_grid_image.minMaxNormalize();
-        std::string filename_blurry = "../images/DLA/DLA_upscaled_blurry_" + std::to_string(power_of_two + 1) + ".ppm";
-        blurry_grid_image.writePPM(filename_blurry.c_str(), false);
+        high_res_blurry_grid.save("../images/DLA/DLA_upscaled_heightmap_" + std::to_string(power_of_two + 1) + ".hmap");
         // TODO DELETE END
 
         // loop management

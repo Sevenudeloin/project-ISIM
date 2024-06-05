@@ -25,6 +25,9 @@ public:
     float at(int y, int x) const;
     void set(int y, int x, float value);
 
+    void save(const std::string &filename);
+    static Heightmap load(const std::string &filename);
+
     // The following methods only work for square heightmaps
     Heightmap multiplyByGaussian(float base_sigma);
     bool areSidesFlat(float threshold = std::numeric_limits<float>::epsilon());

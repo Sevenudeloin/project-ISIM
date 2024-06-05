@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <fstream>
 
 #include "image2d.hh"
 #include "ppm_parser.hh"
@@ -47,6 +48,67 @@ float Heightmap::at(int y, int x) const
 void Heightmap::set(int y, int x, float value)
 {
     height_map_[y][x] = value;
+}
+
+/**
+ * @brief Save the heightmap to a HMAP file. The file format is as follows:
+ * - 4 bytes: width of the heightmap
+ * - 4 bytes: height of the heightmap
+ * - width * height * 4 bytes: heightmap values (floats)
+ *
+ * @param[in] filename  Name of the file to save the heightmap to
+ */
+void Heightmap::save(const std::string &filename) {
+    std::ofstream file(filename, std::ios::binary);
+    if (!file.is_open()) {
+        throw std::runtime_error("Heightmap: save: Could not open file " + filename);
+    }
+
+    file.write(reinterpret_cast<const char *>(&width_), sizeof(int));
+    file.write(reinterpret_cast<const char *>(&height_), sizeof(int));
+
+    for (int y = 0; y < height_; y++) {
+        for (int x = 0; x < width_; x++) {
+            file.write(reinterpret_cast<const char *>(&height_map_[y][x]), sizeof(float));
+        }
+    }
+
+    file.close();
+}
+
+/**
+ * @brief Load a heightmap from a HMAP file. The file format is as follows:
+ * - 4 bytes: width of the heightmap
+ * - 4 bytes: height of the heightmap
+ * - width * height * 4 bytes: heightmap values (floats)
+ *
+ * @param[in] filename  Name of the file to load the heightmap from
+ *
+ * @return the loaded heightmap
+ */
+Heightmap Heightmap::load(const std::string &filename) {
+    std::ifstream file(filename, std::ios::binary);
+    if (!file.is_open()) {
+        throw std::runtime_error("Heightmap: load: Could not open file " + filename);
+    }
+
+    int width;
+    int height;
+
+    file.read(reinterpret_cast<char *>(&width), sizeof(int));
+    file.read(reinterpret_cast<char *>(&height), sizeof(int));
+
+    Heightmap heightmap = Heightmap(width, height);
+
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            file.read(reinterpret_cast<char *>(&heightmap.height_map_[y][x]), sizeof(float));
+        }
+    }
+
+    file.close();
+
+    return heightmap;
 }
 
 /**
