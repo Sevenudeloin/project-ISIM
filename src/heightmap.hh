@@ -26,6 +26,8 @@ public:
     float at(int y, int x) const;
     void set(int y, int x, float value);
 
+    void minMaxNormalize();
+
     void writeToFile(const std::string &filename);
     static Heightmap readFromFile(const std::string &filename);
 

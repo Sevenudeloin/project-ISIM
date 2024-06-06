@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstddef>
 #include <fstream>
 
 #include "image2d.hh"
@@ -49,6 +48,24 @@ float Heightmap::at(int y, int x) const
 void Heightmap::set(int y, int x, float value)
 {
     height_map_[y][x] = value;
+}
+
+void Heightmap::minMaxNormalize() {
+    float min = std::numeric_limits<float>::max();
+    float max = std::numeric_limits<float>::min();
+
+    for (const auto& row : height_map_) {
+        for (float value : row) {
+            min = std::min(min, value);
+            max = std::max(max, value);
+        }
+    }
+
+    for (auto& row : height_map_) {
+        for (float& value : row) {
+            value = (value - min) / (max - min);
+        }
+    }
 }
 
 /**
