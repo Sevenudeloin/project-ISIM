@@ -171,7 +171,7 @@ Scene Scene::createSimplexScene(int image_height, int image_width)
 Scene Scene::createDLAScene(int image_height, int image_width)
 {
     double sea_level = 0.5;
-    double xy_scale = 0.8;
+    double xy_scale = 0.65; // 1.3 for 32x32 mesh, 0.65 for 64x64 mesh
     double strength = 1.0;
 
     DLA::DLAGenerator generator = DLA::DLAGenerator(0.6, 0.5, 0.5, 10); // center of the graph is at 0.75, 0.75
@@ -197,7 +197,7 @@ Scene Scene::createDLAScene(int image_height, int image_width)
 
     Heightmap upscaled_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_upscaled_flattened_2048_1.hmap");
 
-    Heightmap base_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_base_flattened_64_test.hmap");
+    Heightmap base_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_base_flattened_64_1.hmap");
     // Heightmap base_heightmap_64 = upscaled_heightmap.squareDownsample(64);
     // base_heightmap_64.writeToFile("../images/heightmaps/DLA_base_flattened_64_1.hmap");
     // Heightmap base_heightmap_32 = upscaled_heightmap.squareDownsample(32);
@@ -250,7 +250,7 @@ Scene Scene::createDLAScene(int image_height, int image_width)
     double aspect_ratio =
         static_cast<double>(image_width) / static_cast<double>(image_height);
 
-    auto cam = Camera(Point3(0, 4, -3), Point3(0, 1, -8), Vector3(0, 1, 0),
+    auto cam = Camera(Point3(0, 6, -2), Point3(0, 1, -8), Vector3(0, 1, 0),
                       85.0, 1.0, aspect_ratio, image_width);
 
     auto skybox = make_shared<SkyBoxImage>("../images/skyboxes/skybox_1.ppm");
