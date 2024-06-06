@@ -170,11 +170,11 @@ Scene Scene::createSimplexScene(int image_height, int image_width)
 
 Scene Scene::createDLAScene(int image_height, int image_width)
 {
-    double sea_level = 0.2;
-    double xy_scale = 0.65; // 1.3 for 32x32 mesh, 0.65 for 64x64 mesh
-    double strength = 5.0;
+    double sea_level = 0.15;
+    double xy_scale = 0.65; // 1.3 for 32x32 mesh, 0.65 for 64x64 mesh, 0.325 for 128x128 mesh
+    double strength = 4.0;
 
-    DLA::DLAGenerator generator = DLA::DLAGenerator(0.6, 0.5, 0.5, 10); // center of the graph is at 0.75, 0.75
+    // DLA::DLAGenerator generator = DLA::DLAGenerator(0.6, 0.5, 0.5, 10); // center of the graph is at 0.75, 0.75
 
     // int upscaled_width = 1024;
     // Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
@@ -184,24 +184,9 @@ Scene Scene::createDLAScene(int image_height, int image_width)
     // generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
 
     // FIXME remove this if need demo load already computed DLA heightmap
-    // Heightmap upscaled_heightmap_512 = Heightmap::readFromFile("../images/DLA/DLA_upscaled_heightmap_7.hmap");
-    // upscaled_heightmap_512.writeToFile("../images/heightmaps/DLA_upscaled_heightmap_512_1.hmap");
-    // Heightmap upscaled_heightmap_1024 = generator.upscaleBlurryGrid(upscaled_heightmap_512);
-    // upscaled_heightmap_1024.writeToFile("../images/heightmaps/DLA_upscaled_heightmap_1024_1.hmap");
-    // Heightmap upscaled_heightmap_2048 = generator.upscaleBlurryGrid(upscaled_heightmap_1024);
-    // upscaled_heightmap_2048.writeToFile("../images/heightmaps/DLA_upscaled_heightmap_2048_1.hmap");
-
-    // Heightmap upscaled_heightmap_2048 = Heightmap::readFromFile("../images/heightmaps/DLA_upscaled_heightmap_2048_1.hmap");
-    // Heightmap upscaled_heightmap = upscaled_heightmap_2048.flattenSides(1);
-    // upscaled_heightmap.writeToFile("../images/heightmaps/DLA_upscaled_flattened_2048_1.hmap");
-
     Heightmap upscaled_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_upscaled_flattened_2048_1.hmap");
 
     Heightmap base_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_base_flattened_64_1.hmap");
-    // Heightmap base_heightmap_64 = upscaled_heightmap.squareDownsample(64);
-    // base_heightmap_64.writeToFile("../images/heightmaps/DLA_base_flattened_64_1.hmap");
-    // Heightmap base_heightmap_32 = upscaled_heightmap.squareDownsample(32);
-    // base_heightmap_32.writeToFile("../images/heightmaps/DLA_base_flattened_32_1.hmap");
 
     // To preview the heightmaps
     Image2D base_img = Image2D(base_heightmap);
@@ -250,8 +235,8 @@ Scene Scene::createDLAScene(int image_height, int image_width)
     double aspect_ratio =
         static_cast<double>(image_width) / static_cast<double>(image_height);
 
-    auto cam = Camera(Point3(0, 6, -2), Point3(0, 1, -8), Vector3(0, 1, 0),
-                      85.0, 1.0, aspect_ratio, image_width);
+    auto cam = Camera(Point3(0, 4, -9), Point3(0, 2.2, -11), Vector3(0, 1, 0),
+                      90.0, 1.0, aspect_ratio, image_width);
 
     auto skybox = make_shared<SkyBoxImage>("../images/skyboxes/skybox_1.ppm");
 
