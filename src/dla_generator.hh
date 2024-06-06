@@ -15,7 +15,9 @@ private:
     std::mt19937 rng_;
 
     // static std::uniform_int_distribution<std::mt19937::result_type> dist4_;
-    static std::uniform_real_distribution<float> real_dist1_zero_centered_;
+    static std::uniform_real_distribution<float> real_dist_1_;
+    static std::uniform_real_distribution<float> real_dist_1_zero_centered_;
+    static std::uniform_real_distribution<float> real_dist_2pi_;
 
 public:
     float density_threshold_; // grid density required to stop populating the grid

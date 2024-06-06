@@ -1,6 +1,7 @@
 # OURS
 src/proc_gen
 .vscode/
+images/*.tar.gz
 
 # Prerequisites
 *.d

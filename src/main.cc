@@ -32,36 +32,38 @@ void showHelpMenu(char* argv[]) {
 
 void tmpDLADebug() {
     std::cout << "Debug mode enabled" << std::endl;
+    auto start = std::chrono::high_resolution_clock::now();
 
     // =====
 
-    auto start = std::chrono::high_resolution_clock::now();
+    // Heightmap heightmap_1024_1 = Heightmap::readFromFile("../images/heightmaps/DLA_upscaled_heightmap_1024_1.hmap");
+    // heightmap_1024_1.minMaxNormalize();
+    // heightmap_1024_1.writeToFile("../images/heightmaps/DLA_upscaled_heightmap_1024_1.hmap");
 
-    DLA::DLAGenerator generator = DLA::DLAGenerator(0.7, 10); 
+    // =====
 
-    int upscaled_width = 128;
-    Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
-    int base_width = 32;
-    Heightmap base_heightmap(base_width, base_width);
+    // DLA::DLAGenerator generator = DLA::DLAGenerator(0.6, 0.5, 0.5, 10); 
 
-    generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
+    // int upscaled_width = 128;
+    // Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
+    // int base_width = 32;
+    // Heightmap base_heightmap(base_width, base_width);
 
-    Image2D base_heightmap_image = Image2D(base_heightmap);
-    base_heightmap_image.minMaxNormalize();
-    base_heightmap_image.writePPM("../images/DLA/DLA_base_heightmap.ppm", false);
+    // Heightmap upscaled_heightmap = generator.generateUpscaledHeightmap(upscaled_width);
 
-    Image2D upscaled_heightmap_image = Image2D(upscaled_heightmap);
-    upscaled_heightmap_image.minMaxNormalize();
-    upscaled_heightmap_image.writePPM("../images/DLA/DLA_upscaled_heightmap.ppm", false);
+    // generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
+
+    // Heightmap upscaled_heightmap_loaded = Heightmap::readFromFile("../images/DLA/DLA_upscaled_heightmap_7.hmap");
+
+    // Image2D upscaled_heightmap_image = Image2D(upscaled_heightmap_loaded);
+    // upscaled_heightmap_image.minMaxNormalize();
+    // upscaled_heightmap_image.writePPM("../images/DLA/DLA_upscaled_heightmap_loaded.ppm", false);
 
     // =====
 
     // int upscaled_width = 512;
-    // Heightmap upscaled_heightmap = generator.generateUpscaledHeightmap(upscaled_width);
-
-    // Image2D upscaled_heightmap_image = Image2D(upscaled_heightmap);
-    // upscaled_heightmap_image.minMaxNormalize();
-    // upscaled_heightmap_image.writePPM("../images/DLA/DLA_upscaled_heightmap.ppm", false);
+    // Heightmap test_1 = generator.generateUpscaledHeightmap(upscaled_width);
+    // test_1.save("../images/heightmaps/upscaled_heightmap_512_1.hmap");
 
     // DLA::Graph graph;
 

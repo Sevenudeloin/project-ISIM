@@ -170,37 +170,23 @@ Scene Scene::createSimplexScene(int image_height, int image_width)
 
 Scene Scene::createDLAScene(int image_height, int image_width)
 {
-    double sea_level = 0.2;
-    double xy_scale = 0.6;
-    double strength = 3.5;
+    double sea_level = 0.15;
+    double xy_scale = 0.65; // 1.3 for 32x32 mesh, 0.65 for 64x64 mesh, 0.325 for 128x128 mesh
+    double strength = 4.0;
 
-    DLA::DLAGenerator generator = DLA::DLAGenerator(0.8, 10); 
+    // DLA::DLAGenerator generator = DLA::DLAGenerator(0.6, 0.5, 0.5, 10); // center of the graph is at 0.75, 0.75
 
-    int upscaled_width = 256; // 256
-    Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
-    int base_width = 64; // 64
-    Heightmap base_heightmap(base_width, base_width);
+    // int upscaled_width = 1024;
+    // Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
+    // int base_width = 64;
+    // Heightmap base_heightmap(base_width, base_width);
 
-    generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
+    // generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
 
     // FIXME remove this if need demo load already computed DLA heightmap
-    // Heightmap upscaled_heightmap("../images/DLA/DLA_upscaled_blurry_8.ppm");
-    upscaled_heightmap = upscaled_heightmap.flattenSides(0.5);
-    // Heightmap base_heightmap = upscaled_heightmap.squareDownsample(64);
-    base_heightmap = base_heightmap.flattenSides(0.5);
+    Heightmap upscaled_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_upscaled_flattened_2048_1.hmap");
 
-    // multiply by 3 both heightmaps to make more mountains
-    // for (int i = 0; i < base_heightmap.height_; i++) {
-    //     for (int j = 0; j < base_heightmap.width_; j++) {
-    //         base_heightmap.set(i, j, base_heightmap.at(i, j) * 3);
-    //     }
-    // }
-
-    // for (int i = 0; i < upscaled_heightmap.height_; i++) {
-    //     for (int j = 0; j < upscaled_heightmap.width_; j++) {
-    //         upscaled_heightmap.set(i, j, upscaled_heightmap.at(i, j) * 3);
-    //     }
-    // }
+    Heightmap base_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_base_flattened_64_1.hmap");
 
     // To preview the heightmaps
     Image2D base_img = Image2D(base_heightmap);
@@ -249,8 +235,8 @@ Scene Scene::createDLAScene(int image_height, int image_width)
     double aspect_ratio =
         static_cast<double>(image_width) / static_cast<double>(image_height);
 
-    auto cam = Camera(Point3(0, 4, -3), Point3(0, 1, -8), Vector3(0, 1, 0),
-                      85.0, 1.0, aspect_ratio, image_width);
+    auto cam = Camera(Point3(0, 4, -9), Point3(0, 2.2, -11), Vector3(0, 1, 0),
+                      90.0, 1.0, aspect_ratio, image_width);
 
     auto skybox = make_shared<SkyBoxImage>("../images/skyboxes/skybox_1.ppm");
 
