@@ -44,21 +44,25 @@ void tmpDLADebug() {
     // int base_width = 32;
     // Heightmap base_heightmap(base_width, base_width);
 
+    // Heightmap upscaled_heightmap = generator.generateUpscaledHeightmap(upscaled_width);
+
+    // Image2D base_heightmap_image = Image2D(upscaled_heightmap);
+    // base_heightmap_image.minMaxNormalize();
+    // base_heightmap_image.writePPM("../images/DLA/DLA_upscaled_heightmap.ppm", false);
+
     // generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
 
-    // Image2D base_heightmap_image = Image2D(base_heightmap);
-    // base_heightmap_image.minMaxNormalize();
-    // base_heightmap_image.writePPM("../images/DLA/DLA_base_heightmap.ppm", false);
+    Heightmap upscaled_heightmap_loaded = Heightmap::readFromFile("../images/DLA/DLA_upscaled_heightmap_7.hmap");
 
-    // Image2D upscaled_heightmap_image = Image2D(upscaled_heightmap);
-    // upscaled_heightmap_image.minMaxNormalize();
-    // upscaled_heightmap_image.writePPM("../images/DLA/DLA_upscaled_heightmap.ppm", false);
+    Image2D upscaled_heightmap_image = Image2D(upscaled_heightmap_loaded);
+    upscaled_heightmap_image.minMaxNormalize();
+    upscaled_heightmap_image.writePPM("../images/DLA/DLA_upscaled_heightmap_loaded.ppm", false);
 
     // =====
 
-    int upscaled_width = 512;
-    Heightmap test_1 = generator.generateUpscaledHeightmap(upscaled_width);
-    test_1.save("../images/heightmaps/upscaled_heightmap_512_1.hmap");
+    // int upscaled_width = 512;
+    // Heightmap test_1 = generator.generateUpscaledHeightmap(upscaled_width);
+    // test_1.save("../images/heightmaps/upscaled_heightmap_512_1.hmap");
 
     // DLA::Graph graph;
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -12,8 +13,8 @@ class Heightmap
 public:
     using array2D = std::vector<std::vector<float>>;
 
-    int width_;
-    int height_;
+    int width_; // should be size_t :(
+    int height_; // should be size_t :(
     array2D height_map_;
 
     Heightmap(int width, int height);
@@ -25,8 +26,8 @@ public:
     float at(int y, int x) const;
     void set(int y, int x, float value);
 
-    void save(const std::string &filename);
-    static Heightmap load(const std::string &filename);
+    void writeToFile(const std::string &filename);
+    static Heightmap readFromFile(const std::string &filename);
 
     // The following methods only work for square heightmaps
     Heightmap multiplyByGaussian(float base_sigma);

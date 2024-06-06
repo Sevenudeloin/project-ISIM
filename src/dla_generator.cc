@@ -628,7 +628,7 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
         addHeightToBlurryGrid(high_res_blurry_grid, graph);
 
         // TODO DELETE only for debug
-        high_res_blurry_grid.save("../images/DLA/DLA_upscaled_heightmap_" + std::to_string(power_of_two + 1) + ".hmap");
+        high_res_blurry_grid.writeToFile("../images/DLA/DLA_upscaled_heightmap_" + std::to_string(power_of_two + 1) + ".hmap");
         // TODO DELETE END
 
         // loop management

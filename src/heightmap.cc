@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <fstream>
 
 #include "image2d.hh"
@@ -51,64 +52,87 @@ void Heightmap::set(int y, int x, float value)
 }
 
 /**
- * @brief Save the heightmap to a HMAP file. The file format is as follows:
- * - 4 bytes: width of the heightmap
- * - 4 bytes: height of the heightmap
- * - width * height * 4 bytes: heightmap values (floats)
+ * @brief Encode a float value to a uint16_t. The float value is multiplied by 1000 to keep 3 digits of precision.
  *
- * @param[in] filename  Name of the file to save the heightmap to
+ * @param[in] value  Float value to encode
+ *
+ * @return the encoded float value
  */
-void Heightmap::save(const std::string &filename) {
-    std::ofstream file(filename, std::ios::binary);
-    if (!file.is_open()) {
-        throw std::runtime_error("Heightmap: save: Could not open file " + filename);
-    }
-
-    file.write(reinterpret_cast<const char *>(&width_), sizeof(int));
-    file.write(reinterpret_cast<const char *>(&height_), sizeof(int));
-
-    for (int y = 0; y < height_; y++) {
-        for (int x = 0; x < width_; x++) {
-            file.write(reinterpret_cast<const char *>(&height_map_[y][x]), sizeof(float));
-        }
-    }
-
-    file.close();
+uint16_t encodeFloat(float value) {
+    int32_t scaledValue = static_cast<int32_t>(value * 1000.0f);
+    return static_cast<uint16_t>(scaledValue);
 }
 
 /**
- * @brief Load a heightmap from a HMAP file. The file format is as follows:
- * - 4 bytes: width of the heightmap
- * - 4 bytes: height of the heightmap
- * - width * height * 4 bytes: heightmap values (floats)
+ * @brief Decode a uint16_t value to a float. The uint16_t value is divided by 1000 to restore the original value.
  *
- * @param[in] filename  Name of the file to load the heightmap from
+ * @param[in] encoded  Encoded float value
  *
- * @return the loaded heightmap
+ * @return the decoded float value
  */
-Heightmap Heightmap::load(const std::string &filename) {
-    std::ifstream file(filename, std::ios::binary);
-    if (!file.is_open()) {
-        throw std::runtime_error("Heightmap: load: Could not open file " + filename);
-    }
+float decodeFloat(uint16_t encoded) {
+    return static_cast<float>(encoded) / 1000.0f;
+}
 
-    int width;
-    int height;
+/**
+ * @brief Write the heightmap to a HMAP file. The file format is as follows:
+ * - 4 bytes: width of the heightmap (int)
+ * - 4 bytes: height of the heightmap (int)
+ * - width * height * 2 bytes: heightmap values scaled by 1000 (uint16_t)
+ *
+ * @param[in] filename  Name of the file to write the heightmap to
+ */
+void Heightmap::writeToFile(const std::string &filename) {
+    std::ofstream file(filename, std::ios::binary);
+    if (file.is_open()) {
+        file.write(reinterpret_cast<const char*>(&width_), sizeof(int));
+        file.write(reinterpret_cast<const char*>(&height_), sizeof(int));
 
-    file.read(reinterpret_cast<char *>(&width), sizeof(int));
-    file.read(reinterpret_cast<char *>(&height), sizeof(int));
-
-    Heightmap heightmap = Heightmap(width, height);
-
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            file.read(reinterpret_cast<char *>(&heightmap.height_map_[y][x]), sizeof(float));
+        for (const auto& row : height_map_) {
+            for (float value : row) {
+                uint16_t encoded = encodeFloat(value);
+                file.write(reinterpret_cast<const char*>(&encoded), sizeof(uint16_t));
+            }
         }
+        file.close();
+    } else {
+        throw std::runtime_error("writeToFile: Unable to open file: " + filename);
     }
+}
 
-    file.close();
+/**
+ * @brief Read a heightmap from a HMAP file. The file format is as follows:
+ * - 4 bytes: width of the heightmap (int)
+ * - 4 bytes: height of the heightmap (int)
+ * - width * height * 2 bytes: heightmap values scaled by 1000 (uint16_t)
+ *
+ * @param[in] filename  Name of the file to read the heightmap from
+ *
+ * @return the read heightmap
+ */
+Heightmap Heightmap::readFromFile(const std::string &filename) {
+    std::ifstream file(filename, std::ios::binary);
+    if (file.is_open()) {
+        int width, height;
+        file.read(reinterpret_cast<char*>(&width), sizeof(int));
+        file.read(reinterpret_cast<char*>(&height), sizeof(int));
 
-    return heightmap;
+        Heightmap heightmap(width, height);
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                uint16_t encoded;
+                file.read(reinterpret_cast<char*>(&encoded), sizeof(uint16_t));
+                float value = decodeFloat(encoded);
+                heightmap.set(y, x, value);
+            }
+        }
+
+        file.close();
+        return heightmap;
+    } else {
+        throw std::runtime_error("readFromFile: Unable to open file: " + filename);
+    }
 }
 
 /**
