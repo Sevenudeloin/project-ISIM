@@ -171,7 +171,7 @@ Scene Scene::createSimplexScene(int image_height, int image_width)
 Scene Scene::createDLAScene(int image_height, int image_width)
 {
     double sea_level = 0.15;
-    double xy_scale = 0.65; // 1.3 for 32x32 mesh, 0.65 for 64x64 mesh, 0.325 for 128x128 mesh
+    double xy_scale = 1.3; // 1.3 for 32x32 mesh, 0.65 for 64x64 mesh, 0.325 for 128x128 mesh
     double strength = 4.0;
 
     // DLA::DLAGenerator generator = DLA::DLAGenerator(0.6, 0.5, 0.5, 10); // center of the graph is at 0.75, 0.75
@@ -184,17 +184,19 @@ Scene Scene::createDLAScene(int image_height, int image_width)
     // generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
 
     // FIXME remove this if need demo load already computed DLA heightmap
-    Heightmap upscaled_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_upscaled_flattened_2048_1.hmap");
+    Heightmap upscaled_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_upscaled_flattened_512_1.hmap");
 
-    Heightmap base_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_base_flattened_64_1.hmap");
+    Heightmap base_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_base_flattened_32_1.hmap");
+
+    std::cout << "DLA heightmaps loaded\n"; // FIXME remove
 
     // To preview the heightmaps
     Image2D base_img = Image2D(base_heightmap);
-    base_img.minMaxNormalize();
+    // base_img.minMaxNormalize();
     base_img.writePPM("../images/heightmaps/base_flattened.ppm");
 
     Image2D upscaled_img = Image2D(upscaled_heightmap);
-    upscaled_img.minMaxNormalize();
+    // upscaled_img.minMaxNormalize();
     upscaled_img.writePPM("../images/heightmaps/upscaled_flattened.ppm");
 
     auto full_heightmap = std::make_shared<Heightmap>(upscaled_heightmap);
@@ -207,11 +209,15 @@ Scene Scene::createDLAScene(int image_height, int image_width)
     auto terrain_tex = make_shared<TerrainTexture>(
         full_heightmap, sea_level, strength, xy_scale, terrain_tex_params, 3);
 
+    std::cout << "Terrain texture created\n"; // FIXME remove
+
     list<shared_ptr<PhysObj>> objs;
 
     auto terrain =
         Terrain::create_terrain(heightmap, xy_scale, strength, terrain_tex,
                                 Vector3(-20, -(sea_level * strength), -43));
+
+    std::cout << "Terrain created\n"; // FIXME remove
 
     Color ocean_color = Color::fromRGB(9, 22, 38, 0);
     auto ocean_tex = make_shared<OceanTexture>(
@@ -235,7 +241,7 @@ Scene Scene::createDLAScene(int image_height, int image_width)
     double aspect_ratio =
         static_cast<double>(image_width) / static_cast<double>(image_height);
 
-    auto cam = Camera(Point3(0, 4, -9), Point3(0, 2.2, -11), Vector3(0, 1, 0),
+    auto cam = Camera(Point3(0, 4, -9), Point3(0, 2.3, -11), Vector3(0, 1, 0),
                       90.0, 1.0, aspect_ratio, image_width);
 
     auto skybox = make_shared<SkyBoxImage>("../images/skyboxes/skybox_1.ppm");

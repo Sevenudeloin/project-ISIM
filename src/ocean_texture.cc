@@ -49,8 +49,8 @@ LocalTexture OceanTexture::get_texture_at(const Point3 &p) const
     tex.color_ = tex.color_ + wave_color;
 
     auto test = p - terrain_->translation_;
-    test.x_ = test.x_ / terrain_->width_;
-    test.z_ = test.z_ / terrain_->height_;
+    test.x_ = test.x_ / (terrain_->width_ * terrain_->xy_scale_);
+    test.z_ = test.z_ / (terrain_->height_ * terrain_->xy_scale_);
     if (test.x_ > 0.0 && test.x_ < 1.0 && test.z_ > 0.0 && test.z_ < 1.0)
     {
         Color foam_color = foam_map_->interpolate(test.z_ * foam_map_->height_,

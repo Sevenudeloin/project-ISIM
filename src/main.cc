@@ -38,10 +38,10 @@ void tmpDLADebug() {
 
     // DLA::DLAGenerator generator = DLA::DLAGenerator(0.6, 0.5, 0.5, 10); 
 
-    Heightmap heightmap_512_1 = Heightmap::readFromFile("../images/heightmaps/DLA_upscaled_flattened_512_1.hmap");
+    // Heightmap heightmap_512_1 = Heightmap::readFromFile("../images/heightmaps/DLA_upscaled_flattened_512_1.hmap");
 
-    Heightmap heightmap_128_1 = heightmap_512_1.squareDownsample(128);
-    heightmap_128_1.writeToFile("../images/heightmaps/DLA_base_flattened_128_1.hmap");
+    // Heightmap heightmap_128_1 = heightmap_512_1.squareDownsample(128);
+    // heightmap_128_1.writeToFile("../images/heightmaps/DLA_base_flattened_128_1.hmap");
 
     Heightmap test = Heightmap::readFromFile("../images/heightmaps/DLA_base_flattened_128_1.hmap");
     Image2D test_image = Image2D(test);
