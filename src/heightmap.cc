@@ -164,6 +164,7 @@ Heightmap Heightmap::multiplyByGaussian(float base_sigma)
     Heightmap gaussian_heightmap = Heightmap(width_, width_);
 
     // Create a 2D gaussian distribution
+
     auto gaussian = [](float x, float y, float sigma) {
         return (1.0f / 2 * M_PIf * sigma * sigma) * std::exp(-(x * x + y * y) / (2 * sigma * sigma));
     };
@@ -172,8 +173,8 @@ Heightmap Heightmap::multiplyByGaussian(float base_sigma)
     {
         for (int x = 0; x < width_; x++)
         {
-            float dx = x - width_ / 2;
-            float dy = y - width_ / 2;
+            float dx = x - width_ / 2.f;
+            float dy = y - width_ / 2.f;
             float gaussian_value = gaussian(dx, dy, base_sigma);
 
             // Normalize gaussian value to [0, 1]
