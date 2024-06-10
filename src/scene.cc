@@ -172,7 +172,7 @@ Scene Scene::createDLAScene(int image_height, int image_width)
 {
     double sea_level = 0.1;
     double xy_scale = 0.325; // 1.3 for 32x32 mesh, 0.65 for 64x64 mesh, 0.325 for 128x128 mesh
-    double strength = 4.0;
+    double strength = 1.0;
 
     // DLA::DLAGenerator generator = DLA::DLAGenerator(0.6, 0.5, 0.5, 10); // center of the graph is at 0.75, 0.75
 
@@ -184,16 +184,16 @@ Scene Scene::createDLAScene(int image_height, int image_width)
     // generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
 
     // FIXME remove this if need demo load already computed DLA heightmap
-    Heightmap upscaled_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_upscaled_flattened_2048_1.hmap");
+    Heightmap upscaled_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_upscaled_flattened_2048_2.hmap");
 
-    Heightmap base_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_base_flattened_128_1.hmap");
+    Heightmap base_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_base_flattened_128_2.hmap");
 
-    // multiply every value from heightmaps by 1.2 and clamp them between 0 and 1
+    // multiply every value from heightmaps by some factor and clamp them between 0 and 1
     for (int i = 0; i < upscaled_heightmap.height_; i++)
     {
         for (int j = 0; j < upscaled_heightmap.width_; j++)
         {
-            upscaled_heightmap.set(i, j, std::min(1.0, std::max(0.0, upscaled_heightmap.at(i, j) * 1.2)));
+            upscaled_heightmap.set(i, j, std::min(1.0, std::max(0.0, upscaled_heightmap.at(i, j) * 3.0)));
         }
     }
 
@@ -201,7 +201,7 @@ Scene Scene::createDLAScene(int image_height, int image_width)
     {
         for (int j = 0; j < base_heightmap.width_; j++)
         {
-            base_heightmap.set(i, j, std::min(1.0, std::max(0.0, base_heightmap.at(i, j) * 1.2)));
+            base_heightmap.set(i, j, std::min(1.0, std::max(0.0, base_heightmap.at(i, j) * 3.0)));
         }
     }
 
@@ -258,7 +258,7 @@ Scene Scene::createDLAScene(int image_height, int image_width)
     double aspect_ratio =
         static_cast<double>(image_width) / static_cast<double>(image_height);
 
-    auto cam = Camera(Point3(0, 4, -10), Point3(0, 3, -12), Vector3(0, 1, 0),
+    auto cam = Camera(Point3(0, 4.5, 0), Point3(0, 1.5, -8), Vector3(0, 1, 0),
                       90.0, 1.0, aspect_ratio, image_width);
 
     auto skybox = make_shared<SkyBoxImage>("../images/skyboxes/skybox_1.ppm");

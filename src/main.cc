@@ -36,18 +36,14 @@ void tmpDLADebug() {
 
     // =====
 
-    DLA::DLAGenerator generator = DLA::DLAGenerator(0.35, 0.8, 0.65, 9); 
+    // DLA::DLAGenerator generator = DLA::DLAGenerator(0.35, 0.8, 0.65, 9); 
 
-    Heightmap heightmap_512_2 = generator.generateUpscaledHeightmap(512);
-    heightmap_512_2.minMaxNormalize();
-    heightmap_512_2.writeToFile("../images/heightmaps/DLA_upscaled_heightmap_512_2.hmap");
+    // Heightmap heightmap_512_2_flattened = Heightmap::readFromFile("../images/heightmaps/DLA_upscaled_flattened_512_2.hmap");
 
-    // Heightmap heightmap_512_1 = Heightmap::readFromFile("../images/heightmaps/DLA_upscaled_flattened_512_1.hmap");
+    // Heightmap heightmap_32_2_flattened = heightmap_512_2_flattened.squareDownsample(32);
+    // heightmap_32_2_flattened.writeToFile("../images/heightmaps/DLA_base_flattened_32_2.hmap");
 
-    // Heightmap heightmap_128_1 = heightmap_512_1.squareDownsample(128);
-    // heightmap_128_1.writeToFile("../images/heightmaps/DLA_base_flattened_128_1.hmap");
-
-    Heightmap test = Heightmap::readFromFile("../images/heightmaps/DLA_upscaled_heightmap_512_2.hmap");
+    Heightmap test = Heightmap::readFromFile("../images/heightmaps/DLA_base_flattened_32_2.hmap");
     Image2D test_image = Image2D(test);
     // test.minMaxNormalize();
     test_image.writePPM("../images/heightmaps/test.ppm", false);
