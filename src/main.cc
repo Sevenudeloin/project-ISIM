@@ -43,8 +43,8 @@ void tmpDLADebug() {
     // Heightmap heightmap_32_2_flattened = heightmap_512_2_flattened.squareDownsample(32);
     // heightmap_32_2_flattened.writeToFile("../images/heightmaps/DLA_base_flattened_32_2.hmap");
 
-    Heightmap test = Heightmap::readFromFile("../images/heightmaps/DLA_base_flattened_32_2.hmap");
-    Image2D test_image = Image2D(test);
+    Heightmap heightmap_test = Heightmap::readFromFile("../images/heightmaps/DLA_upscaled_flattened_2048_1.hmap");
+    Image2D test_image = Image2D(heightmap_test);
     // test.minMaxNormalize();
     test_image.writePPM("../images/heightmaps/test.ppm", false);
 

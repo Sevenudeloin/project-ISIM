@@ -172,7 +172,7 @@ Scene Scene::createDLAScene(int image_height, int image_width)
 {
     double sea_level = 0.1;
     double xy_scale = 0.325; // 1.3 for 32x32 mesh, 0.65 for 64x64 mesh, 0.325 for 128x128 mesh
-    double strength = 1.0;
+    double strength = 6.5;
 
     // DLA::DLAGenerator generator = DLA::DLAGenerator(0.6, 0.5, 0.5, 10); // center of the graph is at 0.75, 0.75
 
@@ -184,28 +184,30 @@ Scene Scene::createDLAScene(int image_height, int image_width)
     // generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
 
     // FIXME remove this if need demo load already computed DLA heightmap
-    Heightmap upscaled_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_upscaled_flattened_2048_2.hmap");
+    Heightmap upscaled_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_upscaled_flattened_2048_1.hmap");
 
-    Heightmap base_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_base_flattened_128_2.hmap");
+    Heightmap base_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_base_flattened_128_1.hmap");
 
     // multiply every value from heightmaps by some factor and clamp them between 0 and 1
+    double multiply_factor = 1.5;
+
     for (int i = 0; i < upscaled_heightmap.height_; i++)
     {
         for (int j = 0; j < upscaled_heightmap.width_; j++)
         {
-            upscaled_heightmap.set(i, j, std::min(1.0, std::max(0.0, upscaled_heightmap.at(i, j) * 3.0)));
+            upscaled_heightmap.set(i, j, upscaled_heightmap.at(i, j) * multiply_factor);
         }
     }
+    upscaled_heightmap.minMaxNormalize();
 
     for (int i = 0; i < base_heightmap.height_; i++)
     {
         for (int j = 0; j < base_heightmap.width_; j++)
         {
-            base_heightmap.set(i, j, std::min(1.0, std::max(0.0, base_heightmap.at(i, j) * 3.0)));
+            base_heightmap.set(i, j, base_heightmap.at(i, j) * multiply_factor);
         }
     }
-
-    std::cout << "DLA heightmaps loaded\n"; // FIXME remove
+    base_heightmap.minMaxNormalize();
 
     // To preview the heightmaps
     Image2D base_img = Image2D(base_heightmap);
@@ -215,6 +217,8 @@ Scene Scene::createDLAScene(int image_height, int image_width)
     Image2D upscaled_img = Image2D(upscaled_heightmap);
     // upscaled_img.minMaxNormalize();
     upscaled_img.writePPM("../images/heightmaps/upscaled_flattened.ppm");
+
+    std::cout << "DLA heightmaps loaded\n"; // FIXME remove
 
     auto full_heightmap = std::make_shared<Heightmap>(upscaled_heightmap);
     auto heightmap = std::make_shared<Heightmap>(base_heightmap);
@@ -226,21 +230,17 @@ Scene Scene::createDLAScene(int image_height, int image_width)
     auto terrain_tex = make_shared<TerrainTexture>(
         full_heightmap, sea_level, strength, xy_scale, terrain_tex_params, 3);
 
-    std::cout << "Terrain texture created\n"; // FIXME remove
-
     list<shared_ptr<PhysObj>> objs;
 
     auto terrain =
         Terrain::create_terrain(heightmap, xy_scale, strength, terrain_tex,
                                 Vector3(-20, -(sea_level * strength), -43));
 
-    std::cout << "Terrain created\n"; // FIXME remove
-
     Color ocean_color = Color::fromRGB(9, 22, 38, 0);
     auto ocean_tex = make_shared<OceanTexture>(
         LocalTexture(
             ocean_color, 1.0, 0.35, 2, 0.0,
-            make_shared<ExponentialAbsorptionVolume>(ocean_color, 3, 1.5)),
+            make_shared<ExponentialAbsorptionVolume>(ocean_color, 7.0, 1.5)),
         ocean_normal_map, terrain, sea_level, Vector3(10.0, 3.0, 10.0));
 
     auto ocean = make_shared<Ocean>(0, ocean_tex);
@@ -258,7 +258,7 @@ Scene Scene::createDLAScene(int image_height, int image_width)
     double aspect_ratio =
         static_cast<double>(image_width) / static_cast<double>(image_height);
 
-    auto cam = Camera(Point3(0, 4.5, 0), Point3(0, 1.5, -8), Vector3(0, 1, 0),
+    auto cam = Camera(Point3(0, 4.5, -4), Point3(0, 2, -8), Vector3(0, 1, 0),
                       90.0, 1.0, aspect_ratio, image_width);
 
     auto skybox = make_shared<SkyBoxImage>("../images/skyboxes/skybox_1.ppm");
