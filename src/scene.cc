@@ -171,8 +171,8 @@ Scene Scene::createSimplexScene(int image_height, int image_width)
 Scene Scene::createDLAScene(int image_height, int image_width)
 {
     double sea_level = 0.1;
-    double xy_scale = 0.325; // 1.3 for 32x32 mesh, 0.65 for 64x64 mesh, 0.325 for 128x128 mesh
-    double strength = 6.5;
+    double xy_scale = 0.32; // 1.3 for 32x32 mesh, 0.65 for 64x64 mesh, 0.325 for 128x128 mesh
+    double strength = 6.0;
 
     // DLA::DLAGenerator generator = DLA::DLAGenerator(0.6, 0.5, 0.5, 10); // center of the graph is at 0.75, 0.75
 
