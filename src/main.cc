@@ -26,7 +26,7 @@ void showHelpMenu(char* argv[]) {
     std::cout << "  -o <output_filename>  Specify the path to the output file (default is images/output.ppm)" << std::endl;
     std::cout << "  -d <width>x<height>   Specify the dimensions of the output image (default is 720x480)" << std::endl;
     std::cout << "  -s <scene_type>       Specify the scene (available: test, simplex, DLA), (default is test)" << std::endl;
-    std::cout << "  -p                    Preview terrain heightmap only (available at images/heightmaps/heightmap_output.ppm)" << std::endl;
+    std::cout << "  -p                    Preview terrain heightmap only (available at images/heightmaps/)" << std::endl;
     std::cout << "  -h                    Show this help menu" << std::endl;
 }
 
