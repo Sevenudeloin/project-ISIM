@@ -168,11 +168,38 @@ Scene Scene::createSimplexScene(int image_height, int image_width)
     return Scene(cam, objs, lights, skybox, ambient_light, fog);
 }
 
+/**
+ * @brief Convolution of a grid with a square kernel, with odd length
+ * We skip the outermost pixels of the grid (border) to avoid out of bounds access
+ * -> works because we work with "island" shaped grids so we should not care about the borders
+ *
+ * @param[in, out] grid  grid to convolve
+ * @param[in] kernel     square kernel to use for the convolution
+ */
+void convolution(Heightmap& grid, const std::vector<std::vector<float>>& kernel) {
+    int kernel_size = kernel.size();
+    int kernel_center = std::floor(kernel_size / 2);
+
+    for (int y = kernel_center; y < grid.height_ - kernel_center; y++) {
+        for (int x = kernel_center; x < grid.width_ - kernel_center; x++) {
+            float new_value = 0.0f;
+
+            for (int i = 0; i < kernel_size; i++) {
+                for (int j = 0; j < kernel_size; j++) {
+                    new_value += kernel[i][j] * grid.at(y + i - kernel_center, x + j - kernel_center);
+                }
+            }
+
+            grid.set(y, x, new_value);
+        }
+    }
+}
+
 Scene Scene::createDLAScene(int image_height, int image_width)
 {
     double sea_level = 0.1;
-    double xy_scale = 0.32; // 1.3 for 32x32 mesh, 0.65 for 64x64 mesh, 0.325 for 128x128 mesh
-    double strength = 6.0;
+    double xy_scale = 0.16; // 1.28 for 32x32 mesh, 0.64 for 64x64 mesh, 0.32 for 128x128 mesh, ...
+    double strength = 2.5;
 
     // DLA::DLAGenerator generator = DLA::DLAGenerator(0.6, 0.5, 0.5, 10); // center of the graph is at 0.75, 0.75
 
@@ -184,30 +211,49 @@ Scene Scene::createDLAScene(int image_height, int image_width)
     // generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
 
     // FIXME remove this if need demo load already computed DLA heightmap
-    Heightmap upscaled_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_upscaled_flattened_2048_1.hmap");
+    Heightmap upscaled_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_upscaled_flattened_2048_2.hmap");
 
-    Heightmap base_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_base_flattened_128_1.hmap");
+    // Heightmap base_heightmap = Heightmap::readFromFile("../images/heightmaps/DLA_base_flattened_128_1.hmap");
 
-    // multiply every value from heightmaps by some factor and clamp them between 0 and 1
-    double multiply_factor = 1.5;
+    // preprocessing
 
-    for (int i = 0; i < upscaled_heightmap.height_; i++)
-    {
-        for (int j = 0; j < upscaled_heightmap.width_; j++)
-        {
-            upscaled_heightmap.set(i, j, upscaled_heightmap.at(i, j) * multiply_factor);
-        }
-    }
+    std::vector<std::vector<float>> gaussian_kernel_5x5 = {
+        { 1.0f / 273.0f, 4.0f / 273.0f, 7.0f / 273.0f, 4.0f / 273.0f, 1.0f / 273.0f },
+        { 4.0f / 273.0f, 16.0f / 273.0f, 26.0f / 273.0f, 16.0f / 273.0f, 4.0f / 273.0f },
+        { 7.0f / 273.0f, 26.0f / 273.0f, 41.0f / 273.0f, 26.0f / 273.0f, 7.0f / 273.0f },
+        { 4.0f / 273.0f, 16.0f / 273.0f, 26.0f / 273.0f, 16.0f / 273.0f, 4.0f / 273.0f },
+        { 1.0f / 273.0f, 4.0f / 273.0f, 7.0f / 273.0f, 4.0f / 273.0f, 1.0f / 273.0f }
+    };
+
+    // double multiply_factor = 1.2;
+
+    // for (int i = 0; i < upscaled_heightmap.height_; i++)
+    // {
+    //     for (int j = 0; j < upscaled_heightmap.width_; j++)
+    //     {
+    //         upscaled_heightmap.set(i, j, upscaled_heightmap.at(i, j) * multiply_factor);
+    //     }
+    // }
+    convolution(upscaled_heightmap, gaussian_kernel_5x5);
+    convolution(upscaled_heightmap, gaussian_kernel_5x5);
+    convolution(upscaled_heightmap, gaussian_kernel_5x5);
+    convolution(upscaled_heightmap, gaussian_kernel_5x5);
+    convolution(upscaled_heightmap, gaussian_kernel_5x5);
+    convolution(upscaled_heightmap, gaussian_kernel_5x5);
+    convolution(upscaled_heightmap, gaussian_kernel_5x5);
+    convolution(upscaled_heightmap, gaussian_kernel_5x5);
+    convolution(upscaled_heightmap, gaussian_kernel_5x5);
+    convolution(upscaled_heightmap, gaussian_kernel_5x5);
+    convolution(upscaled_heightmap, gaussian_kernel_5x5);
+    convolution(upscaled_heightmap, gaussian_kernel_5x5);
+    convolution(upscaled_heightmap, gaussian_kernel_5x5);
+    convolution(upscaled_heightmap, gaussian_kernel_5x5);
+    convolution(upscaled_heightmap, gaussian_kernel_5x5);
+    convolution(upscaled_heightmap, gaussian_kernel_5x5);
     upscaled_heightmap.minMaxNormalize();
 
-    for (int i = 0; i < base_heightmap.height_; i++)
-    {
-        for (int j = 0; j < base_heightmap.width_; j++)
-        {
-            base_heightmap.set(i, j, base_heightmap.at(i, j) * multiply_factor);
-        }
-    }
-    base_heightmap.minMaxNormalize();
+    // mesh
+    Heightmap base_heightmap = upscaled_heightmap.squareDownsample(256);
 
     // To preview the heightmaps
     Image2D base_img = Image2D(base_heightmap);
@@ -240,7 +286,7 @@ Scene Scene::createDLAScene(int image_height, int image_width)
     auto ocean_tex = make_shared<OceanTexture>(
         LocalTexture(
             ocean_color, 1.0, 0.35, 2, 0.0,
-            make_shared<ExponentialAbsorptionVolume>(ocean_color, 7.0, 1.5)),
+            make_shared<ExponentialAbsorptionVolume>(ocean_color, 10.0, 1.5)),
         ocean_normal_map, terrain, sea_level, Vector3(10.0, 3.0, 10.0));
 
     auto ocean = make_shared<Ocean>(0, ocean_tex);
@@ -258,7 +304,7 @@ Scene Scene::createDLAScene(int image_height, int image_width)
     double aspect_ratio =
         static_cast<double>(image_width) / static_cast<double>(image_height);
 
-    auto cam = Camera(Point3(0, 4.5, -4), Point3(0, 2, -8), Vector3(0, 1, 0),
+    auto cam = Camera(Point3(0, 6, 0), Point3(0, 1.5, -8.5), Vector3(0, 1, 0),
                       90.0, 1.0, aspect_ratio, image_width);
 
     auto skybox = make_shared<SkyBoxImage>("../images/skyboxes/skybox_1.ppm");
