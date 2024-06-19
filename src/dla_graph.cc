@@ -20,12 +20,8 @@ Graph::Graph() {
     nodes_list_.push_back(nullptr);
 }
 
-// float euclidianDistance(float y1, float x1, float y2, float x2) {
-//     return std::sqrt(std::pow(y1 - y2, 2) + std::pow(x1 - x2, 2));
-// }
-
 /**
- * @brief Check if there are graph nodes in a certain radius around given coordinates
+ * @brief Check if there are graph nodes in a certain radius around given coordinates.
  *
  * @param[in] y       y given coordinate
  * @param[in] x       x given coordinate
@@ -51,7 +47,7 @@ std::vector<int> Graph::getNodesAround(float y, float x, float radius) {
 /**
  * @brief Graph is undirected, so we add the edge to both nodes' adjacency list.
  *
- * @param edges_to_add  A vector of pairs of integers containing edges to add to the graph.
+ * @param[in] edges_to_add  A vector of pairs of integers containing edge labels to add to the graph.
  */
 void Graph::addEdges(const std::vector<std::array<int, 2>>& edges_to_add) {
     for (const auto& edge : edges_to_add) {
@@ -67,7 +63,7 @@ void Graph::addEdges(const std::vector<std::array<int, 2>>& edges_to_add) {
 /**
  * @brief Graph is undirected, so we remove the edge from both nodes' adjacency list.
  *
- * @param edges_to_remove  A vector of pairs of integers containing edges to remove from the graph.
+ * @param[in] edges_to_remove  A vector of pairs of integers containing edge labels to remove from the graph.
  */
 void Graph::removeEdges(const std::vector<std::array<int, 2>>& edges_to_remove) {
     for (const auto& edge : edges_to_remove) {
@@ -84,7 +80,7 @@ void Graph::removeEdges(const std::vector<std::array<int, 2>>& edges_to_remove) 
  * @brief Export the graph under the DOT format (.dot).
  * Can be exported to png using graphviz: `dot -Tpng graph.dot -o graph.png`
  *
- * @param filename  The name of the file to export the graph to.      
+ * @param[in] filename  The name of the file to export the graph to.      
  */
 void Graph::exportToDot(const std::string& filename) {
     std::ofstream file(filename);
@@ -104,6 +100,11 @@ void Graph::exportToDot(const std::string& filename) {
     file.close();
 }
 
+/**
+ * @brief Export the height of each graph node to a file.
+ *
+ * @param[in] filename  The name of the file to export the nodes' height to.
+ */
 void Graph::exportNodesHeight(const std::string& filename) {
     std::ofstream file(filename);
     if (!file.is_open()) {
