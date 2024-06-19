@@ -7,6 +7,12 @@
 #include "image2d.hh"
 #include "ppm_parser.hh"
 
+/**
+ * @brief Create a heightmap with the given width and height.
+ *
+ * @param[in] width   width of the heightmap
+ * @param[in] height  height of the heightmap
+ */
 Heightmap::Heightmap(int width, int height)
     : width_(width)
     , height_(height)
@@ -14,6 +20,11 @@ Heightmap::Heightmap(int width, int height)
     height_map_ = array2D(height, std::vector<float>(width, 0.0f));
 }
 
+/**
+ * @brief Create a heightmap from an Image2D object.
+ *
+ * @param[in] img  Image2D object to create the heightmap from
+ */
 Heightmap::Heightmap(Image2D &img)
     : width_(img.width_)
     , height_(img.height_)
@@ -30,6 +41,11 @@ Heightmap::Heightmap(Image2D &img)
     }
 }
 
+/**
+ * @brief Create a heightmap from a PPM file.
+ *
+ * @param[in] filename  name of the PPM file to read the heightmap from
+ */
 Heightmap::Heightmap(const std::string &filename)
 {
     PPMParser parser(filename);
@@ -40,16 +56,32 @@ Heightmap::Heightmap(const std::string &filename)
     *this = Heightmap(img);
 }
 
+/**
+ * @brief Get the value of a pixel in the heightmap with bounds checking.
+ *
+ * @param[in] y  y coordinate of the pixel
+ * @param[in] x  x coordinate of the pixel
+ */
 float Heightmap::at(int y, int x) const
 {
     return height_map_.at(y).at(x);
 }
 
+/**
+ * @brief Set the value of a pixel in the heightmap.
+ *
+ * @param[in] y      y coordinate of the pixel
+ * @param[in] x      x coordinate of the pixel
+ * @param[in] value  value to set
+ */
 void Heightmap::set(int y, int x, float value)
 {
     height_map_[y][x] = value;
 }
 
+/**
+ * @brief Normalize the heightmap values to [0, 1] using min-max normalization.   
+ */
 void Heightmap::minMaxNormalize() {
     float min = std::numeric_limits<float>::max();
     float max = std::numeric_limits<float>::min();
