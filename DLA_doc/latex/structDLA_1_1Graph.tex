@@ -1,0 +1,119 @@
+\hypertarget{structDLA_1_1Graph}{}\doxysection{DLA\+::Graph Struct Reference}
+\label{structDLA_1_1Graph}\index{DLA::Graph@{DLA::Graph}}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structDLA_1_1Graph_a1f357cc1fb32b03a797eefb040658f44}\label{structDLA_1_1Graph_a1f357cc1fb32b03a797eefb040658f44}} 
+using {\bfseries Adjacency\+List} = std\+::vector$<$ std\+::vector$<$ int $>$ $>$
+\item 
+\mbox{\Hypertarget{structDLA_1_1Graph_af644df488ccf282dbfedd5796c218434}\label{structDLA_1_1Graph_af644df488ccf282dbfedd5796c218434}} 
+using {\bfseries Nodes\+List} = std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{structDLA_1_1Node}{Node}} $>$ $>$
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structDLA_1_1Graph_a083f22f69b436b6d62d2dd48679466ba}\label{structDLA_1_1Graph_a083f22f69b436b6d62d2dd48679466ba}} 
+\mbox{\hyperlink{structDLA_1_1Graph_a083f22f69b436b6d62d2dd48679466ba}{Graph}} ()
+\begin{DoxyCompactList}\small\item\em Construct a new \mbox{\hyperlink{structDLA_1_1Graph}{Graph}} object. Add a dummy node at the beginning. \end{DoxyCompactList}\item 
+std\+::vector$<$ int $>$ \mbox{\hyperlink{structDLA_1_1Graph_ace2288ddbbb30b2c9bee3f15b40a4cba}{get\+Nodes\+Around}} (float y, float x, float radius)
+\begin{DoxyCompactList}\small\item\em Check if there are graph nodes in a certain radius around given coordinates. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{structDLA_1_1Graph_a1eade01b077596f4adcef875a0f7823c}{add\+Edges}} (const std\+::vector$<$ std\+::array$<$ int, 2 $>$$>$ \&edges\+\_\+to\+\_\+add)
+\item 
+void \mbox{\hyperlink{structDLA_1_1Graph_afaebdc327d6ef7df4e5ba321148f5c3d}{remove\+Edges}} (const std\+::vector$<$ std\+::array$<$ int, 2 $>$$>$ \&edges\+\_\+to\+\_\+remove)
+\item 
+void \mbox{\hyperlink{structDLA_1_1Graph_aa3e77cf6617d390c03df0bd47f3fa42a}{export\+To\+Dot}} (const std\+::string \&filename)
+\begin{DoxyCompactList}\small\item\em Export the graph under the DOT format (.dot). Can be exported to png using graphviz\+: {\ttfamily dot -\/Tpng graph.\+dot -\/o graph.\+png} \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{structDLA_1_1Graph_a36417d3d5226caa8c6d0e0d62fb3cb61}{export\+Nodes\+Height}} (const std\+::string \&filename)
+\begin{DoxyCompactList}\small\item\em Export the height of each graph node to a file. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structDLA_1_1Graph_ac5b5d4a6a6e26dbbfa2bdd52245b4cfa}\label{structDLA_1_1Graph_ac5b5d4a6a6e26dbbfa2bdd52245b4cfa}} 
+Adjacency\+List {\bfseries adjacency\+\_\+list\+\_\+}
+\item 
+\mbox{\Hypertarget{structDLA_1_1Graph_a62d94f4c05b2d71a77c4573d28b4bbbd}\label{structDLA_1_1Graph_a62d94f4c05b2d71a77c4573d28b4bbbd}} 
+Nodes\+List {\bfseries nodes\+\_\+list\+\_\+}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structDLA_1_1Graph_a1eade01b077596f4adcef875a0f7823c}\label{structDLA_1_1Graph_a1eade01b077596f4adcef875a0f7823c}} 
+\index{DLA::Graph@{DLA::Graph}!addEdges@{addEdges}}
+\index{addEdges@{addEdges}!DLA::Graph@{DLA::Graph}}
+\doxysubsubsection{\texorpdfstring{addEdges()}{addEdges()}}
+{\footnotesize\ttfamily void DLA\+::\+Graph\+::add\+Edges (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ std\+::array$<$ int, 2 $>$$>$ \&}]{edges\+\_\+to\+\_\+add }\end{DoxyParamCaption})}
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em edges\+\_\+to\+\_\+add} & A vector of pairs of integers containing edge labels to add to the graph. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{structDLA_1_1Graph_a36417d3d5226caa8c6d0e0d62fb3cb61}\label{structDLA_1_1Graph_a36417d3d5226caa8c6d0e0d62fb3cb61}} 
+\index{DLA::Graph@{DLA::Graph}!exportNodesHeight@{exportNodesHeight}}
+\index{exportNodesHeight@{exportNodesHeight}!DLA::Graph@{DLA::Graph}}
+\doxysubsubsection{\texorpdfstring{exportNodesHeight()}{exportNodesHeight()}}
+{\footnotesize\ttfamily void DLA\+::\+Graph\+::export\+Nodes\+Height (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{filename }\end{DoxyParamCaption})}
+
+
+
+Export the height of each graph node to a file. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em filename} & The name of the file to export the nodes\textquotesingle{} height to. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{structDLA_1_1Graph_aa3e77cf6617d390c03df0bd47f3fa42a}\label{structDLA_1_1Graph_aa3e77cf6617d390c03df0bd47f3fa42a}} 
+\index{DLA::Graph@{DLA::Graph}!exportToDot@{exportToDot}}
+\index{exportToDot@{exportToDot}!DLA::Graph@{DLA::Graph}}
+\doxysubsubsection{\texorpdfstring{exportToDot()}{exportToDot()}}
+{\footnotesize\ttfamily void DLA\+::\+Graph\+::export\+To\+Dot (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{filename }\end{DoxyParamCaption})}
+
+
+
+Export the graph under the DOT format (.dot). Can be exported to png using graphviz\+: {\ttfamily dot -\/Tpng graph.\+dot -\/o graph.\+png} 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em filename} & The name of the file to export the graph to. ~\newline
+ \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{structDLA_1_1Graph_ace2288ddbbb30b2c9bee3f15b40a4cba}\label{structDLA_1_1Graph_ace2288ddbbb30b2c9bee3f15b40a4cba}} 
+\index{DLA::Graph@{DLA::Graph}!getNodesAround@{getNodesAround}}
+\index{getNodesAround@{getNodesAround}!DLA::Graph@{DLA::Graph}}
+\doxysubsubsection{\texorpdfstring{getNodesAround()}{getNodesAround()}}
+{\footnotesize\ttfamily std\+::vector$<$int$>$ DLA\+::\+Graph\+::get\+Nodes\+Around (\begin{DoxyParamCaption}\item[{float}]{y,  }\item[{float}]{x,  }\item[{float}]{radius }\end{DoxyParamCaption})}
+
+
+
+Check if there are graph nodes in a certain radius around given coordinates. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em y} & y given coordinate \\
+\hline
+\mbox{\texttt{ in}}  & {\em x} & x given coordinate \\
+\hline
+\mbox{\texttt{ in}}  & {\em radius} & radius around the given coordinates\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+vector of node labels around the given coordinates, empty if none 
+\end{DoxyReturn}
+\mbox{\Hypertarget{structDLA_1_1Graph_afaebdc327d6ef7df4e5ba321148f5c3d}\label{structDLA_1_1Graph_afaebdc327d6ef7df4e5ba321148f5c3d}} 
+\index{DLA::Graph@{DLA::Graph}!removeEdges@{removeEdges}}
+\index{removeEdges@{removeEdges}!DLA::Graph@{DLA::Graph}}
+\doxysubsubsection{\texorpdfstring{removeEdges()}{removeEdges()}}
+{\footnotesize\ttfamily void DLA\+::\+Graph\+::remove\+Edges (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ std\+::array$<$ int, 2 $>$$>$ \&}]{edges\+\_\+to\+\_\+remove }\end{DoxyParamCaption})}
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em edges\+\_\+to\+\_\+remove} & A vector of pairs of integers containing edge labels to remove from the graph. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/seveny/\+IMAGE/\+ISIM/project-\/\+ISIM/src/dla\+\_\+graph.\+hh\end{DoxyCompactItemize}

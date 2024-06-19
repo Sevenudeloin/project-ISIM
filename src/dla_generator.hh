@@ -19,9 +19,9 @@ private:
     static std::uniform_real_distribution<float> real_dist_2pi_;
 
 public:
-    float density_threshold_; // grid density required to stop populating the grid
-    float graph_center_y_; // y ratio of the graph center (also first node) (0 < y < 1) (will be scaled to the current grid)
-    float graph_center_x_; // x ratio of the graph center (also first node) (0 < x < 1) (will be scaled to the current grid)
+    float density_threshold_; /**< grid density required to stop populating the grid */
+    float graph_center_y_; /**< y ratio of the graph center (also first node). [0, 1) */ 
+    float graph_center_x_; /**< x ratio of the graph center (also first node). [0, 1) */
 
     DLAGenerator();
     DLAGenerator(float density_threshold);
