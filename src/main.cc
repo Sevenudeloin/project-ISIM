@@ -30,6 +30,7 @@ void showHelpMenu(char* argv[]) {
     std::cout << "  -h                    Show this help menu" << std::endl;
 }
 
+/**/
 void tmpDLADebug() {
     std::cout << "Debug mode enabled" << std::endl;
     auto start = std::chrono::high_resolution_clock::now();
@@ -47,69 +48,6 @@ void tmpDLADebug() {
     Image2D test_image = Image2D(test);
     // test.minMaxNormalize();
     test_image.writePPM("../images/heightmaps/test.ppm", false);
-
-    // =====
-
-    // DLA::DLAGenerator generator = DLA::DLAGenerator(0.6, 0.5, 0.5, 10); 
-
-    // int upscaled_width = 512;
-    // Heightmap upscaled_heightmap(upscaled_width, upscaled_width);
-    // int base_width = 32;
-    // Heightmap base_heightmap(base_width, base_width);
-
-    // Heightmap upscaled_heightmap = generator.generateUpscaledHeightmap(upscaled_width);
-
-    // generator.generateHeightmaps(base_heightmap, upscaled_heightmap);
-
-    // Heightmap upscaled_heightmap_loaded = Heightmap::readFromFile("../images/DLA/DLA_upscaled_heightmap_9.hmap");
-
-    // Image2D upscaled_heightmap_image = Image2D(upscaled_heightmap_loaded);
-    // upscaled_heightmap_image.minMaxNormalize();
-    // upscaled_heightmap_image.writePPM("../images/DLA/DLA_upscaled_heightmap_loaded.ppm", false);
-
-    // =====
-
-    // int upscaled_width = 512;
-    // Heightmap test_1 = generator.generateUpscaledHeightmap(upscaled_width);
-    // test_1.save("../images/heightmaps/upscaled_heightmap_512_1.hmap");
-
-    // DLA::Graph graph;
-
-    // int width = 8;
-    // Heightmap grid = Heightmap(width, width);
-
-    // // Add first pixel to the grid (also first real node of the graph) 
-
-    // int node_label = graph.nodes_list_.size(); // should be 1 (first actual node)
-    // graph.nodes_list_.push_back(std::make_shared<DLA::Node>(node_label, 4, 4, -1.0f));
-    // graph.adjacency_list_.push_back({});
-
-    // generator.populateGraph(width, graph);
-    // generator.setGraphHeightValues(graph);
-
-    // float density = static_cast<float>(graph.nodes_list_.size() - 1) / (grid.height_ * grid.width_);
-    // std::cout << "Density: " << density << std::endl;
-    // std::cout << graph.nodes_list_.size() << " nodes in the graph" << std::endl; // + 1 because of the dummy node
-    // std::cout << graph.adjacency_list_.size() << " adjacency lists" << std::endl; // + 1 because of the dummy node
-
-    // graph.exportToDot("../images/DLA/DLA_graph.dot");
-
-    // Heightmap graph_heightmap = generator.graphToHeightmap(width, graph);
-
-    // for (int i = 0; i < graph_heightmap.height_; i++)
-    // {
-    //     for (int j = 0; j < graph_heightmap.width_; j++)
-    //     {
-    //         if (graph_heightmap.at(i, j) > 0.f)
-    //         {
-    //             std::cout << "Value " << graph_heightmap.at(i, j) << " at (" << i << ", " << j << ")" << std::endl;
-    //         }
-    //     }
-    // }
-
-    // Image2D graph_heightmap_image = Image2D(graph_heightmap);
-    // graph_heightmap_image.minMaxNormalize();
-    // graph_heightmap_image.writePPM("../images/DLA/DLA_graph_heightmap.ppm", false);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end - start;

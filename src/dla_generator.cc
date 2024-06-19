@@ -19,7 +19,7 @@
 #include "image2d.hh"
 
 // Implementation of DLA Algorithm (intuition from https://youtu.be/gsJHzBTPG0Y?si=jipP7Z0xBVCW3Ip6):
-// algorithm bounded to CPU (but we dont care)
+// algorithm bounded to CPU by nature (but we dont care)
 
 namespace DLA {
 
@@ -82,22 +82,6 @@ std::array<float, 2> DLAGenerator::getRandom2DPixelCoordinates(int width, int he
 
     return { height_pos, width_pos };
 }
-
-// float euclidianDistance(float y1, float x1, float y2, float x2) {
-//     return std::sqrt(std::pow(y1 - y2, 2) + std::pow(x1 - x2, 2));
-// }
-
-// /**
-//  * @brief Convert polar coordinates to cartesian coordinates
-//  *
-//  * @param[in] r      radius
-//  * @param[in] theta  angle in radians
-//  *
-//  * @return cartesian coordinates { y, x }
-//  */
-// std::array<float, 2> polarToCartesian(float r, float theta) {
-//     return { r * std::sin(theta), r * std::cos(theta) };
-// }
 
 /**
  * @brief Add nodes to the graph until a certain density threshold is reached. Nodes are spawned randomly and
@@ -584,10 +568,10 @@ Heightmap DLAGenerator::graphToHeightmap(int width, const Graph& graph) {
  *      - a blurry one
  *      - a crisp one
  *      
- *      Add more detail to the crisp one
+ *      Add more detail to the crisp one using the DLA graph
  *      Use populated crisp image to add the new detail to the blurry version
  *
- * @param width  width of the final square heightmap (FOR NOW CHOOSE A POWER OF 2 (minimum will be 2^4 anyway))
+ * @param[in] width  width of the final square heightmap (FOR NOW CHOOSE A POWER OF 2 (minimum will be 2^4 anyway))
  *
  * @return high resolution square heightmap representing a terrain (mountains)
  */
@@ -627,9 +611,8 @@ Heightmap DLAGenerator::generateUpscaledHeightmap(int width) {
         high_res_blurry_grid = upscaleBlurryGrid(low_res_blurry_grid);
         addHeightToBlurryGrid(high_res_blurry_grid, graph);
 
-        // TODO DELETE only for debug
+        // save heightmap for each iteration
         high_res_blurry_grid.writeToFile("../images/DLA/DLA_upscaled_heightmap_" + std::to_string(power_of_two + 1) + ".hmap");
-        // TODO DELETE END
 
         // loop management
 
