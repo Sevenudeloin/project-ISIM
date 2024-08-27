@@ -17,6 +17,8 @@ Algorithm concept by Josh's Channel : ![Better Mountain Generators That Aren't P
 
 Diffusion-limited aggregation (DLA) is a natural phenomenon that can be replicated algorithmically, which looks like this:
 
+<img src="https://github.com/user-attachments/assets/a06d2dc5-ef2f-46d4-b766-078c314a2299" alt="drawing" width="200">
+
 ![DLA_Cluster](https://github.com/user-attachments/assets/a06d2dc5-ef2f-46d4-b766-078c314a2299)
 *Source: ![Wikipedia](https://en.wikipedia.org/wiki/Diffusion-limited_aggregation)*
 
