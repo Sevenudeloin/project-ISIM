@@ -17,9 +17,8 @@ Algorithm concept by Josh's Channel : ![Better Mountain Generators That Aren't P
 
 Diffusion-limited aggregation (DLA) is a natural phenomenon that can be replicated algorithmically, which looks like this:
 
-<img src="https://github.com/user-attachments/assets/a06d2dc5-ef2f-46d4-b766-078c314a2299" alt="drawing" width="200">
+<img src="https://github.com/user-attachments/assets/a06d2dc5-ef2f-46d4-b766-078c314a2299" alt="drawing" width="512">
 
-![DLA_Cluster](https://github.com/user-attachments/assets/a06d2dc5-ef2f-46d4-b766-078c314a2299)
 *Source: ![Wikipedia](https://en.wikipedia.org/wiki/Diffusion-limited_aggregation)*
 
 The goal is to create a heightmap using this algorithm, which representents the terrain we want to render. This approach removes
@@ -34,9 +33,11 @@ and check for yourself, i am open to all kinds of feedback (you can go on my pro
 Here are some heightmaps generated with the DLA algorithm:
 
 ![DLA_heightmap_1](https://github.com/user-attachments/assets/d2662206-c5c2-476e-b00f-15316c336196)
+
 *512x512, ~5h runtime, (density: 80%, center: middle)​*
 
 ![DLA_heightmap_2](https://github.com/user-attachments/assets/fa21d2c2-dd7c-4e0e-8677-7ad046380c62)
+
 *512x512, ~18h runtime, (density: 35%, center: down-right)​*
 
 As you can tell, the main pain point of this algorithm is its runtime. It increases exponentially and stops being viable around
