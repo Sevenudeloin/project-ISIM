@@ -2,12 +2,38 @@
 
 Implementation of DLA algorithm for procedural terrain generation and realistic rendering based on raytracing, in C++.
 
-Project by @oscarmorand and @Sevenudeloin as part of the final project in an introductory course to image synthesis.
+Project by Oscar Morand and Ewan Lemonnier as part of the final project in an introductory course to image synthesis.
 
-## DLA for procedural terrain generation
+## Final results
 
-Algorithm concept by Josh's Channel : ![Better Mountain Generators That Aren't Perlin Noise or Erosion](https://youtu.be/gsJHzBTPG0Y).
-
-## Procedural generation + rendering
-
+DLA algorithm + rendering:
 ![rendu_final_2](https://github.com/user-attachments/assets/57690187-c571-404b-88d7-d28bd06e7a10)
+
+*TODO add more images and caption accordingly*
+
+## DLA for procedural terrain generation (Ewan Lemonnier)
+
+Algorithm concept by Josh's Channel : ![Better Mountain Generators That Aren't Perlin Noise or Erosion](https://youtu.be/gsJHzBTPG0Y). (09:27)
+
+Domain Limited Aggregation (DLA) is a natural phenomenon that can be replicated algorithmically, which looks like this:
+*TODO image from presentation (source wikipedia)*
+
+The goal is to create a heightmap using this algorithm, which representents the terrain we want to render. This approach removes
+the need to use noise for procedural generation, setting it apart from the traditional method.
+
+The aforementioned video presents a nice visualization of how the algorithm works (at 12:04), and is highly recommended to fully
+understand the proposed implementation.
+
+The code is available in the files with the prefix ``dla_`` in the ``src/`` directory and they are commented! Feel free to take a look
+and check for yourself, i am open to all kinds of feedback (you can go on my profile to get my email address).
+
+Here are some heightmaps generated with the DLA algorithm:
+
+*TODO add heightmaps from presentation with caption*
+
+As you can tell, the main pain point of this algorithm is its runtime. It increases exponentially and stops being viable around
+1024x1024 on my machine. The algorithm is bounded to CPU by nature, so optimizations are possible there, but it is not portable
+to the GPU. 
+
+These are still some amazing results in my opinion, and i am glad to have experimented with other ways to make procedural terrain
+generation!
