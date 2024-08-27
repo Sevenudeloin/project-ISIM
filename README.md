@@ -15,8 +15,10 @@ DLA algorithm + rendering:
 
 Algorithm concept by Josh's Channel : ![Better Mountain Generators That Aren't Perlin Noise or Erosion](https://youtu.be/gsJHzBTPG0Y). (09:27)
 
-Domain Limited Aggregation (DLA) is a natural phenomenon that can be replicated algorithmically, which looks like this:
-*TODO image from presentation (source wikipedia)*
+Diffusion-limited aggregation (DLA) is a natural phenomenon that can be replicated algorithmically, which looks like this:
+
+![DLA_Cluster](https://github.com/user-attachments/assets/a06d2dc5-ef2f-46d4-b766-078c314a2299)
+*Source: ![Wikipedia](https://en.wikipedia.org/wiki/Diffusion-limited_aggregation)*
 
 The goal is to create a heightmap using this algorithm, which representents the terrain we want to render. This approach removes
 the need to use noise for procedural generation, setting it apart from the traditional method.
@@ -29,7 +31,11 @@ and check for yourself, i am open to all kinds of feedback (you can go on my pro
 
 Here are some heightmaps generated with the DLA algorithm:
 
-*TODO add heightmaps from presentation with caption*
+![DLA_heightmap_1](https://github.com/user-attachments/assets/d2662206-c5c2-476e-b00f-15316c336196)
+*512x512, ~5h runtime, (density: 80%, center: middle)​*
+
+![DLA_heightmap_2](https://github.com/user-attachments/assets/fa21d2c2-dd7c-4e0e-8677-7ad046380c62)
+*512x512, ~18h runtime, (density: 35%, center: down-right)​*
 
 As you can tell, the main pain point of this algorithm is its runtime. It increases exponentially and stops being viable around
 1024x1024 on my machine. The algorithm is bounded to CPU by nature, so optimizations are possible there, but it is not portable
