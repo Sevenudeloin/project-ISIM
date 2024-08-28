@@ -3,7 +3,7 @@
 Implementation of diffusion-limited aggregation (DLA) for procedural terrain generation and realistic rendering
 based on raytracing, in C++.
 
-Project by Oscar Morand and Ewan Lemonnier as part of the final project in an introductory course to image synthesis.
+Project by Oscar Morand and Ewan Lemonnier as part of the final assignment in an introductory course to image synthesis.
 
 ## Final results
 
