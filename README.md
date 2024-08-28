@@ -1,6 +1,7 @@
 # DLA meets Raytracing
 
-Implementation of DLA algorithm for procedural terrain generation and realistic rendering based on raytracing, in C++.
+Implementation of Diffusion-limited aggregation (DLA) algorithm for procedural terrain generation and realistic
+rendering based on raytracing, in C++.
 
 Project by Oscar Morand and Ewan Lemonnier as part of the final project in an introductory course to image synthesis.
 
