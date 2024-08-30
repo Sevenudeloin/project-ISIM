@@ -7,10 +7,13 @@ Project by Oscar Morand and Ewan Lemonnier as part of the final assignment in an
 
 ## Final results
 
-DLA algorithm + rendering:
+Rendering a heightmap generated using our DLA algorithm:
 ![rendu_final_2](https://github.com/user-attachments/assets/57690187-c571-404b-88d7-d28bd06e7a10)
 
-*TODO add more images and caption accordingly*
+Rendering external heightmaps:
+![redering_only_1](https://github.com/user-attachments/assets/4cdae9f9-fadb-42a1-99ad-b449e289e41a)
+
+![rendering_only_2](https://github.com/user-attachments/assets/e5ede2eb-3612-42c8-9f55-5336074c80cf)
 
 ## DLA for procedural terrain generation (Ewan Lemonnier)
 
